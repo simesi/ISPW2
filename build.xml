@@ -3,13 +3,13 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Milestone 1">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Milestone1">
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../eclipse/"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
-    <path id="Milestone 1.classpath">
+    <path id="Milestone1.classpath">
         <pathelement location="bin"/>
         <pathelement location="../../Java/jdk1.8.0_141/lib/java-json.jar"/>
     </path>
@@ -31,7 +31,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="Milestone 1.classpath"/>
+            <classpath refid="Milestone1.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
@@ -48,9 +48,9 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="RetrieveFixedBugs">
+    <target name="RetrieveFixedBugs (1)">
         <java classname="RetrieveFixedBugs" failonerror="true" fork="yes">
-            <classpath refid="Milestone 1.classpath"/>
+            <classpath refid="Milestone1.classpath"/>
         </java>
     </target>
 </project>
