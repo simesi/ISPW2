@@ -208,7 +208,7 @@ public class RetrieveFixedBugs {
 
 	private static void writeCSV(Map<String,Integer> map) {
 
-		final String[] header = new String[] { "years", "bugs resolved"};
+		final String[] header = new String[] { "years", "bugs fixed"};
 
 		FileWriter writer;
 
