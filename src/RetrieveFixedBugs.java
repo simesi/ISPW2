@@ -217,7 +217,7 @@ public class RetrieveFixedBugs {
 			
 			writer.write(header[0]);
 			writer.write(",");
-			writer.write(header[1]);
+			writer.write(header[1]); 
 			writer.write("\r\n");
 			
 			// Get each keys and values and write on file
