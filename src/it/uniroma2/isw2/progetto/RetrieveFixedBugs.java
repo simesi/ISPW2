@@ -246,7 +246,9 @@ public class RetrieveFixedBugs {
 
 
 
-		Integer j = 0, i = 0, total = 1;
+		Integer j = 0;
+		Integer i = 0;
+		Integer total = 1;
 		ArrayList<String> ticketIDList;
 		//Get JSON API for closed bugs w/ AV in the project
 		do {
@@ -266,8 +268,8 @@ public class RetrieveFixedBugs {
 			//ci si prende il numero totale di ticket recuperati
 			total = json.getInt("total");
 
-			ticketIDList= new ArrayList<String>();
-			yearsList= new ArrayList<String>();
+			ticketIDList= new ArrayList<>();
+			yearsList= new ArrayList<>();
 			// si itera sul numero di ticket
 			for (; i < total && i < j; i++) {
 
