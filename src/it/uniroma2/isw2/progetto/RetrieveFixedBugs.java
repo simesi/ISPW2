@@ -209,7 +209,7 @@ public class RetrieveFixedBugs {
 	private static void writeCSV(Map<String,Integer> map) {
 
 		final String[] header = new String[] { "years", "bugs fixed"};
-		System.out.println(CSV_PATH); 
+		
 
 		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
 			//True = Append to file, false = Overwrite
@@ -231,7 +231,6 @@ public class RetrieveFixedBugs {
 			}
 			writer.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.print("Errore alla scrittura sul file CSV ");
 			System.exit(-1);
