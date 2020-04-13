@@ -311,10 +311,6 @@ public class RetrieveFixedBugs {
 			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
 		}
 
-
-		//System.out.println(yearsList);
-		//System.out.println(map);
-
 		writeCSV(map);
 		System.out.println("Finito");
 
