@@ -108,7 +108,7 @@ public class RetrieveFixedBugs {
 	
 		if (!Files.exists(directory)) {
 
-			throw new RuntimeException("can't run command in non-existing directory '" + directory + "'");
+			throw new SecurityException("can't run command in non-existing directory '" + directory + "'");
 
 		}
 
