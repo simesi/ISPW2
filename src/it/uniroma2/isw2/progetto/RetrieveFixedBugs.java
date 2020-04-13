@@ -74,10 +74,12 @@ public class RetrieveFixedBugs {
 		InputStream is = new URL(url).openStream();
 		try(BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 			String jsonText = readAll(rd);
-			return  (json = new JSONObject(jsonText));
+			  json = new JSONObject(jsonText);
+			  
 		} finally {
 			is.close();
 		}
+		return json;
 	}
 
 	//questo metodo fa il 'git clone' della repository (necessario per poter ricavare successivamente il log dei commit)   
@@ -103,7 +105,7 @@ public class RetrieveFixedBugs {
 	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
 
 		Objects.requireNonNull(directory, "directory è NULL");
-		//System.out.println(command[2]);
+	
 		if (!Files.exists(directory)) {
 
 			throw new RuntimeException("can't run command in non-existing directory '" + directory + "'");
