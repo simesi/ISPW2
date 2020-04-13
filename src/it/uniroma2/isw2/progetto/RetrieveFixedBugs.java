@@ -91,11 +91,11 @@ public class RetrieveFixedBugs {
 
 	}
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
-	private static void gitLog(String ID) throws IOException, InterruptedException{
+	private static void gitLog(String id) throws IOException, InterruptedException{
 
 		Path directory = Paths.get(CLONED_PROJECT_FOLDER);
 
-		runCommand(directory, "git", "log", "--grep="+ID+":", "-1",
+		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
 
 
