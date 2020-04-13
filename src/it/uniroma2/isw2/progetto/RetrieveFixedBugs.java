@@ -52,12 +52,13 @@ public class RetrieveFixedBugs {
 	private static final String PROJECT_NAME ="MAHOUT";
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
-	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\data.csv";
-
-
+	
+	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
+    private static final boolean COLLECT_DATA_AS_YEARS = true; 
+	
 	private static ArrayList<String> yearsList;
-	private static boolean counting=false;
+	private static boolean storeData=false;
 
 
 
@@ -106,7 +107,7 @@ public class RetrieveFixedBugs {
 	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
 
 		Objects.requireNonNull(directory, "directory è NULL");
-
+        
 		if (!Files.exists(directory)) {
 
 			throw new SecurityException("can't run command in non-existing directory '" + directory + "'");
@@ -164,7 +165,7 @@ public class RetrieveFixedBugs {
 				String line;
 
 				while ((line = br.readLine()) != null) {
-					if(counting)
+					if(storeData)
 						yearsList.add(line.substring(0, 4));
 				}
 
@@ -284,13 +285,13 @@ public class RetrieveFixedBugs {
 		
 		String myID;
 
-		//cancellazione preventiva della directory locale del progetto   
+		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(CLONED_PROJECT_FOLDER));
 		try {
 			gitClone();	
 
 			//abilito il salvataggio dei valori dalla riga di output del processo che eseguirà il git log
-			counting=true;
+			storeData=true;
 			for ( i = 0; i < ticketIDList.size(); i++) {
 				myID=ticketIDList.get(i);
 				gitLog(myID);
@@ -301,19 +302,19 @@ public class RetrieveFixedBugs {
 			System.exit(-1);
 		}
 		finally {
-			//cancellazione directory locale del progetto   
+			//cancellazione directory clonata locale del progetto   
 			recursiveDelete(new File(CLONED_PROJECT_FOLDER));
 		}
 		Map<String, Integer> map = new HashMap<>();
 
+		if (COLLECT_DATA_AS_YEARS) {
 		//popolamento map avente come chiave l'anno e come value il numero di bug risolti
 		for(i=0;i<yearsList.size();i++) {
 			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
 		}
-
 		writeCSV(map);
 		System.out.println("Finito");
-
+		}
 	}
 
 
