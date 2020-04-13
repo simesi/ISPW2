@@ -260,7 +260,7 @@ public class RetrieveFixedBugs {
 					+ "&fields=key,resolutiondate,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 
-			
+
 			JSONObject json = readJsonFromUrl(url);
 			JSONArray issues = json.getJSONArray("issues");
 			//ci si prende il numero totale di ticket recuperati
@@ -305,7 +305,7 @@ public class RetrieveFixedBugs {
 			//cancellazione directory locale del progetto   
 			recursiveDelete(new File(CLONED_PROJECT_FOLDER));
 		}
-		Map<String, Integer> map = new HashMap<String,Integer>();
+		Map<String, Integer> map = new HashMap<>();
 
 		//popolamento map avente come chiave l'anno e come value il numero di bug risolti
 		for(i=0;i<yearsList.size();i++) {
@@ -318,7 +318,7 @@ public class RetrieveFixedBugs {
 
 		writeCSV(map);
 		System.out.println("Finito");
-		return;
+
 	}
 
 
