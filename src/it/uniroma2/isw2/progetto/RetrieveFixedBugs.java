@@ -231,7 +231,6 @@ public class RetrieveFixedBugs {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.print("Errore alla scrittura sul file CSV ");
 			System.exit(-1);
 		}  
 
@@ -261,8 +260,7 @@ public class RetrieveFixedBugs {
 					+ "&fields=key,resolutiondate,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 
-			//System.out.println(url);
-
+			
 			JSONObject json = readJsonFromUrl(url);
 			JSONArray issues = json.getJSONArray("issues");
 			//ci si prende il numero totale di ticket recuperati
