@@ -51,7 +51,7 @@ public class RetrieveFixedBugs {
 	private static String localPath;
 	private static final String PROJECT_NAME ="MAHOUT";
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
-	private static final String CLONED_PROJECT_FOLDER = localPath+PROJECT_NAME;
+	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
 	private static final String CSV_PATH = "c:\\Users\\simone\\Desktop\\data.csv";
 	
@@ -86,16 +86,17 @@ public class RetrieveFixedBugs {
 	private static void gitClone() throws IOException, InterruptedException {
 
 		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
+		
 		//percorso dove salvare la directory in locale
-		Path directory = Paths.get(localPath+PROJECT_NAME);
-
+		Path directory = Paths.get(CLONED_PROJECT_FOLDER);
+ System.out.println(directory);
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
 	}
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
 	private static void gitLog(String ID) throws IOException, InterruptedException{
 
-		Path directory = Paths.get(localPath+PROJECT_NAME);
+		Path directory = Paths.get(CLONED_PROJECT_FOLDER);
 
 		runCommand(directory, "git", "log", "--grep="+ID+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -104,7 +105,7 @@ public class RetrieveFixedBugs {
 	}
 	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
 
-		Objects.requireNonNull(directory, "directory");
+		Objects.requireNonNull(directory, "directory è NULL");
 		//System.out.println(command[2]);
 		if (!Files.exists(directory)) {
 
@@ -240,9 +241,8 @@ public class RetrieveFixedBugs {
 
 	public static void main(String[] args) throws IOException, JSONException {
 
-		// This give me the localPath of the application where it is installed
-		localPath = new File("").getAbsolutePath();
-		System.out.println(localPath);
+	
+		
 		
 		Integer j = 0, i = 0, total = 1;
 		ArrayList<String> ticketIDList;
@@ -288,6 +288,7 @@ public class RetrieveFixedBugs {
 
 		try {
 			gitClone();	
+			System.out.print("Arrivato fino a dopo il clone ");
 			//abilito il salvataggio dei valori dalla riga di output del processo che eseguirà il git log
 			counting=true;
 			for ( i = 0; i < ticketIDList.size(); i++) {
