@@ -122,9 +122,9 @@ public class RetrieveFixedBugs {
 		//nella working directory fornita. 
 		Process p = pb.start();
 
-		StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream(), "ERROR");
+		StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream());
 
-		StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream(), "OUTPUT");
+		StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream());
 
 		outputGobbler.start();
 
@@ -148,7 +148,7 @@ public class RetrieveFixedBugs {
 
 		private final InputStream is;
 
-		private StreamGobbler(InputStream is, String type) {
+		private StreamGobbler(InputStream is) {
 
 			this.is = is;
 
