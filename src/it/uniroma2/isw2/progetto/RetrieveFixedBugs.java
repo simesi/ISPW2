@@ -273,18 +273,16 @@ public class RetrieveFixedBugs {
 			// si itera sul numero di ticket
 			for (; i < total && i < j; i++) {
 
-				//String data = issues.getJSONObject(i%1000).getJSONObject("fields").get("resolutiondate").toString();
 				String key = issues.getJSONObject(i%1000).get("key").toString();
 
-				//System.out.println(/*data+" "+*/key);
 
 				ticketIDList.add(key);
 
 			}  
 		} while (i < total);
 
-		//System.out.println(ticketIDList);
-		String myID= new String();
+		
+		String myID;
 
 		//cancellazione preventiva della directory locale del progetto   
 		recursiveDelete(new File(CLONED_PROJECT_FOLDER));
