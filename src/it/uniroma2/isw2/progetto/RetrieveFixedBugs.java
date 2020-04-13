@@ -48,7 +48,6 @@ import java.io.FileWriter;
  */
 public class RetrieveFixedBugs {
 
-	private static String localPath;
 	private static final String PROJECT_NAME ="MAHOUT";
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
@@ -58,9 +57,9 @@ public class RetrieveFixedBugs {
     
 	private static ArrayList<String> yearsList;
 	private static boolean counting=false;
-	private static Map<String, Integer> map;
-
-
+	
+	
+	
 	private static String readAll(Reader rd) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		int cp;
@@ -303,7 +302,7 @@ public class RetrieveFixedBugs {
 			//cancellazione directory locale del progetto   
 			recursiveDelete(new File(CLONED_PROJECT_FOLDER));
 		}
-		map = new HashMap<String,Integer>();
+		Map<String, Integer> map = new HashMap<String,Integer>();
 
 		//popolamento map avente come chiave l'anno e come value il numero di bug risolti
 		for(i=0;i<yearsList.size();i++) {
