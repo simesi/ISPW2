@@ -48,10 +48,10 @@ import java.io.FileWriter;
  */
 public class RetrieveFixedBugs {
 
-	private static final String projName ="MAHOUT";
-	private static final String projNameGit ="apache/mahout.git";
-	private static final String folder = "c:\\temp\\"+projName;
-	private static final int yearsInterval=18; //range degli anni passati su cui cercare
+	private static final String PROJECTNAME ="MAHOUT";
+	private static final String PROJECTNAMEGIT ="apache/mahout.git";
+	private static final String FOLDER = "c:\\temp\\"+PROJECTNAME;
+	private static final int YEARS_INTERVAL=18; //range degli anni passati su cui cercare
 	private static final String csvPath = "c:\\Users\\simone\\Desktop\\data.csv";
 
 	private static ArrayList<String> ticketIDList;
@@ -84,9 +84,9 @@ public class RetrieveFixedBugs {
 	//questo metodo fa il 'git clone' della repository (necessario per poter ricavare successivamente il log dei commit)   
 	private static void gitClone() throws IOException, InterruptedException {
 
-		String originUrl = "https://github.com/"+projNameGit;
+		String originUrl = "https://github.com/"+PROJECTNAMEGIT;
 		//percorso dove salvare la directory in locale
-		Path directory = Paths.get("c:\\temp\\"+projName);
+		Path directory = Paths.get("c:\\temp\\"+PROJECTNAME);
 
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
@@ -94,7 +94,7 @@ public class RetrieveFixedBugs {
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
 	private static void gitLog(String ID) throws IOException, InterruptedException{
 
-		Path directory = Paths.get("c:\\temp\\"+projName);
+		Path directory = Paths.get("c:\\temp\\"+PROJECTNAME);
 
 		runCommand(directory, "git", "log", "--grep="+ID+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -178,7 +178,7 @@ public class RetrieveFixedBugs {
 
 	/*
 	  Java isn't able to delete folders with data in it. We have to delete
-	     all files before deleting the folder.This utility class is used to delete 
+	     all files before deleting the FOLDER.This utility class is used to delete 
 	  folders recursively in java.*/
 
 	public static void recursiveDelete(File file) {
@@ -247,8 +247,8 @@ public class RetrieveFixedBugs {
 
 			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
 			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-					+ projName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+yearsInterval+")"
+					+ PROJECTNAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,resolutiondate,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 
@@ -278,7 +278,7 @@ public class RetrieveFixedBugs {
 		String myID= new String();
 
 		//cancellazione preventiva della directory locale del progetto   
-		recursiveDelete(new File(folder));
+		recursiveDelete(new File(FOLDER));
 
 		try {
 			gitClone();	
@@ -296,7 +296,7 @@ public class RetrieveFixedBugs {
 		}
 		finally {
 			//cancellazione directory locale del progetto   
-			recursiveDelete(new File(folder));
+			recursiveDelete(new File(FOLDER));
 		}
 		map = new HashMap<String,Integer>();
 
