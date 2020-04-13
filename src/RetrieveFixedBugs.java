@@ -210,10 +210,10 @@ public class RetrieveFixedBugs {
 
 		final String[] header = new String[] { "years", "bugs fixed"};
 
-		FileWriter writer;
+		//FileWriter writer;
 
-		try {
-			writer = new FileWriter(csvPath, false);//True = Append to file, false = Overwrite
+		try (FileWriter writer = new FileWriter(csvPath, false)){
+			//True = Append to file, false = Overwrite
 			
 			writer.write(header[0]);
 			writer.write(",");
@@ -230,12 +230,13 @@ public class RetrieveFixedBugs {
 				writer.write(String.valueOf(i));
 				writer.write("\r\n");
 				}
-					writer.close();
-		} catch (IOException e) {
+			writer.close();
+				  } catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  
-
+		
+		}
 
 		
 		
