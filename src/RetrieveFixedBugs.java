@@ -236,7 +236,7 @@ public class RetrieveFixedBugs {
 			e.printStackTrace();
 		}  
 		
-		}
+		
 
 		
 		
