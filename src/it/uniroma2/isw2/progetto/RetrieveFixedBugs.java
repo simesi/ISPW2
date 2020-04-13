@@ -12,10 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -198,11 +196,10 @@ public class RetrieveFixedBugs {
 		}
 		//call delete to delete files and empty directory
 		try {
+			//disabling Read Only property of the file to be deleted resolves the issue triggered by Files.delete
 			Files.setAttribute(file.toPath(), "dos:readonly", false);
 			Files.deleteIfExists(file.toPath());
-			//file.delete();
 		} catch (IOException| InvalidPathException e) {
-			System.out.println("Errore alla cancellazione del file "+CLONED_PROJECT_FOLDER);
 			e.printStackTrace();
 			System.exit(-1);
 		}
