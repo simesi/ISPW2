@@ -53,10 +53,10 @@ public class RetrieveFixedBugs {
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\data.csv";
-	
-	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
-    private static final boolean COLLECT_DATA_AS_YEARS = true; 
-	
+
+	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare
+	private static final boolean COLLECT_DATA_AS_YEARS = false; 
+
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
 
@@ -107,7 +107,7 @@ public class RetrieveFixedBugs {
 	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
 
 		Objects.requireNonNull(directory, "directory è NULL");
-        
+
 		if (!Files.exists(directory)) {
 
 			throw new SecurityException("can't run command in non-existing directory '" + directory + "'");
@@ -166,7 +166,13 @@ public class RetrieveFixedBugs {
 
 				while ((line = br.readLine()) != null) {
 					if(storeData)
-						yearsList.add(line.substring(0, 4));
+						if(COLLECT_DATA_AS_YEARS) {
+							//get only year
+							yearsList.add(line.substring(0, 4));
+						} else {
+							//get month and year
+							yearsList.add(line.substring(0, 7));
+						}
 				}
 
 			} catch (IOException ioe) {
@@ -208,9 +214,12 @@ public class RetrieveFixedBugs {
 
 
 	private static void writeCSV(Map<String,Integer> map) {
-
-		final String[] header = new String[] { "years", "bugs fixed"};
-
+		String[] header;
+		if(COLLECT_DATA_AS_YEARS) {
+			header = new String[] { "years", "bugs fixed"};
+		} else {
+			header = new String[] { "years-month", "bugs fixed"};
+		}
 
 		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
 			//True = Append to file, false = Overwrite
@@ -282,7 +291,7 @@ public class RetrieveFixedBugs {
 			}  
 		} while (i < total);
 
-		
+
 		String myID;
 
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
@@ -307,14 +316,15 @@ public class RetrieveFixedBugs {
 		}
 		Map<String, Integer> map = new HashMap<>();
 
-		if (COLLECT_DATA_AS_YEARS) {
-		//popolamento map avente come chiave l'anno e come value il numero di bug risolti
+
+		//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
 		for(i=0;i<yearsList.size();i++) {
 			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
 		}
 		writeCSV(map);
 		System.out.println("Finito");
-		}
+
+
 	}
 
 
