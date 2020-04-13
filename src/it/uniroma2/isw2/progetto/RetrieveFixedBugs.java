@@ -53,13 +53,13 @@ public class RetrieveFixedBugs {
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\data.csv";
-	
-    
+
+
 	private static ArrayList<String> yearsList;
 	private static boolean counting=false;
-	
-	
-	
+
+
+
 	private static String readAll(Reader rd) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		int cp;
@@ -75,7 +75,6 @@ public class RetrieveFixedBugs {
 		try(BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 			String jsonText = readAll(rd);
 			return  (json = new JSONObject(jsonText));
-			//return json;
 		} finally {
 			is.close();
 		}
@@ -85,7 +84,7 @@ public class RetrieveFixedBugs {
 	private static void gitClone() throws IOException, InterruptedException {
 
 		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
-		
+
 		//percorso dove salvare la directory in locale
 		Path directory = Paths.get(CLONED_PROJECT_FOLDER);
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
@@ -202,45 +201,45 @@ public class RetrieveFixedBugs {
 
 		final String[] header = new String[] { "years", "bugs fixed"};
 		System.out.println(CSV_PATH); 
-		
+
 		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
 			//True = Append to file, false = Overwrite
-			
+
 			writer.write(header[0]);
 			writer.write(",");
 			writer.write(header[1]); 
 			writer.write("\r\n");
-			
+
 			// Get each keys and values and write on file
 			for (Map.Entry<String, Integer> entry : map.entrySet()) {
 				String y = entry.getKey();
 				Integer i = entry.getValue();
-						
+
 				writer.write(y.toString());
 				writer.write(",");
 				writer.write(String.valueOf(i));
 				writer.write("\r\n");
-				}
+			}
 			writer.close();
-				  } catch (IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.print("Errore alla scrittura sul file CSV ");
 			System.exit(-1);
 		}  
-		
-		
 
-		
-		
+
+
+
+
 
 	}
 
 	public static void main(String[] args) throws IOException, JSONException {
 
-	
-		
-		
+
+
+
 		Integer j = 0, i = 0, total = 1;
 		ArrayList<String> ticketIDList;
 		//Get JSON API for closed bugs w/ AV in the project
@@ -285,7 +284,7 @@ public class RetrieveFixedBugs {
 
 		try {
 			gitClone();	
-			
+
 			//abilito il salvataggio dei valori dalla riga di output del processo che eseguirà il git log
 			counting=true;
 			for ( i = 0; i < ticketIDList.size(); i++) {
@@ -295,7 +294,7 @@ public class RetrieveFixedBugs {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.out.print("Errore all'esecuzione del comando git ");
-			 Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 			System.exit(-1);
 		}
 		finally {
@@ -314,7 +313,7 @@ public class RetrieveFixedBugs {
 		//System.out.println(map);
 
 		writeCSV(map);
-  System.out.println("Finito");
+		System.out.println("Finito");
 		return;
 	}
 
