@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 
 import org.json.JSONArray;
@@ -52,7 +53,7 @@ public class RetrieveFixedBugs {
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
-	private static final String CSV_PATH = new File("").getAbsolutePath()+"\\data.csv";
+	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath()).getRoot()+"\\temp"+"\\data.csv";
 	
     
 	private static ArrayList<String> yearsList;
@@ -70,12 +71,12 @@ public class RetrieveFixedBugs {
 	}
 
 	public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
-		
+		JSONObject json;
 		InputStream is = new URL(url).openStream();
-		try(BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));) {
+		try(BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 			String jsonText = readAll(rd);
-			JSONObject json = new JSONObject(jsonText);
-			return json;
+			return  json = new JSONObject(jsonText);
+			//return json;
 		} finally {
 			is.close();
 		}
@@ -201,7 +202,7 @@ public class RetrieveFixedBugs {
 	private static void writeCSV(Map<String,Integer> map) {
 
 		final String[] header = new String[] { "years", "bugs fixed"};
-
+		System.out.println(CSV_PATH); 
 		
 		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
 			//True = Append to file, false = Overwrite
@@ -311,7 +312,7 @@ public class RetrieveFixedBugs {
 
 
 		//System.out.println(yearsList);
-		System.out.println(map);
+		//System.out.println(map);
 
 		writeCSV(map);
   System.out.println("Finito");
