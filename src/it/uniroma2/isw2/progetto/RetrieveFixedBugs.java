@@ -1,4 +1,4 @@
-package it.uniroma2.isw2.progetto.src;
+package it.uniroma2.isw2.progetto;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
