@@ -22,15 +22,6 @@ import java.util.Objects;
 
 import java.io.FileWriter;
 
-/*import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.RenameDetector;
-import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.treewalk.TreeWalk;*/
-
 /**
  * Copyright (C) 2020 Simone Mesiano Laureani (a.k.a. Simesi)
  *    
