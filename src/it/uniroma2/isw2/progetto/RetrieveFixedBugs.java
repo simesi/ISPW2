@@ -53,7 +53,7 @@ public class RetrieveFixedBugs {
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
-	private static final String CSV_PATH = "c:\\Users\\simone\\Desktop\\data.csv";
+	private static final String CSV_PATH = new File("").getAbsolutePath()+"\\data.csv";
 	
     
 	private static ArrayList<String> yearsList;
@@ -89,7 +89,6 @@ public class RetrieveFixedBugs {
 		
 		//percorso dove salvare la directory in locale
 		Path directory = Paths.get(CLONED_PROJECT_FOLDER);
- System.out.println(directory);
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
 	}
@@ -204,8 +203,7 @@ public class RetrieveFixedBugs {
 
 		final String[] header = new String[] { "years", "bugs fixed"};
 
-		//FileWriter writer;
-
+		
 		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
 			//True = Append to file, false = Overwrite
 			
@@ -288,7 +286,7 @@ public class RetrieveFixedBugs {
 
 		try {
 			gitClone();	
-			System.out.print("Arrivato fino a dopo il clone ");
+			
 			//abilito il salvataggio dei valori dalla riga di output del processo che eseguirà il git log
 			counting=true;
 			for ( i = 0; i < ticketIDList.size(); i++) {
@@ -314,10 +312,10 @@ public class RetrieveFixedBugs {
 
 
 		//System.out.println(yearsList);
-		//System.out.println(map);
+		System.out.println(map);
 
 		writeCSV(map);
-
+  System.out.println("Finito");
 		return;
 	}
 
