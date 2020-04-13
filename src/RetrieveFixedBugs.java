@@ -310,7 +310,7 @@ public class RetrieveFixedBugs {
 
 		//popolamento map avente come chiave l'anno e come value il numero di bug risolti
 		for(i=0;i<yearsList.size();i++) {
-			map.put(yearsList.get(i), Integer.valueOf(map.getOrDefault(yearsList.get(i), 0))+1);
+			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
 		}
 
 
