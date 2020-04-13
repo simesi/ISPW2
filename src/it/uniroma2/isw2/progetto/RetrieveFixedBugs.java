@@ -53,7 +53,7 @@ public class RetrieveFixedBugs {
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
-	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath()).getRoot()+"\\temp"+"\\data.csv";
+	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\data.csv";
 	
     
 	private static ArrayList<String> yearsList;
