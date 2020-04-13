@@ -198,8 +198,10 @@ public class RetrieveFixedBugs {
 		}
 		//call delete to delete files and empty directory
 		try {
-			file.delete();
-		} catch (/*IOException|*/ InvalidPathException e) {
+			Files.setAttribute(file.toPath(), "dos:readonly", false);
+			Files.deleteIfExists(file.toPath());
+			//file.delete();
+		} catch (IOException| InvalidPathException e) {
 			System.out.println("Errore alla cancellazione del file "+CLONED_PROJECT_FOLDER);
 			e.printStackTrace();
 			System.exit(-1);
