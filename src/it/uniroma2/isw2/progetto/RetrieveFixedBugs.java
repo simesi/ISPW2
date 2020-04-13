@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -188,7 +189,7 @@ public class RetrieveFixedBugs {
 		if (!file.exists())
 			return;
 
-		//if directory, go inside and call recursively
+		//if directory exists, go inside and call recursively
 		if (file.isDirectory()) {
 			for (File f : file.listFiles()) {
 				//call recursively
@@ -197,10 +198,10 @@ public class RetrieveFixedBugs {
 		}
 		//call delete to delete files and empty directory
 		try {
-			Files.delete(file.toPath());
-		} catch (IOException e) {
+			file.delete();
+		} catch (/*IOException|*/ InvalidPathException e) {
+			System.out.println("Errore alla cancellazione del file "+CLONED_PROJECT_FOLDER);
 			e.printStackTrace();
-			System.out.print("Errore alla cancellazione del file "+PROJECT_NAME);
 			System.exit(-1);
 		}
 	}
@@ -287,10 +288,9 @@ public class RetrieveFixedBugs {
 
 		//System.out.println(ticketIDList);
 		String myID= new String();
-
+		
 		//cancellazione preventiva della directory locale del progetto   
 		recursiveDelete(new File(CLONED_PROJECT_FOLDER));
-
 		try {
 			gitClone();	
 
