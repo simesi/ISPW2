@@ -48,14 +48,14 @@ import java.io.FileWriter;
  */
 public class RetrieveFixedBugs {
 
+	private static String localPath;
 	private static final String PROJECT_NAME ="MAHOUT";
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
-	private static final String PREFIX_PATH ="c:\\temp\\";
-	private static final String FOLDER = PREFIX_PATH+PROJECT_NAME;
-	private static final int YEARS_INTERVAL=18; //range degli anni passati su cui cercare
+	private static final String CLONED_PROJECT_FOLDER = localPath+PROJECT_NAME;
+	private static final int YEARS_INTERVAL=5; //range degli anni passati su cui cercare
 	private static final String CSV_PATH = "c:\\Users\\simone\\Desktop\\data.csv";
-
-	private static ArrayList<String> ticketIDList;
+	
+    
 	private static ArrayList<String> yearsList;
 	private static boolean counting=false;
 	private static Map<String, Integer> map;
@@ -87,7 +87,7 @@ public class RetrieveFixedBugs {
 
 		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
 		//percorso dove salvare la directory in locale
-		Path directory = Paths.get(PREFIX_PATH+PROJECT_NAME);
+		Path directory = Paths.get(localPath+PROJECT_NAME);
 
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
@@ -95,7 +95,7 @@ public class RetrieveFixedBugs {
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
 	private static void gitLog(String ID) throws IOException, InterruptedException{
 
-		Path directory = Paths.get(PREFIX_PATH+PROJECT_NAME);
+		Path directory = Paths.get(localPath+PROJECT_NAME);
 
 		runCommand(directory, "git", "log", "--grep="+ID+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -179,7 +179,7 @@ public class RetrieveFixedBugs {
 
 	/*
 	  Java isn't able to delete folders with data in it. We have to delete
-	     all files before deleting the FOLDER.This utility class is used to delete 
+	     all files before deleting the CLONED_PROJECT_FOLDER.This utility class is used to delete 
 	  folders recursively in java.*/
 
 	public static void recursiveDelete(File file) {
@@ -240,7 +240,12 @@ public class RetrieveFixedBugs {
 
 	public static void main(String[] args) throws IOException, JSONException {
 
+		// This give me the localPath of the application where it is installed
+		localPath = new File("").getAbsolutePath();
+		System.out.println(localPath);
+		
 		Integer j = 0, i = 0, total = 1;
+		ArrayList<String> ticketIDList;
 		//Get JSON API for closed bugs w/ AV in the project
 		do {
 			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
@@ -279,7 +284,7 @@ public class RetrieveFixedBugs {
 		String myID= new String();
 
 		//cancellazione preventiva della directory locale del progetto   
-		recursiveDelete(new File(FOLDER));
+		recursiveDelete(new File(CLONED_PROJECT_FOLDER));
 
 		try {
 			gitClone();	
@@ -297,7 +302,7 @@ public class RetrieveFixedBugs {
 		}
 		finally {
 			//cancellazione directory locale del progetto   
-			recursiveDelete(new File(FOLDER));
+			recursiveDelete(new File(CLONED_PROJECT_FOLDER));
 		}
 		map = new HashMap<String,Integer>();
 
