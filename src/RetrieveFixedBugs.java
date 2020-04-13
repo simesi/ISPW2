@@ -297,6 +297,7 @@ public class RetrieveFixedBugs {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.out.print("Errore all'esecuzione del comando git ");
+			System.exit(-1);
 		}
 		finally {
 			//cancellazione directory locale del progetto   
