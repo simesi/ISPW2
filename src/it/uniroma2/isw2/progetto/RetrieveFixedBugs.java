@@ -48,11 +48,11 @@ import java.io.FileWriter;
  */
 public class RetrieveFixedBugs {
 
-	private static final String PROJECTNAME ="MAHOUT";
-	private static final String PROJECTNAMEGIT ="apache/mahout.git";
-	private static final String FOLDER = "c:\\temp\\"+PROJECTNAME;
+	private static final String PROJECT_NAME ="MAHOUT";
+	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
+	private static final String FOLDER = "c:\\temp\\"+PROJECT_NAME;
 	private static final int YEARS_INTERVAL=18; //range degli anni passati su cui cercare
-	private static final String csvPath = "c:\\Users\\simone\\Desktop\\data.csv";
+	private static final String CSV_PATH = "c:\\Users\\simone\\Desktop\\data.csv";
 
 	private static ArrayList<String> ticketIDList;
 	private static ArrayList<String> yearsList;
@@ -84,9 +84,9 @@ public class RetrieveFixedBugs {
 	//questo metodo fa il 'git clone' della repository (necessario per poter ricavare successivamente il log dei commit)   
 	private static void gitClone() throws IOException, InterruptedException {
 
-		String originUrl = "https://github.com/"+PROJECTNAMEGIT;
+		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
 		//percorso dove salvare la directory in locale
-		Path directory = Paths.get("c:\\temp\\"+PROJECTNAME);
+		Path directory = Paths.get("c:\\temp\\"+PROJECT_NAME);
 
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
@@ -94,7 +94,7 @@ public class RetrieveFixedBugs {
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
 	private static void gitLog(String ID) throws IOException, InterruptedException{
 
-		Path directory = Paths.get("c:\\temp\\"+PROJECTNAME);
+		Path directory = Paths.get("c:\\temp\\"+PROJECT_NAME);
 
 		runCommand(directory, "git", "log", "--grep="+ID+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -204,7 +204,7 @@ public class RetrieveFixedBugs {
 
 		//FileWriter writer;
 
-		try (FileWriter writer = new FileWriter(csvPath, false)){
+		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
 			//True = Append to file, false = Overwrite
 			
 			writer.write(header[0]);
@@ -247,7 +247,7 @@ public class RetrieveFixedBugs {
 
 			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
 			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-					+ PROJECTNAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,resolutiondate,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
