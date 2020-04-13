@@ -74,8 +74,8 @@ public class RetrieveFixedBugs {
 		InputStream is = new URL(url).openStream();
 		try(BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 			String jsonText = readAll(rd);
-			  json = new JSONObject(jsonText);
-			  
+			json = new JSONObject(jsonText);
+
 		} finally {
 			is.close();
 		}
@@ -105,7 +105,7 @@ public class RetrieveFixedBugs {
 	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
 
 		Objects.requireNonNull(directory, "directory è NULL");
-	
+
 		if (!Files.exists(directory)) {
 
 			throw new SecurityException("can't run command in non-existing directory '" + directory + "'");
@@ -165,7 +165,6 @@ public class RetrieveFixedBugs {
 				while ((line = br.readLine()) != null) {
 					if(counting)
 						yearsList.add(line.substring(0, 4));
-					//System.out.println(line);
 				}
 
 			} catch (IOException ioe) {
