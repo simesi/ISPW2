@@ -299,6 +299,7 @@ public class RetrieveFixedBugs {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.out.print("Errore all'esecuzione del comando git ");
+			 Thread.currentThread().interrupt();
 			System.exit(-1);
 		}
 		finally {
