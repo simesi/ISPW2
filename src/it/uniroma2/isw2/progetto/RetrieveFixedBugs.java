@@ -12,7 +12,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -194,9 +196,15 @@ public class RetrieveFixedBugs {
 			}
 		}
 		//call delete to delete files and empty directory
-		file.delete();
+		try {
+			Files.delete(file.toPath());
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.print("Errore alla cancellazione del file "+PROJECT_NAME);
+			System.exit(-1);
+		}
 	}
-
+	
 
 	private static void writeCSV(Map<String,Integer> map) {
 
