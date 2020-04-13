@@ -50,7 +50,8 @@ public class RetrieveFixedBugs {
 
 	private static final String PROJECT_NAME ="MAHOUT";
 	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
-	private static final String FOLDER = "c:\\temp\\"+PROJECT_NAME;
+	private static final String PREFIX_PATH ="c:\\temp\\";
+	private static final String FOLDER = PREFIX_PATH+PROJECT_NAME;
 	private static final int YEARS_INTERVAL=18; //range degli anni passati su cui cercare
 	private static final String CSV_PATH = "c:\\Users\\simone\\Desktop\\data.csv";
 
@@ -86,7 +87,7 @@ public class RetrieveFixedBugs {
 
 		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
 		//percorso dove salvare la directory in locale
-		Path directory = Paths.get("c:\\temp\\"+PROJECT_NAME);
+		Path directory = Paths.get(PREFIX_PATH+PROJECT_NAME);
 
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
@@ -94,7 +95,7 @@ public class RetrieveFixedBugs {
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
 	private static void gitLog(String ID) throws IOException, InterruptedException{
 
-		Path directory = Paths.get("c:\\temp\\"+PROJECT_NAME);
+		Path directory = Paths.get(PREFIX_PATH+PROJECT_NAME);
 
 		runCommand(directory, "git", "log", "--grep="+ID+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
