@@ -204,12 +204,12 @@ public class RetrieveFixedBugs {
 			System.exit(-1);
 		}
 	}
-	
+
 
 	private static void writeCSV(Map<String,Integer> map) {
 
 		final String[] header = new String[] { "years", "bugs fixed"};
-		
+
 
 		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
 			//True = Append to file, false = Overwrite
@@ -224,12 +224,11 @@ public class RetrieveFixedBugs {
 				String y = entry.getKey();
 				Integer i = entry.getValue();
 
-				writer.write(y.toString());
+				writer.write(y);
 				writer.write(",");
 				writer.write(String.valueOf(i));
 				writer.write("\r\n");
 			}
-			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.print("Errore alla scrittura sul file CSV ");
@@ -286,7 +285,7 @@ public class RetrieveFixedBugs {
 
 		//System.out.println(ticketIDList);
 		String myID= new String();
-		
+
 		//cancellazione preventiva della directory locale del progetto   
 		recursiveDelete(new File(CLONED_PROJECT_FOLDER));
 		try {
