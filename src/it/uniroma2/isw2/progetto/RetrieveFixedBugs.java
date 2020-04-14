@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.io.File;
 
@@ -16,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +62,11 @@ public class RetrieveFixedBugs {
 
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
+
+	public static HashMap<LocalDateTime, String> releaseNames;
+	public static HashMap<LocalDateTime, String> releaseID;
+	public static ArrayList<LocalDateTime> releases;
+	public static Integer numVersions;
 
 
 
@@ -244,12 +252,25 @@ public class RetrieveFixedBugs {
 			System.exit(-1);
 		}  
 
-
-
-
-
-
 	}
+
+	//------------------------------------------
+	//Metodi per Deliverable 2 Milestone 1
+
+	public static void addRelease(String strDate, String name, String id) {
+		LocalDate date = LocalDate.parse(strDate);
+		LocalDateTime dateTime = date.atStartOfDay();
+		if (!releases.contains(dateTime))
+			releases.add(dateTime);
+		releaseNames.put(dateTime, name);
+		releaseID.put(dateTime, id);
+		return;
+	}
+
+
+
+
+	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
 
@@ -323,6 +344,10 @@ public class RetrieveFixedBugs {
 		}
 		writeCSV(map);
 		System.out.println("Finito");
+
+
+
+		//INIZIO MILESTONE 1 DELIVERABLE 2
 
 
 	}
