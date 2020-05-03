@@ -57,7 +57,7 @@ public class RetrieveFixedBugs {
 
 	private static String PROJECT_NAME ="MAHOUT";
 	private static String PROJECT_NAME_GIT ="apache/mahout.git";
-	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
+	private static final String CLONED_PROJECT_FOLDER_DELIVERABLE1 = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\data.csv";
 
 	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare
@@ -65,6 +65,7 @@ public class RetrieveFixedBugs {
 
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
+	private static boolean startToExecDeliverable2=false;
 
 	//--------------------------
 	//per deliverable 2
@@ -100,18 +101,24 @@ public class RetrieveFixedBugs {
 
 	//questo metodo fa il 'git clone' della repository (necessario per poter ricavare successivamente il log dei commit)   
 	private static void gitClone() throws IOException, InterruptedException {
-
+		
+		Path directory;
 		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
 
+		if (startToExecDeliverable2==false) {
 		//percorso dove salvare la directory in locale
-		Path directory = Paths.get(CLONED_PROJECT_FOLDER);
+		directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
+		}
+		else {
+			directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		}
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
 	}
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
 	private static void gitLog(String id) throws IOException, InterruptedException{
 
-		Path directory = Paths.get(CLONED_PROJECT_FOLDER);
+		Path directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
 
 		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -200,7 +207,7 @@ public class RetrieveFixedBugs {
 
 	/*
 	  Java isn't able to delete folders with data in it. We have to delete
-	     all files before deleting the CLONED_PROJECT_FOLDER.This utility class is used to delete 
+	     all files before deleting the CLONED_PROJECT_FOLDER_DELIVERABLE1.This utility class is used to delete 
 	  folders recursively in java.*/
 
 	public static void recursiveDelete(File file) {
@@ -335,7 +342,7 @@ public class RetrieveFixedBugs {
 		String myID;
 		/*
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
-		recursiveDelete(new File(CLONED_PROJECT_FOLDER));
+		recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
 		try {
 			gitClone();	
 
@@ -352,7 +359,7 @@ public class RetrieveFixedBugs {
 		}
 		finally {
 			//cancellazione directory clonata locale del progetto   
-			recursiveDelete(new File(CLONED_PROJECT_FOLDER));
+			recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
 		}
 		Map<String, Integer> map = new HashMap<>();
 
@@ -367,8 +374,10 @@ public class RetrieveFixedBugs {
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
-
+   
 		PROJECT_NAME ="BOOKKEEPER";
+		PROJECT_NAME_GIT ="apache/bookkeeper.git";
+		startToExecDeliverable2=true;
 		//Fills the arraylist with releases dates and orders them
 		//Ignores releases with missing dates
 		releases = new ArrayList<LocalDateTime>();
@@ -434,6 +443,30 @@ public class RetrieveFixedBugs {
 		}
 		//--------------------------------------------------------
 		///ORA CREO IL VERO DATASET
+
+		//cancellazione preventiva della directory clonata del progetto (se esiste)   
+		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
+		try {
+			gitClone();	
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+			System.exit(-1);
+		}
+		
+
+		final File folder = new File(PROJECT_NAME);
+
+		List<String> result = new ArrayList<>();
+
+		searchFileJava(folder, result);
+
+		for (String s : result) {
+			System.out.println(s);
+		}
+
+		/*----------------------------
 		fileWriter = null;
 		try {
 			fileWriter = null;
@@ -468,12 +501,15 @@ public class RetrieveFixedBugs {
 			}
 		}
 
-
-
+		 *////////
+		
+			//cancellazione directory clonata locale del progetto   
+		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
+			
 		//------------------------------------------------------------------------------------------------------
 
 		//Deliverable 2, Milestone 1, ProjeCT 'OpenJPA'
-
+		/*------------------
 		PROJECT_NAME ="OPENJPA";
 		//Fills the arraylist with releases dates and orders them
 		//Ignores releases with missing dates
@@ -538,6 +574,7 @@ public class RetrieveFixedBugs {
 				e.printStackTrace();
 			}
 		}
+		 ************************/
 		return;
 	}
 
