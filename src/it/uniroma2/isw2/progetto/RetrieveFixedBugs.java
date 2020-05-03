@@ -349,7 +349,7 @@ public class RetrieveFixedBugs {
 
 
 //-------------------------------------------------------------------------------------------------
-		//INIZIO MILESTONE 1 DELIVERABLE 2
+		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
 		  PROJECT_NAME ="BOOKKEEPER";
 			 //Fills the arraylist with releases dates and orders them
@@ -415,6 +415,76 @@ public class RetrieveFixedBugs {
 			               e.printStackTrace();
 			            }
 			         }
+				 
+				 
+//------------------------------------------------------------------------------------------------------
+				 
+				 //Deliverable 2, Milestone 1, ProjeCT 'OpenJPA'
+				 
+				 PROJECT_NAME ="OPENJPA";
+				 //Fills the arraylist with releases dates and orders them
+				   //Ignores releases with missing dates
+				   releases = new ArrayList<LocalDateTime>();
+				         i=0;
+				         url = "https://issues.apache.org/jira/rest/api/2/project/" + PROJECT_NAME;
+				         json = readJsonFromUrl(url);
+				         versions = json.getJSONArray("versions");
+				         releaseNames = new HashMap<LocalDateTime, String>();
+				         releaseID = new HashMap<LocalDateTime, String> ();
+				         for (i = 0; i < versions.length(); i++ ) {
+				            String name = "";
+				            String id = "";
+				            if(versions.getJSONObject(i).has("releaseDate")) {
+				               if (versions.getJSONObject(i).has("name"))
+				                  name = versions.getJSONObject(i).get("name").toString();
+				               if (versions.getJSONObject(i).has("id"))
+				                  id = versions.getJSONObject(i).get("id").toString();
+				               addRelease(versions.getJSONObject(i).get("releaseDate").toString(),
+				                          name,id);
+				            }
+				         }
+				         // order releases by date
+				         Collections.sort(releases, new Comparator<LocalDateTime>(){
+				            //@Override
+				            public int compare(LocalDateTime o1, LocalDateTime o2) {
+				                return o1.compareTo(o2);
+				            }
+				         });
+				         if (releases.size() < 6)
+				            return;
+				         fileWriter = null;
+					 try {
+				            fileWriter = null;
+				            String outname = PROJECT_NAME + "VersionInfo.csv";
+								    //Name of CSV for output
+								    fileWriter = new FileWriter(outname);
+				            fileWriter.append("Index,Version ID,Version Name,Date");
+				            fileWriter.append("\n");
+				            numVersions = releases.size();
+				            for ( i = 0; i < releases.size(); i++) {
+				               Integer index = i + 1;
+				               fileWriter.append(index.toString());
+				               fileWriter.append(",");
+				               fileWriter.append(releaseID.get(releases.get(i)));
+				               fileWriter.append(",");
+				               fileWriter.append(releaseNames.get(releases.get(i)));
+				               fileWriter.append(",");
+				               fileWriter.append(releases.get(i).toString());
+				               fileWriter.append("\n");
+				            }
+
+				         } catch (Exception e) {
+				            System.out.println("Error in csv writer");
+				            e.printStackTrace();
+				         } finally {
+				            try {
+				               fileWriter.flush();
+				               fileWriter.close();
+				            } catch (IOException e) {
+				               System.out.println("Error while flushing/closing fileWriter !!!");
+				               e.printStackTrace();
+				            }
+				         }
 			         return;
 	}
 
