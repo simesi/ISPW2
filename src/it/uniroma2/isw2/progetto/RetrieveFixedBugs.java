@@ -460,10 +460,12 @@ public class RetrieveFixedBugs {
 
 		List<String> result = new ArrayList<>();
 
+		//search for java files in the cloned rep
 		searchFileJava(folder, result);
-		System.out.println(Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME).toString());
+		
 		for (String s : result) {
-			System.out.println(s.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), ""));
+			//discard of the local prefix to the file name 
+			s=s.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
 					}
 
 		/*----------------------------
