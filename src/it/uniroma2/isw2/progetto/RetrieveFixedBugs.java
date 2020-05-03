@@ -351,7 +351,7 @@ public class RetrieveFixedBugs {
 //-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2
 
-		  String projName ="QPID";
+	/*	  String projName ="QPID";
 			 //Fills the arraylist with releases dates and orders them
 			   //Ignores releases with missing dates
 			   releases = new ArrayList<LocalDateTime>();
@@ -414,7 +414,7 @@ public class RetrieveFixedBugs {
 			               System.out.println("Error while flushing/closing fileWriter !!!");
 			               e.printStackTrace();
 			            }
-			         }
+			         }*/
 			         return;
 	}
 
