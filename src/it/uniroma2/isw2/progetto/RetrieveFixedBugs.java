@@ -54,8 +54,8 @@ import java.io.FileWriter;
  */
 public class RetrieveFixedBugs {
 
-	private static final String PROJECT_NAME ="MAHOUT";
-	private static final String PROJECT_NAME_GIT ="apache/mahout.git";
+	private static String PROJECT_NAME ="MAHOUT";
+	private static String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\data.csv";
 
@@ -351,12 +351,12 @@ public class RetrieveFixedBugs {
 //-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2
 
-	/*	  String projName ="QPID";
+		  PROJECT_NAME ="BOOKKEEPER";
 			 //Fills the arraylist with releases dates and orders them
 			   //Ignores releases with missing dates
 			   releases = new ArrayList<LocalDateTime>();
-			         Integer i;
-			         String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
+			         i=0;
+			         String url = "https://issues.apache.org/jira/rest/api/2/project/" + PROJECT_NAME;
 			         JSONObject json = readJsonFromUrl(url);
 			         JSONArray versions = json.getJSONArray("versions");
 			         releaseNames = new HashMap<LocalDateTime, String>();
@@ -385,7 +385,7 @@ public class RetrieveFixedBugs {
 			         FileWriter fileWriter = null;
 				 try {
 			            fileWriter = null;
-			            String outname = projName + "VersionInfo.csv";
+			            String outname = PROJECT_NAME + "VersionInfo.csv";
 							    //Name of CSV for output
 							    fileWriter = new FileWriter(outname);
 			            fileWriter.append("Index,Version ID,Version Name,Date");
@@ -414,7 +414,7 @@ public class RetrieveFixedBugs {
 			               System.out.println("Error while flushing/closing fileWriter !!!");
 			               e.printStackTrace();
 			            }
-			         }*/
+			         }
 			         return;
 	}
 
