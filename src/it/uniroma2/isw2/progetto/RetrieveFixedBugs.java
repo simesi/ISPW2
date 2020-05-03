@@ -461,10 +461,10 @@ public class RetrieveFixedBugs {
 		List<String> result = new ArrayList<>();
 
 		searchFileJava(folder, result);
-
+		System.out.println(Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME).toString());
 		for (String s : result) {
-			System.out.println(s);
-		}
+			System.out.println(s.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), ""));
+					}
 
 		/*----------------------------
 		fileWriter = null;
