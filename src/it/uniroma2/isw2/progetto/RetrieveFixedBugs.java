@@ -13,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import sun.text.resources.cldr.fil.FormatData_fil;
+
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -26,7 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.io.FileWriter;
 
 /**
@@ -73,7 +76,13 @@ public class RetrieveFixedBugs {
 	public static HashMap<LocalDateTime, String> releaseNames;
 	public static HashMap<LocalDateTime, String> releaseID;
 	public static ArrayList<LocalDateTime> releases;
+	public static HashMap<String,LocalDateTime> fromIndexToDate=new HashMap<String,LocalDateTime>();
+	public static HashMap<String,String> fromFileNameToIndexOfCreation=new HashMap<String,String>();
+	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
+	
+	public static boolean proc = false;
+	
 	//--------------------------
 
 
@@ -101,13 +110,13 @@ public class RetrieveFixedBugs {
 
 	//questo metodo fa il 'git clone' della repository (necessario per poter ricavare successivamente il log dei commit)   
 	private static void gitClone() throws IOException, InterruptedException {
-		
+
 		Path directory;
 		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
 
 		if (startToExecDeliverable2==false) {
-		//percorso dove salvare la directory in locale
-		directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
+			//percorso dove salvare la directory in locale
+			directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
 		}
 		else {
 			directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
@@ -116,7 +125,7 @@ public class RetrieveFixedBugs {
 
 	}
 	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
-	private static void gitLog(String id) throws IOException, InterruptedException{
+	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
 
 		Path directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
 
@@ -134,7 +143,7 @@ public class RetrieveFixedBugs {
 			throw new SecurityException("can't run command in non-existing directory '" + directory + "'");
 
 		}
-
+		
 		ProcessBuilder pb = new ProcessBuilder()
 
 				.command(command)
@@ -152,7 +161,7 @@ public class RetrieveFixedBugs {
 		outputGobbler.start();
 
 		errorGobbler.start();
-
+			
 		int exit = p.waitFor();
 
 		errorGobbler.join();
@@ -166,6 +175,40 @@ public class RetrieveFixedBugs {
 		}
 
 	}
+	
+	public static void runCommandOnShell(Path directory, String command) throws IOException, InterruptedException {
+		proc = true;
+		//ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","dir && echo hello");
+		ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","E: && cd "+directory.toString()+" && "+command);	
+
+		//lancio un nuovo processo che invocherà il comando command,
+		//nella working directory fornita. 
+		Process p = pb.start();
+
+		StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream());
+
+		StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream());
+
+		outputGobbler.start();
+
+		errorGobbler.start();
+			
+		int exit = p.waitFor();
+
+		errorGobbler.join();
+
+		outputGobbler.join();
+
+		if (exit != 0) {
+
+			throw new AssertionError(String.format("runCommand returned %d", exit));
+
+		}
+
+	}
+	
+	
+	
 
 	private static class StreamGobbler extends Thread {
 
@@ -186,7 +229,7 @@ public class RetrieveFixedBugs {
 				String line;
 
 				while ((line = br.readLine()) != null) {
-					if(storeData)
+					if(storeData&&(!startToExecDeliverable2)) {
 						if(COLLECT_DATA_AS_YEARS) {
 							//get only year
 							yearsList.add(line.substring(0, 4));
@@ -194,6 +237,19 @@ public class RetrieveFixedBugs {
 							//get month and year
 							yearsList.add(line.substring(0, 7));
 						}
+					}
+					else if (storeData&&startToExecDeliverable2&&proc) {
+						LocalDate date = LocalDate.parse(line);
+						LocalDateTime dateTime = date.atStartOfDay();
+						
+						
+						System.out.println(line);
+						String file=br.readLine();
+						System.out.println(file);
+						fromFileNameToDateOfCreation.put(file,dateTime);
+						System.out.println(fromFileNameToDateOfCreation);
+						break;
+					}
 				}
 
 			} catch (IOException ioe) {
@@ -280,6 +336,45 @@ public class RetrieveFixedBugs {
 		return;
 	}
 
+	public static void getCreationDate(String filename) {
+
+		//directory da cui far partire il comando git    
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		 				 	 
+		 
+		//file da analizzare
+		String fileReformatted = filename;
+		//il comando git log prende percorsi con la '/'
+		fileReformatted= fileReformatted.replace("\\", "/");
+		
+		
+		//chiamata per ottenere la data di creazione del file e inserirla in una hashMap
+		try {
+			String command = "git log --diff-filter=A --format=%as --reverse -- "
+		+fileReformatted+" && echo "+fileReformatted;
+			//System.out.println(command);
+			runCommandOnShell(directory, command);
+		
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		
+		//per ogni versione
+		for (int i = 1; i <= fromIndexToDate.size(); i++) {
+					
+		if (fromFileNameToDateOfCreation.get(filename).isAfter(fromIndexToDate.get(i))||
+				fromFileNameToDateOfCreation.get(filename).isEqual(fromIndexToDate.get(i))) {
+			fromFileNameToIndexOfCreation.put(filename,String.valueOf(i));
+			System.out.println(fromFileNameToDateOfCreation);
+		}
+		}
+	}
+
+
 	//Search and list of all file java in the repository
 	public static void searchFileJava( final File folder, List<String> result) {
 		for (final File f : folder.listFiles()) {
@@ -350,7 +445,7 @@ public class RetrieveFixedBugs {
 			storeData=true;
 			for ( i = 0; i < ticketIDList.size(); i++) {
 				myID=ticketIDList.get(i);
-				gitLog(myID);
+				gitLogOfBug(myID);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -374,10 +469,12 @@ public class RetrieveFixedBugs {
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
-   
+
 		PROJECT_NAME ="BOOKKEEPER";
 		PROJECT_NAME_GIT ="apache/bookkeeper.git";
 		startToExecDeliverable2=true;
+		storeData=false;
+		
 		//Fills the arraylist with releases dates and orders them
 		//Ignores releases with missing dates
 		releases = new ArrayList<LocalDateTime>();
@@ -416,6 +513,7 @@ public class RetrieveFixedBugs {
 			fileWriter = new FileWriter(outname);
 			fileWriter.append("Index,Version ID,Version Name,Date");
 			fileWriter.append("\n");
+			
 			numVersions = releases.size();
 			for ( i = 0; i < releases.size(); i++) {
 				Integer index = i + 1;
@@ -443,7 +541,8 @@ public class RetrieveFixedBugs {
 		}
 		//--------------------------------------------------------
 		///ORA CREO IL VERO DATASET
-
+		
+		
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 		try {
@@ -454,20 +553,29 @@ public class RetrieveFixedBugs {
 			Thread.currentThread().interrupt();
 			System.exit(-1);
 		}
-		
 
-		final File folder = new File(PROJECT_NAME);
 
+		File folder = new File(PROJECT_NAME);
 		List<String> result = new ArrayList<>();
 
 		//search for java files in the cloned rep
 		searchFileJava(folder, result);
 		
+		//popolo un'HasMap con associazione index-data
+		for ( i = 1; i <= releases.size(); i++) {
+			fromIndexToDate.put(i.toString(),releases.get(i-1));
+		}
+
+		storeData=true;
+       //per ogni file
 		for (String s : result) {
 			//discard of the local prefix to the file name 
 			s=s.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
-					}
-
+			
+			getCreationDate(s);		
+		}
+System.out.println(fromFileNameToIndexOfCreation);
+		
 		/*----------------------------
 		fileWriter = null;
 		try {
@@ -504,10 +612,10 @@ public class RetrieveFixedBugs {
 		}
 
 		 *////////
-		
-			//cancellazione directory clonata locale del progetto   
+
+		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
-			
+
 		//------------------------------------------------------------------------------------------------------
 
 		//Deliverable 2, Milestone 1, ProjeCT 'OpenJPA'
