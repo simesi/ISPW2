@@ -81,7 +81,7 @@ public class RetrieveFixedBugs {
 	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
 	
-	public static boolean proc = false;
+	public static boolean searchingForDateOfCreation = false;
 	
 	//--------------------------
 
@@ -177,7 +177,7 @@ public class RetrieveFixedBugs {
 	}
 	
 	public static void runCommandOnShell(Path directory, String command) throws IOException, InterruptedException {
-		proc = true;
+		
 		//ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","dir && echo hello");
 		ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","E: && cd "+directory.toString()+" && "+command);	
 
@@ -238,18 +238,22 @@ public class RetrieveFixedBugs {
 							yearsList.add(line.substring(0, 7));
 						}
 					}
-					else if (storeData&&startToExecDeliverable2&&proc) {
-						LocalDate date = LocalDate.parse(line);
-						LocalDateTime dateTime = date.atStartOfDay();
+					else if (storeData&&startToExecDeliverable2&&searchingForDateOfCreation) {
 						
+						//levo l'ultimo carattere introdotto per errore nel replace a monte
+						String file = line.substring(0, line.length()-1);
 						
-						System.out.println(line);
-						String file=br.readLine();
-						System.out.println(file);
-						fromFileNameToDateOfCreation.put(file,dateTime);
-						System.out.println(fromFileNameToDateOfCreation);
-						break;
+						LocalDateTime dateTime; 
+						
+						String secondLine =br.readLine();
+						LocalDate date = LocalDate.parse(secondLine);
+						 dateTime = date.atStartOfDay();
+						 
+					fromFileNameToDateOfCreation.put(file,dateTime);
+						
+						continue;
 					}
+					System.out.println("Linea fuori if: "+line);
 				}
 
 			} catch (IOException ioe) {
@@ -338,6 +342,8 @@ public class RetrieveFixedBugs {
 
 	public static void getCreationDate(String filename) {
 
+		searchingForDateOfCreation = true;
+		
 		//directory da cui far partire il comando git    
 		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
 		 				 	 
@@ -350,8 +356,8 @@ public class RetrieveFixedBugs {
 		
 		//chiamata per ottenere la data di creazione del file e inserirla in una hashMap
 		try {
-			String command = "git log --diff-filter=A --format=%as --reverse -- "
-		+fileReformatted+" && echo "+fileReformatted;
+			String command = "echo "+fileReformatted+" && git log --diff-filter=A --format=%as --reverse -- "
+		+fileReformatted;
 			//System.out.println(command);
 			runCommandOnShell(directory, command);
 		
@@ -363,15 +369,23 @@ public class RetrieveFixedBugs {
 			System.exit(-1);
 		}
 		
+		
+		
 		//per ogni versione
 		for (int i = 1; i <= fromIndexToDate.size(); i++) {
-					
-		if (fromFileNameToDateOfCreation.get(filename).isAfter(fromIndexToDate.get(i))||
-				fromFileNameToDateOfCreation.get(filename).isEqual(fromIndexToDate.get(i))) {
-			fromFileNameToIndexOfCreation.put(filename,String.valueOf(i));
-			System.out.println(fromFileNameToDateOfCreation);
+		
+		
+			
+			
+		if (fromFileNameToDateOfCreation.get(fileReformatted).isAfter(fromIndexToDate.get(String.valueOf(i)))||
+				fromFileNameToDateOfCreation.get(fileReformatted).isEqual(fromIndexToDate.get(String.valueOf(i)))) {
+			fromFileNameToIndexOfCreation.put(fileReformatted,String.valueOf(i));
+			
+			break;
+			
 		}
 		}
+		searchingForDateOfCreation = false;
 	}
 
 
@@ -560,18 +574,22 @@ public class RetrieveFixedBugs {
 
 		//search for java files in the cloned rep
 		searchFileJava(folder, result);
-		
+		//System.out.println(result.get(702));
+	//	System.out.println(result.get(703));
 		//popolo un'HasMap con associazione index-data
 		for ( i = 1; i <= releases.size(); i++) {
 			fromIndexToDate.put(i.toString(),releases.get(i-1));
 		}
-
+		
 		storeData=true;
+		
        //per ogni file
 		for (String s : result) {
+			
 			//discard of the local prefix to the file name 
 			s=s.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
-			
+			//System.out.println(s);
+			//ci si costruisce una HashMap con la data di creazione dei file java
 			getCreationDate(s);		
 		}
 System.out.println(fromFileNameToIndexOfCreation);
