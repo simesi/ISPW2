@@ -80,9 +80,9 @@ public class RetrieveFixedBugs {
 	public static HashMap<String,String> fromFileNameToIndexOfCreation=new HashMap<String,String>();
 	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
-	
+
 	public static boolean searchingForDateOfCreation = false;
-	
+
 	//--------------------------
 
 
@@ -143,7 +143,7 @@ public class RetrieveFixedBugs {
 			throw new SecurityException("can't run command in non-existing directory '" + directory + "'");
 
 		}
-		
+
 		ProcessBuilder pb = new ProcessBuilder()
 
 				.command(command)
@@ -161,7 +161,7 @@ public class RetrieveFixedBugs {
 		outputGobbler.start();
 
 		errorGobbler.start();
-			
+
 		int exit = p.waitFor();
 
 		errorGobbler.join();
@@ -175,9 +175,9 @@ public class RetrieveFixedBugs {
 		}
 
 	}
-	
+
 	public static void runCommandOnShell(Path directory, String command) throws IOException, InterruptedException {
-		
+
 		//ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","dir && echo hello");
 		ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","E: && cd "+directory.toString()+" && "+command);	
 
@@ -192,7 +192,7 @@ public class RetrieveFixedBugs {
 		outputGobbler.start();
 
 		errorGobbler.start();
-			
+
 		int exit = p.waitFor();
 
 		errorGobbler.join();
@@ -206,9 +206,9 @@ public class RetrieveFixedBugs {
 		}
 
 	}
-	
-	
-	
+
+
+
 
 	private static class StreamGobbler extends Thread {
 
@@ -239,18 +239,18 @@ public class RetrieveFixedBugs {
 						}
 					}
 					else if (storeData&&startToExecDeliverable2&&searchingForDateOfCreation) {
-						
+
 						//levo l'ultimo carattere introdotto per errore nel replace a monte
 						String file = line.substring(0, line.length()-1);
-						
+
 						LocalDateTime dateTime; 
-						
+
 						String secondLine =br.readLine();
 						LocalDate date = LocalDate.parse(secondLine);
-						 dateTime = date.atStartOfDay();
-						 
-					fromFileNameToDateOfCreation.put(file,dateTime);
-						
+						dateTime = date.atStartOfDay();
+
+						fromFileNameToDateOfCreation.put(file,dateTime);
+
 						continue;
 					}
 					System.out.println("Linea fuori if: "+line);
@@ -343,24 +343,19 @@ public class RetrieveFixedBugs {
 	public static void getCreationDate(String filename) {
 
 		searchingForDateOfCreation = true;
-		
+
 		//directory da cui far partire il comando git    
 		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
-		 				 	 
-		 
-		//file da analizzare
-		String fileReformatted = filename;
-		//il comando git log prende percorsi con la '/'
-		fileReformatted= fileReformatted.replace("\\", "/");
-		
-		
+
+
+
 		//chiamata per ottenere la data di creazione del file e inserirla in una hashMap
 		try {
-			String command = "echo "+fileReformatted+" && git log --diff-filter=A --format=%as --reverse -- "
-		+fileReformatted;
+			String command = "echo "+filename+" && git log --diff-filter=A --format=%as --reverse -- "
+					+filename;
 			//System.out.println(command);
 			runCommandOnShell(directory, command);
-		
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
@@ -368,24 +363,29 @@ public class RetrieveFixedBugs {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		
-		
-		
+
+
+
 		//per ogni versione
 		for (int i = 1; i <= fromIndexToDate.size(); i++) {
-		
-		
-			
-			
-		if (fromFileNameToDateOfCreation.get(fileReformatted).isAfter(fromIndexToDate.get(String.valueOf(i)))||
-				fromFileNameToDateOfCreation.get(fileReformatted).isEqual(fromIndexToDate.get(String.valueOf(i)))) {
-			fromFileNameToIndexOfCreation.put(fileReformatted,String.valueOf(i));
-			
-			break;
-			
+
+			if (i!=fromIndexToDate.size()) {
+				if ((fromFileNameToDateOfCreation.get(filename).isAfter(fromIndexToDate.get(String.valueOf(i)))||
+						fromFileNameToDateOfCreation.get(filename).isEqual(fromIndexToDate.get(String.valueOf(i))))&&
+						fromFileNameToDateOfCreation.get(filename).isBefore(fromIndexToDate.get(String.valueOf(i+1)))) {
+					fromFileNameToIndexOfCreation.put(filename,String.valueOf(i));
+
+					break;
+
+				}
+			} 
+			else 
+			{ 
+				fromFileNameToIndexOfCreation.put(filename,String.valueOf(i));
+  			}
+			searchingForDateOfCreation = false;
+
 		}
-		}
-		searchingForDateOfCreation = false;
 	}
 
 
@@ -488,7 +488,7 @@ public class RetrieveFixedBugs {
 		PROJECT_NAME_GIT ="apache/bookkeeper.git";
 		startToExecDeliverable2=true;
 		storeData=false;
-		
+
 		//Fills the arraylist with releases dates and orders them
 		//Ignores releases with missing dates
 		releases = new ArrayList<LocalDateTime>();
@@ -527,7 +527,7 @@ public class RetrieveFixedBugs {
 			fileWriter = new FileWriter(outname);
 			fileWriter.append("Index,Version ID,Version Name,Date");
 			fileWriter.append("\n");
-			
+
 			numVersions = releases.size();
 			for ( i = 0; i < releases.size(); i++) {
 				Integer index = i + 1;
@@ -555,8 +555,8 @@ public class RetrieveFixedBugs {
 		}
 		//--------------------------------------------------------
 		///ORA CREO IL VERO DATASET
-		
-		
+
+
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 		try {
@@ -575,25 +575,29 @@ public class RetrieveFixedBugs {
 		//search for java files in the cloned rep
 		searchFileJava(folder, result);
 		//System.out.println(result.get(702));
-	//	System.out.println(result.get(703));
+		//	System.out.println(result.get(703));
 		//popolo un'HasMap con associazione index-data
 		for ( i = 1; i <= releases.size(); i++) {
 			fromIndexToDate.put(i.toString(),releases.get(i-1));
 		}
-		
+
 		storeData=true;
-		
-       //per ogni file
+
+		//per ogni file
 		for (String s : result) {
-			
+
 			//discard of the local prefix to the file name 
 			s=s.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
 			//System.out.println(s);
 			//ci si costruisce una HashMap con la data di creazione dei file java
+
+			//il comando git log prende percorsi con la '/'
+			s= s.replace("\\", "/");
 			getCreationDate(s);		
+			
 		}
-System.out.println(fromFileNameToIndexOfCreation);
-		
+
+		System.out.println(fromFileNameToIndexOfCreation.size());
 		/*----------------------------
 		fileWriter = null;
 		try {
