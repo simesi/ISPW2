@@ -246,12 +246,12 @@ public class RetrieveFixedBugs {
 
 						String secondLine =br.readLine();
 						if (secondLine != null) {
-						LocalDate date = LocalDate.parse(secondLine);
-						dateTime = date.atStartOfDay();
-						
-						fromFileNameToDateOfCreation.put(file,dateTime);
+							LocalDate date = LocalDate.parse(secondLine);
+							dateTime = date.atStartOfDay();
 
-						continue;}
+							fromFileNameToDateOfCreation.put(file,dateTime);
+
+							continue;}
 					}
 					System.out.println("Linea fuori if: "+line);
 				}
@@ -382,7 +382,7 @@ public class RetrieveFixedBugs {
 			else 
 			{ 
 				fromFileNameToIndexOfCreation.put(filename,String.valueOf(i));
-  			}
+			}
 			searchingForDateOfCreation = false;
 
 		}
@@ -400,10 +400,10 @@ public class RetrieveFixedBugs {
 
 			if (f.isFile()) {
 				if (f.getName().matches(".*\\.java")) {
-					
+
 					fileRenamed=f.getAbsolutePath();
 					//discard of the local prefix to the file name 
-					
+
 					fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
 					//System.out.println(s);
 					//ci si costruisce una HashMap con la data di creazione dei file java
@@ -417,8 +417,30 @@ public class RetrieveFixedBugs {
 	}
 
 
+	//data una versione/release e un filename si ricava il LOC/size del file
+	private static void getLOC(String filename, Integer i) {
+		
+		
+				try {
+					if (i>1) {
+					String command = "git log --since="+fromIndexToDate.get(i-1)+
+							" --until="+fromIndexToDate.get(i)	+" --format= --numstat -- "+filename;
+					//System.out.println(command);
+					}
+					else {
+						String command = "git log --until="+fromIndexToDate.get(i)	+" --format= --numstat -- "+filename;	
+					}
+					runCommandOnShell(directory, command);
 
-
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.exit(-1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					System.exit(-1);
+				}
+	
+	}
 	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
@@ -597,28 +619,33 @@ public class RetrieveFixedBugs {
 		//per ogni file
 		for (String s : result) {
 
-			
+
 			getCreationDate(s);		
-			
+
 		}
 		//System.out.println(s+" "+fromFileNameToIndexOfCreation.get(s));
-		
+
 		System.out.println(fromFileNameToIndexOfCreation.size());
-		
+
 		//----------------------------------------------
-		
-		//creo un array grande quanto (numero di file)*(numero di versioni)
+
+
 		ArrayList<LineOfDataset> arr = new ArrayList<LineOfDataset>();
-		
+		int num=0;
 		//per ogni indice di versione
 		for(i=1;i<=fromIndexToDate.size();i++) {
-		//per ogni file
-		for (String s : result) {
-			
+			//per ogni file
+			for (String s : result) {
+				num++;
+
+				getLOC(s,i);
+
+
+				//LineOfDataset line = new LineOfDataset(1, fromFileNameToIndexOfCreation, fileName, size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
+			}
+
 		}
-		
-		}
-		
+
 		/*----------------------------
 		fileWriter = null;
 		try {
