@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import sun.text.resources.cldr.fil.FormatData_fil;
 
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -246,12 +245,13 @@ public class RetrieveFixedBugs {
 						LocalDateTime dateTime; 
 
 						String secondLine =br.readLine();
+						if (secondLine != null) {
 						LocalDate date = LocalDate.parse(secondLine);
 						dateTime = date.atStartOfDay();
-
+						
 						fromFileNameToDateOfCreation.put(file,dateTime);
 
-						continue;
+						continue;}
 					}
 					System.out.println("Linea fuori if: "+line);
 				}
@@ -391,6 +391,7 @@ public class RetrieveFixedBugs {
 
 	//Search and list of all file java in the repository
 	public static void searchFileJava( final File folder, List<String> result) {
+		String fileRenamed;
 		for (final File f : folder.listFiles()) {
 
 			if (f.isDirectory()) {
@@ -399,7 +400,17 @@ public class RetrieveFixedBugs {
 
 			if (f.isFile()) {
 				if (f.getName().matches(".*\\.java")) {
-					result.add(f.getAbsolutePath());
+					
+					fileRenamed=f.getAbsolutePath();
+					//discard of the local prefix to the file name 
+					
+					fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
+					//System.out.println(s);
+					//ci si costruisce una HashMap con la data di creazione dei file java
+
+					//il comando git log prende percorsi con la '/'
+					fileRenamed= fileRenamed.replace("\\", "/");
+					result.add(fileRenamed);
 				}
 			}
 		}
@@ -586,18 +597,28 @@ public class RetrieveFixedBugs {
 		//per ogni file
 		for (String s : result) {
 
-			//discard of the local prefix to the file name 
-			s=s.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
-			//System.out.println(s);
-			//ci si costruisce una HashMap con la data di creazione dei file java
-
-			//il comando git log prende percorsi con la '/'
-			s= s.replace("\\", "/");
+			
 			getCreationDate(s);		
 			
 		}
-
+		//System.out.println(s+" "+fromFileNameToIndexOfCreation.get(s));
+		
 		System.out.println(fromFileNameToIndexOfCreation.size());
+		
+		//----------------------------------------------
+		
+		//creo un array grande quanto (numero di file)*(numero di versioni)
+		ArrayList<LineOfDataset> arr = new ArrayList<LineOfDataset>();
+		
+		//per ogni indice di versione
+		for(i=1;i<=fromIndexToDate.size();i++) {
+		//per ogni file
+		for (String s : result) {
+			
+		}
+		
+		}
+		
 		/*----------------------------
 		fileWriter = null;
 		try {
@@ -605,7 +626,7 @@ public class RetrieveFixedBugs {
 			String outname = PROJECT_NAME + "Deliverable2.csv";
 			//Name of CSV for output
 			fileWriter = new FileWriter(outname);
-			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NFix,NAuth,LOC_Added,MAX LOC Added,AVG_LOC_Added,Age,Buggy");
+			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NFix,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Age,Buggy");
 			fileWriter.append("\n");
 			numVersions = releases.size();
 			for ( i = 0; i < releases.size(); i++) {
