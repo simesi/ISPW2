@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.sun.xml.internal.ws.util.StringUtils;
 
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -227,6 +228,10 @@ public class RetrieveFixedBugs {
 			try (BufferedReader br = new BufferedReader(new InputStreamReader(is));) {
 
 				String line;
+				
+				int addedLines=0;
+				int deletedLines=0;
+				
 
 				while ((line = br.readLine()) != null) {
 					if(storeData&&(!startToExecDeliverable2)) {
@@ -251,13 +256,27 @@ public class RetrieveFixedBugs {
 							dateTime = date.atStartOfDay();
 
 							fromFileNameToDateOfCreation.put(file,dateTime);
-
+                               //le date ulteriori vengono ignorate
 							continue;}
 					}
 
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC) {
 
+						String nextLine;
+						line=line.trim();
+						String[] tokens = line.split("\\s+");
+
+						/*for (String token : tokens)
+						{
+							System.out.println(token);
+						}*/
+						addedLines=addedLines+Integer.parseInt(tokens[0]);
+						deletedLines=deletedLines+Integer.parseInt(tokens[1]);
+						
+//						LineOfDataset l=new LineOfDataset(0, version, token[2], size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
+						
 					}
+					
 					System.out.println("Linea fuori if: "+line);
 				}
 
@@ -347,7 +366,7 @@ public class RetrieveFixedBugs {
 
 	public static void getCreationDate(String filename) {
 
-		searchingForDateOfCreation = true;
+
 
 		//directory da cui far partire il comando git    
 		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
@@ -378,13 +397,13 @@ public class RetrieveFixedBugs {
 					fromFileNameToDateOfCreation.get(filename).isEqual(fromIndexToDate.get(String.valueOf(i))))&&
 					fromFileNameToDateOfCreation.get(filename).isBefore(fromIndexToDate.get(String.valueOf(i+1)))) {
 				fromFileNameToIndexOfCreation.put(filename,String.valueOf(i));
-                   fileNameOfFirstHalf.add(filename);
+				fileNameOfFirstHalf.add(filename);
 				break;
 
 			}
-			
+
 		}
-		searchingForDateOfCreation = false;
+
 	}
 
 
@@ -419,7 +438,7 @@ public class RetrieveFixedBugs {
 	//data una versione/release e un filename si ricava il LOC/size del file
 	private static void getLOC(String filename, Integer i) {
 
-		calculatingLOC = true;
+
 
 		//directory da cui far partire il comando git    
 		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
@@ -428,11 +447,11 @@ public class RetrieveFixedBugs {
 		try {
 			if (i>1) {
 				command = "git log --since="+fromIndexToDate.get(String.valueOf(i-1))+
-						" --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;
+						" --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;
 				//System.out.println(command);
 			}
 			else {
-				command = "git log --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
+				command = "git log --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
 			}
 			runCommandOnShell(directory, command);
 
@@ -443,7 +462,7 @@ public class RetrieveFixedBugs {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		calculatingLOC = false;
+
 	}
 	//--------------------------------------
 
@@ -609,7 +628,7 @@ public class RetrieveFixedBugs {
 		File folder = new File(PROJECT_NAME);
 		List<String> result = new ArrayList<>();
 		fileNameOfFirstHalf = new ArrayList<String>();
-		
+
 		//search for java files in the cloned rep
 		searchFileJava(folder, result);
 		//System.out.println(result.get(702));
@@ -620,7 +639,7 @@ public class RetrieveFixedBugs {
 		}
 
 		storeData=true;
-
+		searchingForDateOfCreation = true;
 		//per ogni file
 		for (String s : result) {
 
@@ -628,15 +647,17 @@ public class RetrieveFixedBugs {
 			getCreationDate(s);		
 			//System.out.println(s+" "+fromFileNameToIndexOfCreation.get(s));
 		}
+		searchingForDateOfCreation = false;
 		//System.out.println(s+" "+fromFileNameToIndexOfCreation.get(s));
 
-		System.out.println(fromFileNameToIndexOfCreation.size());
+		//System.out.println(fromFileNameToIndexOfCreation.size());
 
 		//----------------------------------------------
-		System.out.println(fileNameOfFirstHalf);
+		//System.out.println(fileNameOfFirstHalf);
 
 		ArrayList<LineOfDataset> arr = new ArrayList<LineOfDataset>();
 		int num=0;
+		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromIndexToDate.size(),2);i++) {
 			//per ogni file
@@ -649,7 +670,8 @@ public class RetrieveFixedBugs {
 				//LineOfDataset line = new LineOfDataset(1, fromFileNameToIndexOfCreation, fileName, size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
 			}
 
-		}
+		} 
+		calculatingLOC = false;
 
 		/*----------------------------
 		fileWriter = null;
