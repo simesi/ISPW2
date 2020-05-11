@@ -227,6 +227,14 @@ public class LineOfDataset {
 		Buggy = buggy;
 	}
 
+
+	public LineOfDataset(int version, String fileName, int size) {
+		super();
+		this.version = version;
+		this.fileName = fileName;
+		Size = size;
+	}
+
 	
 
 }

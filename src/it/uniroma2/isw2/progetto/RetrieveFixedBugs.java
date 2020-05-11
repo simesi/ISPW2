@@ -228,10 +228,10 @@ public class RetrieveFixedBugs {
 			try (BufferedReader br = new BufferedReader(new InputStreamReader(is));) {
 
 				String line;
-				
+				String filename= "";
 				int addedLines=0;
 				int deletedLines=0;
-				
+
 
 				while ((line = br.readLine()) != null) {
 					if(storeData&&(!startToExecDeliverable2)) {
@@ -256,7 +256,7 @@ public class RetrieveFixedBugs {
 							dateTime = date.atStartOfDay();
 
 							fromFileNameToDateOfCreation.put(file,dateTime);
-                               //le date ulteriori vengono ignorate
+							//le date ulteriori vengono ignorate
 							continue;}
 					}
 
@@ -265,18 +265,23 @@ public class RetrieveFixedBugs {
 						String nextLine;
 						line=line.trim();
 						String[] tokens = line.split("\\s+");
+						//set a pin for this location
+						br.mark(0);
 
-						/*for (String token : tokens)
-						{
-							System.out.println(token);
-						}*/
-						addedLines=addedLines+Integer.parseInt(tokens[0]);
-						deletedLines=deletedLines+Integer.parseInt(tokens[1]);
-						
-//						LineOfDataset l=new LineOfDataset(0, version, token[2], size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
-						
+						nextLine =br.readLine();
+						//abbiamo raggiunto la fine
+						if (nextLine == null) {                            //id versione, filename, LOC aggiunte in quella versione
+							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename, addedLines-deletedLines);
+						}
+						else {
+							addedLines=addedLines+Integer.parseInt(tokens[0]);
+							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
+							filename=tokens[2];
+							br.reset();
+						}
+												
 					}
-					
+
 					System.out.println("Linea fuori if: "+line);
 				}
 
@@ -446,7 +451,7 @@ public class RetrieveFixedBugs {
 
 		try {
 			if (i>1) {
-				command = "git log --since="+fromIndexToDate.get(String.valueOf(i-1))+
+				command = "git log --since="+fromIndexToDate.get(String.valueOf(1))+
 						" --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;
 				//System.out.println(command);
 			}
