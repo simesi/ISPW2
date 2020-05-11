@@ -450,14 +450,9 @@ public class RetrieveFixedBugs {
 		String command;
 
 		try {
-			if (i>1) {
-				command = "git log --since="+fromIndexToDate.get(String.valueOf(1))+
-						" --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;
-				//System.out.println(command);
-			}
-			else {
+			
 				command = "git log --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
-			}
+			
 			runCommandOnShell(directory, command);
 
 		} catch (IOException e) {
