@@ -61,10 +61,10 @@ public class RetrieveFixedBugs {
 	private static String PROJECT_NAME ="MAHOUT";
 	private static String PROJECT_NAME_GIT ="apache/mahout.git";
 	private static final String CLONED_PROJECT_FOLDER_DELIVERABLE1 = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
-	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\data.csv";
+	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
 	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare
-	private static final boolean COLLECT_DATA_AS_YEARS = false; 
+	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostaare come unità di misura un anno
 
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
@@ -505,7 +505,8 @@ public class RetrieveFixedBugs {
 
 
 		String myID;
-		/*
+		
+		// INIZIO DELIVERABLE 1
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
 		try {
@@ -535,7 +536,8 @@ public class RetrieveFixedBugs {
 		}
 		writeCSV(map);
 		System.out.println("Finito deliverable 1");
-		 */
+		 
+		 /*FINE DELIVERABLE 1*/
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
@@ -578,7 +580,7 @@ public class RetrieveFixedBugs {
 		FileWriter fileWriter = null;
 		try {
 			fileWriter = null;
-			String outname = PROJECT_NAME + "VersionInfo.csv";
+			String outname = PROJECT_NAME + " Version Info.csv";
 			//Name of CSV for output
 			fileWriter = new FileWriter(outname);
 			fileWriter.append("Index,Version ID,Version Name,Date");
