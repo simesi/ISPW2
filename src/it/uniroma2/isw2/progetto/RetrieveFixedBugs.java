@@ -541,7 +541,7 @@ public class RetrieveFixedBugs {
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
-
+/*
 		PROJECT_NAME ="BOOKKEEPER";
 		PROJECT_NAME_GIT ="apache/bookkeeper.git";
 		startToExecDeliverable2=true;
@@ -674,7 +674,7 @@ public class RetrieveFixedBugs {
 
 		} 
 		calculatingLOC = false;
-
+*/
 		/*----------------------------
 		fileWriter = null;
 		try {
