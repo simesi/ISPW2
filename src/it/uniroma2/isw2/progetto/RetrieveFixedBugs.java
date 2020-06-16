@@ -19,8 +19,13 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,9 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.io.FileWriter;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 /**
  * Copyright (C) 2020 Simone Mesiano Laureani (a.k.a. Simesi)
@@ -64,7 +71,7 @@ public class RetrieveFixedBugs {
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
 	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare
-	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostaare come unità di misura un anno
+	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura un anno
 
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
@@ -279,7 +286,7 @@ public class RetrieveFixedBugs {
 							filename=tokens[2];
 							br.reset();
 						}
-												
+
 					}
 
 					System.out.println("Linea fuori if: "+line);
@@ -450,9 +457,9 @@ public class RetrieveFixedBugs {
 		String command;
 
 		try {
-			
-				command = "git log --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
-			
+
+			command = "git log --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+
 			runCommandOnShell(directory, command);
 
 		} catch (IOException e) {
@@ -505,7 +512,7 @@ public class RetrieveFixedBugs {
 
 
 		String myID;
-		
+
 		// INIZIO DELIVERABLE 1
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
@@ -534,14 +541,43 @@ public class RetrieveFixedBugs {
 		for(i=0;i<yearsList.size();i++) {
 			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
 		}
+
+		//aggiunta dei mesi con valori nulli
+		if(!COLLECT_DATA_AS_YEARS) {
+			// TreeMap to store values of HashMap 
+			TreeMap<String, Integer> sorted = new TreeMap<>(); 
+			// Copy all data from hashMap into TreeMap 
+			sorted.putAll(map); 
+
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
+
+			//si prende il primo e l'ultimo anno-mese ....
+			LocalDate firstdate = LocalDate.parse(sorted.firstKey()+"-01",formatter);
+			LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
+			//iteratore
+			LocalDate date = firstdate;
+			
+			// .... e si aggiungono i mesi tra i due periodi 			
+			while(date.isBefore(lastdate)) {
+				date =date.with(TemporalAdjusters.firstDayOfNextMonth());
+				sorted.put(date.format(formatterWithNoDay), 0);
+			}
+						
+			//i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
+			sorted.putAll(map);
+			map=sorted;
+		}
+
+
 		writeCSV(map);
 		System.out.println("Finito deliverable 1");
-		 
-		 /*FINE DELIVERABLE 1*/
+
+		/*FINE DELIVERABLE 1*/
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
-/*
+		/*
 		PROJECT_NAME ="BOOKKEEPER";
 		PROJECT_NAME_GIT ="apache/bookkeeper.git";
 		startToExecDeliverable2=true;
@@ -674,7 +710,7 @@ public class RetrieveFixedBugs {
 
 		} 
 		calculatingLOC = false;
-*/
+		 */
 		/*----------------------------
 		fileWriter = null;
 		try {
