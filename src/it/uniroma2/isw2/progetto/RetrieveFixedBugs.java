@@ -71,7 +71,7 @@ public class RetrieveFixedBugs {
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
 	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare
-	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura un anno
+	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura del control chart un anno
 
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
@@ -132,7 +132,8 @@ public class RetrieveFixedBugs {
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
 	}
-	//questo metodo fa il comando'git log' sulla repository (mostra il log dei commit)   
+	
+	//questo metodo fa il comando'git log' del bug sulla repository (mostra il log dei commit)   
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
 
 		Path directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
@@ -158,7 +159,7 @@ public class RetrieveFixedBugs {
 
 				.directory(directory.toFile());
 
-		//lancio un nuovo processo che invocherà il comando command,
+		//lancio un nuovo processo che invocherà il comando 'command',
 		//nella working directory fornita. 
 		Process p = pb.start();
 
@@ -329,7 +330,7 @@ public class RetrieveFixedBugs {
 		}
 	}
 
-
+        //questo metodo scrive un file CSV con i dati richiesti per poter creare il control chart
 	private static void writeCSV(Map<String,Integer> map) {
 		String[] header;
 		if(COLLECT_DATA_AS_YEARS) {
@@ -514,12 +515,12 @@ public class RetrieveFixedBugs {
 		String myID;
 
 		// INIZIO DELIVERABLE 1
-		//cancellazione preventiva della directory clonata del progetto (se esiste)   
+		//cancellazione preventiva della directory clonata del progetto (se già esistente)   
 		recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
 		try {
 			gitClone();	
 
-			//abilito il salvataggio dei valori dalla riga di output del processo che eseguirà il git log
+			//abilito il salvataggio dei valori ottenuti dalla riga di output del processo che eseguirà il git log
 			storeData=true;
 			for ( i = 0; i < ticketIDList.size(); i++) {
 				myID=ticketIDList.get(i);
@@ -564,7 +565,7 @@ public class RetrieveFixedBugs {
 				sorted.put(date.format(formatterWithNoDay), 0);
 			}
 						
-			//i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
+			//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
 			sorted.putAll(map);
 			map=sorted;
 		}
