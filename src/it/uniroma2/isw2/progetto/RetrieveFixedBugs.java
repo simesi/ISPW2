@@ -77,6 +77,7 @@ public class RetrieveFixedBugs {
 	private static boolean storeData=false;
 	private static boolean startToExecDeliverable2=false;
 	private static boolean calculatingLOC=false;
+	private static boolean calculatingLOC_Touched=false;
 	//--------------------------
 	//per deliverable 2
 
@@ -278,7 +279,7 @@ public class RetrieveFixedBugs {
 
 						nextLine =br.readLine();
 						//abbiamo raggiunto la fine
-						if (nextLine == null) {                            //id versione, filename, LOC aggiunte in quella versione
+						if (nextLine == null) {                            //id versione, filename, LOC fino a quella versione
 							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename, addedLines-deletedLines);
 						}
 						else {
@@ -292,6 +293,29 @@ public class RetrieveFixedBugs {
 
 					}
 
+					else if (storeData&&startToExecDeliverable2&&calculatingLOC_Touched) {
+						String nextLine;
+						line=line.trim();
+						String[] tokens = line.split("\\s+");
+						//set a pin for this location
+						br.mark(0);
+
+						nextLine =br.readLine();
+						//abbiamo raggiunto la fine
+						if (nextLine == null) {                            //id versione, filename, LOC aggiunte+eliminate in quella versione
+							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename, addedLines+deletedLines);
+						}
+						else {
+							 //si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
+							addedLines=addedLines+Integer.parseInt(tokens[0]);
+							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
+							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
+							filename=tokens[2];
+							br.reset();
+						}
+						
+						
+					}
 					System.out.println("Linea fuori if: "+line);
 				}
 
@@ -471,6 +495,32 @@ public class RetrieveFixedBugs {
 			System.exit(-1);
 		}
 
+	}
+	
+
+	private static void getLOC_Touched(String filename, Integer i) {
+		//directory da cui far partire il comando git    
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		String command;
+
+		try {
+                if(i>1) {
+			command = "git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+                }
+                else {  //prima release
+                	command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+                }
+			runCommandOnShell(directory, command);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+
+		
 	}
 	//--------------------------------------
 
@@ -704,6 +754,10 @@ public class RetrieveFixedBugs {
 				num++;
 
 				getLOC(s,i);
+				calculatingLOC = false;
+				calculatingLOC_Touched = true;
+				getLOC_Touched(s,i);
+				
 
 
 				//LineOfDataset line = new LineOfDataset(1, fromFileNameToReleaseIndexOfCreation, fileName, size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
@@ -828,6 +882,7 @@ public class RetrieveFixedBugs {
 		 ************************/
 		return;
 	}
+
 
 
 
