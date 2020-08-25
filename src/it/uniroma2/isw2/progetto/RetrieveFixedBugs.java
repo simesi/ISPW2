@@ -70,7 +70,7 @@ public class RetrieveFixedBugs {
 	private static final String CLONED_PROJECT_FOLDER_DELIVERABLE1 = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
-	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare
+	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare (per deliverable 1)
 	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura del control chart un anno
 
 	private static ArrayList<String> yearsList;
@@ -83,8 +83,8 @@ public class RetrieveFixedBugs {
 	public static HashMap<LocalDateTime, String> releaseNames;
 	public static HashMap<LocalDateTime, String> releaseID;
 	public static ArrayList<LocalDateTime> releases;
-	public static HashMap<String,LocalDateTime> fromIndexToDate=new HashMap<String,LocalDateTime>();
-	public static HashMap<String,String> fromFileNameToIndexOfCreation=new HashMap<String,String>();
+	public static HashMap<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<String,LocalDateTime>();
+	public static HashMap<String,String> fromFileNameToReleaseIndexOfCreation=new HashMap<String,String>();
 	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
 	public static ArrayList<String> fileNameOfFirstHalf;
@@ -253,7 +253,7 @@ public class RetrieveFixedBugs {
 					}
 					else if (storeData&&startToExecDeliverable2&&searchingForDateOfCreation) {
 
-						//levo l'ultimo carattere introdotto per errore nel replace a monte
+						//levo l'ultimo carattere introdotto (per errore) nel replace a monte
 						String file = line.substring(0, line.length()-1);
 
 						LocalDateTime dateTime; 
@@ -282,7 +282,9 @@ public class RetrieveFixedBugs {
 							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename, addedLines-deletedLines);
 						}
 						else {
+							 //si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
 							addedLines=addedLines+Integer.parseInt(tokens[0]);
+							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
 							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
 							filename=tokens[2];
 							br.reset();
@@ -377,14 +379,11 @@ public class RetrieveFixedBugs {
 		return;
 	}
 
+	     //passando una pathname se ne ricostruisce la data di creazione
 	public static void getCreationDate(String filename) {
-
-
 
 		//directory da cui far partire il comando git    
 		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
-
-
 
 		//chiamata per ottenere la data di creazione del file e inserirla in una hashMap
 		try {
@@ -404,12 +403,12 @@ public class RetrieveFixedBugs {
 
 
 		//per ogni versione della prima metà delle release
-		for (int i = 1; i <= Math.floorDiv(fromIndexToDate.size(),2); i++) {
+		for (int i = 1; i <= Math.floorDiv(fromReleaseIndexToDate.size(),2); i++) {
 
-			if ((fromFileNameToDateOfCreation.get(filename).isAfter(fromIndexToDate.get(String.valueOf(i)))||
-					fromFileNameToDateOfCreation.get(filename).isEqual(fromIndexToDate.get(String.valueOf(i))))&&
-					fromFileNameToDateOfCreation.get(filename).isBefore(fromIndexToDate.get(String.valueOf(i+1)))) {
-				fromFileNameToIndexOfCreation.put(filename,String.valueOf(i));
+			if ((fromFileNameToDateOfCreation.get(filename).isAfter(fromReleaseIndexToDate.get(String.valueOf(i)))||
+					fromFileNameToDateOfCreation.get(filename).isEqual(fromReleaseIndexToDate.get(String.valueOf(i))))&&
+					fromFileNameToDateOfCreation.get(filename).isBefore(fromReleaseIndexToDate.get(String.valueOf(i+1)))) {
+				fromFileNameToReleaseIndexOfCreation.put(filename,String.valueOf(i));
 				fileNameOfFirstHalf.add(filename);
 				break;
 
@@ -420,7 +419,7 @@ public class RetrieveFixedBugs {
 	}
 
 
-	//Search and list of all file java in the repository
+	//Search and list of all file java in the repository (at this time)
 	public static void searchFileJava( final File folder, List<String> result) {
 		String fileRenamed;
 		for (final File f : folder.listFiles()) {
@@ -430,10 +429,11 @@ public class RetrieveFixedBugs {
 			}
 
 			if (f.isFile()) {
+				  //si prendono solo i file java
 				if (f.getName().matches(".*\\.java")) {
 
 					fileRenamed=f.getAbsolutePath();
-					//discard of the local prefix to the file name 
+					//discard of the local prefix to the file name (that depends to this program)
 
 					fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
 					//System.out.println(s);
@@ -459,7 +459,7 @@ public class RetrieveFixedBugs {
 
 		try {
 
-			command = "git log --until="+fromIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+			command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
 
 			runCommandOnShell(directory, command);
 
@@ -578,7 +578,7 @@ public class RetrieveFixedBugs {
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
-		/*
+		
 		PROJECT_NAME ="BOOKKEEPER";
 		PROJECT_NAME_GIT ="apache/bookkeeper.git";
 		startToExecDeliverable2=true;
@@ -612,9 +612,8 @@ public class RetrieveFixedBugs {
 				return o1.compareTo(o2);
 			}
 		});
-		if (releases.size() < 6)
-			return;
-		FileWriter fileWriter = null;
+		
+	/*	FileWriter fileWriter = null;
 		try {
 			fileWriter = null;
 			String outname = PROJECT_NAME + " Version Info.csv";
@@ -647,7 +646,7 @@ public class RetrieveFixedBugs {
 				System.out.println("Error while flushing/closing fileWriter !!!");
 				e.printStackTrace();
 			}
-		}
+		}*/
 		//--------------------------------------------------------
 		///ORA CREO IL VERO DATASET
 
@@ -665,31 +664,32 @@ public class RetrieveFixedBugs {
 
 
 		File folder = new File(PROJECT_NAME);
-		List<String> result = new ArrayList<>();
+		List<String> files = new ArrayList<>();
 		fileNameOfFirstHalf = new ArrayList<String>();
 
-		//search for java files in the cloned rep
-		searchFileJava(folder, result);
+		//search for java files in the cloned repository
+		searchFileJava(folder, files);
 		//System.out.println(result.get(702));
 		//	System.out.println(result.get(703));
-		//popolo un'HasMap con associazione index-data
+		
+		//popolo un'HasMap con associazione indice di release-data delle release
 		for ( i = 1; i <= releases.size(); i++) {
-			fromIndexToDate.put(i.toString(),releases.get(i-1));
+			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
 		}
 
 		storeData=true;
 		searchingForDateOfCreation = true;
 		//per ogni file
-		for (String s : result) {
+		for (String s : files) {
 
 
 			getCreationDate(s);		
-			//System.out.println(s+" "+fromFileNameToIndexOfCreation.get(s));
+			//System.out.println(s+" "+fromFileNameToReleaseIndexOfCreation.get(s));
 		}
 		searchingForDateOfCreation = false;
-		//System.out.println(s+" "+fromFileNameToIndexOfCreation.get(s));
+		
 
-		//System.out.println(fromFileNameToIndexOfCreation.size());
+		//System.out.println(fromFileNameToReleaseIndexOfCreation.size());
 
 		//----------------------------------------------
 		//System.out.println(fileNameOfFirstHalf);
@@ -698,7 +698,7 @@ public class RetrieveFixedBugs {
 		int num=0;
 		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
-		for(i=1;i<=Math.floorDiv(fromIndexToDate.size(),2);i++) {
+		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
 			//per ogni file
 			for (String s : fileNameOfFirstHalf) {
 				num++;
@@ -706,13 +706,18 @@ public class RetrieveFixedBugs {
 				getLOC(s,i);
 
 
-				//LineOfDataset line = new LineOfDataset(1, fromFileNameToIndexOfCreation, fileName, size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
+				//LineOfDataset line = new LineOfDataset(1, fromFileNameToReleaseIndexOfCreation, fileName, size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
 			}
 
 		} 
 		calculatingLOC = false;
-		 */
+		 
+		
+		
+		
 		/*----------------------------
+		 //parte per OpenJPA
+		  
 		fileWriter = null;
 		try {
 			fileWriter = null;
