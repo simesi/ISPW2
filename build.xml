@@ -17,8 +17,6 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
-                <exclude name="**/*.xtend"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
@@ -51,7 +49,7 @@
         <antcall target="build"/>
     </target>
     <target name="RetrieveFixedBugs (3)">
-        <java classname="it.uniroma2.isw2.progetto.RetrieveFixedBugs" failonerror="true" fork="yes">
+        <java classname="it.uniroma2.isw2.progetto.Main" failonerror="true" fork="yes">
             <classpath refid="Project ISW2.classpath"/>
         </java>
     </target>
