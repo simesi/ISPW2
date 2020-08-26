@@ -276,7 +276,9 @@ public class RetrieveFixedBugs {
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC) {
 
 						String nextLine;
-						int RealDeletedLOC=0;
+						int sumOfRealDeletedLOC=0;
+						int realDeletedLOC=0;
+						int maxChurn=0;
 						int numberOfCommit=0;
 						line=line.trim();
 						String[] tokens = line.split("\\s+");
@@ -289,7 +291,8 @@ public class RetrieveFixedBugs {
 							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename); //addedLines-deletedLines);
 							l.setSize(addedLines-deletedLines);//set del valore di LOC
 							l.setNR(numberOfCommit);
-							l.setChurn(addedLines-deletedLines -RealDeletedLOC);
+							l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
+							l.setMax_Churn(maxChurn);
 							arr.add(l);
 							
 						}
@@ -302,8 +305,11 @@ public class RetrieveFixedBugs {
 							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
 							//per CHURN (togliamo i commit che hanno solo modificato il codice e quindi risultano +1 sia in linee aggiunte che in quelle eliminate)
 							if((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1]))<0){
-								RealDeletedLOC=Integer.parseInt(tokens[1])-Integer.parseInt(tokens[0]);
-							}
+								realDeletedLOC=Integer.parseInt(tokens[1])-Integer.parseInt(tokens[0]);
+								sumOfRealDeletedLOC= sumOfRealDeletedLOC + realDeletedLOC;
+							    }
+							//per MAX_CHURN
+							maxChurn=Math.max((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1])-realDeletedLOC), maxChurn);
 							filename=tokens[2];
 							br.reset();
 						}
