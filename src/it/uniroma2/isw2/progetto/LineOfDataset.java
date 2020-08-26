@@ -238,7 +238,6 @@ public class LineOfDataset {
 		LOC_Added = lOC_Added;
 		MAX_LOC_Added = mAX_LOC_Added;
 		AVG_LOC_Added = aVG_LOC_Added;
-		Age = age;
 		Buggy = buggy;
 	}
 
