@@ -243,6 +243,7 @@ public class RetrieveFixedBugs {
 				int addedLines=0;
 				int deletedLines=0;
 				int maxAddedlines=0;
+				ArrayList<Integer> addedLinesForEveryRevision;
 
 
 				while ((line = br.readLine()) != null) {
@@ -299,7 +300,11 @@ public class RetrieveFixedBugs {
 					}
 
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC_Touched) {
+						
+						addedLinesForEveryRevision=new ArrayList<Integer>();
 						String nextLine;
+						int total=0;
+						int average;
 						line=line.trim();
 						String[] tokens = line.split("\\s+");
 						//set a pin for this location
@@ -313,6 +318,14 @@ public class RetrieveFixedBugs {
 								if((arr.get(i).getVersion()==Integer.parseInt(tokens[0]))&& arr.get(i).getFileName()==filename) {
 									arr.get(i).setLOC_Touched(addedLines+deletedLines);
 									arr.get(i).setMAX_LOC_Added(maxAddedlines);
+									
+									//per il AVG_LOC_Added -----------------------
+									for(int n=0; n<addedLinesForEveryRevision.size(); n++){
+							        	total = total + addedLinesForEveryRevision.get(n);
+							        }
+							        average = Math.floorDiv(addedLinesForEveryRevision.size(),total);
+							        //--------------------------------------------------
+									arr.get(i).setAVG_LOC_Added(average);
 									break;
 								}
 							}
@@ -320,7 +333,8 @@ public class RetrieveFixedBugs {
 						else {
 							//per il Max_LOC_Added
 							maxAddedlines=Math.max(Integer.parseInt(tokens[0]), maxAddedlines);
-							
+							//per il AVG_LOC_Added
+							addedLinesForEveryRevision.add(Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1]));
 							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
 							addedLines=addedLines+Integer.parseInt(tokens[0]);
 							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
@@ -513,7 +527,7 @@ public class RetrieveFixedBugs {
 	}
 
 
-	private static void getLOC_Touched_And_MAX_LOC_Added(String filename, Integer i) {
+	private static void getLOC_Touched_And_MAX_AVG_LOC_Added(String filename, Integer i) {
 		//directory da cui far partire il comando git    
 		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
 		String command;
@@ -538,29 +552,7 @@ public class RetrieveFixedBugs {
 
 	}
 	
-	private static void getMAX_LOC_Added(String filename, Integer i) {
-		//directory da cui far partire il comando git    
-				Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
-				String command;
 
-				try {
-					if(i>1) {
-						command = "git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
-					}
-					else {  //prima release
-						command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
-					}
-					runCommandOnShell(directory, command);
-
-				} catch (IOException e) {
-					e.printStackTrace();
-					System.exit(-1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					System.exit(-1);
-				}
-		
-	}
 	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
@@ -791,12 +783,13 @@ public class RetrieveFixedBugs {
 			//per ogni file
 			for (String s : fileNameOfFirstHalf) {
 				num++;
-
+                  //il metodo getLOC creerà l'arrayList di entry LineOfDataSet
 				getLOC(s,i);
 				calculatingLOC = false;
 				calculatingLOC_Touched = true;
-				getLOC_Touched(s,i);
-				getMAX_LOC_Added(s,i);
+				//i metodi successi modificano semplicemente le entry in quell'array
+				getLOC_Touched_And_MAX_AVG_LOC_Added(s,i);
+				
 
 
 
