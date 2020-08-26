@@ -6,9 +6,11 @@ public class LineOfDataset {
 	private int version;//id versione
 	private String fileName;
 	private int Size;
+	private int Max_Churn;
+	private int AVG_Churn;
 	private int LOC_Touched;
 	private int NR;
-	private int NFix;
+	private int Churn;
 	private int NAuth;
 	private int LOC_Added;
 	private int MAX_LOC_Added;
@@ -48,7 +50,37 @@ public class LineOfDataset {
 		this.fileName = fileName;
 	}
 
+	/**
+	 * @return the max_Churn
+	 */
+	public int getMax_Churn() {
+		return Max_Churn;
+	}
 
+
+	/**
+	 * @param max_Churn the max_Churn to set
+	 */
+	public void setMax_Churn(int max_Churn) {
+		Max_Churn = max_Churn;
+	}
+
+
+	/**
+	 * @return the aVG_Churn
+	 */
+	public int getAVG_Churn() {
+		return AVG_Churn;
+	}
+
+
+	/**
+	 * @param aVG_Churn the aVG_Churn to set
+	 */
+	public void setAVG_Churn(int aVG_Churn) {
+		AVG_Churn = aVG_Churn;
+	}
+	
 	/**
 	 * @return the size
 	 */
@@ -98,18 +130,18 @@ public class LineOfDataset {
 
 
 	/**
-	 * @return the nFix
+	 * @return the Churn
 	 */
-	public int getNFix() {
-		return NFix;
+	public int getChurn() {
+		return Churn;
 	}
 
 
 	/**
-	 * @param nFix the nFix to set
+	 * @param Churn the Churn to set
 	 */
-	public void setNFix(int nFix) {
-		NFix = nFix;
+	public void setChurn(int churn) {
+		Churn = churn;
 	}
 
 
@@ -209,7 +241,7 @@ public class LineOfDataset {
 	}
 
 
-	public LineOfDataset(int numeroDiRiga, int version, String fileName, int size, int lOC_Touched, int nR, int nFix,
+	public LineOfDataset(int numeroDiRiga, int version, String fileName, int size, int lOC_Touched, int nR, int churn,
 			int nAuth, int lOC_Added, int mAX_LOC_Added, int aVG_LOC_Added, int age, String buggy) {
 		super();
 		this.numeroDiRiga = numeroDiRiga;
@@ -218,7 +250,7 @@ public class LineOfDataset {
 		Size = size;
 		LOC_Touched = lOC_Touched;
 		NR = nR;
-		NFix = nFix;
+		Churn = churn;
 		NAuth = nAuth;
 		LOC_Added = lOC_Added;
 		MAX_LOC_Added = mAX_LOC_Added;
