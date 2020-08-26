@@ -245,7 +245,7 @@ public class Main {
 				int addedLines=0;
 				int deletedLines=0;
 				int maxAddedlines=0;
-				
+
 
 
 				while ((line = br.readLine()) != null) {
@@ -316,7 +316,10 @@ public class Main {
 
 							nextLine =br.readLine();
 						}
-
+						//file non è stato ancora creato in questa versione
+						if (numberOfCommit==0) {
+							break;
+						}
 						//abbiamo raggiunto la fine (l'ultima riga ha il numero di versione)
 						LineOfDataset l=new LineOfDataset(Integer.parseInt(version),filename); //id versione, filename
 						l.setSize(addedLines-deletedLines);//set del valore di LOC
@@ -338,6 +341,7 @@ public class Main {
 						ArrayList<Integer> addedLinesForEveryRevision=new ArrayList<Integer>();
 						String nextLine;
 						int total=0;
+						int iteration=0;
 						int average=0;
 						line=line.trim();
 						String[] tokens = line.split("\\s+");
@@ -345,7 +349,7 @@ public class Main {
 						//operazione per il primo output che è il numero di versione------------------------------
 						version=tokens[0];
 						//--------------------------------------------------------- 
-                          
+
 						nextLine =br.readLine();
 
 						while(nextLine != null) {
@@ -360,10 +364,16 @@ public class Main {
 							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
 							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
 							filename=tokens[2];
+							iteration=1;
 						}
 
 
 						//abbiamo raggiunto la fine
+
+						//file non è stato ancora creato in questa versione
+						if (iteration==0) {
+							break;
+						}  
 
 						//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
 						for (int i = 0; i < arr.size(); i++) {  
@@ -407,6 +417,12 @@ public class Main {
 						while(nextLine != null) {
 							nAuth++;
 						}
+						//file non è stato ancora creato in questa versione
+						if(nAuth==0) {
+							break;
+						} 
+
+
 						//cerchiamo l'oggetto giusto su cui scrivere
 						for (int i = 0; i < arr.size(); i++) { 
 							if((arr.get(i).getVersion()==version) && (arr.get(i).getFileName()==filename)) {
@@ -514,9 +530,8 @@ public class Main {
 		try {
 			String command = "echo "+filename+" && git log --diff-filter=A --format=%as --reverse -- "
 					+filename;
-			//System.out.println(command);
+			System.out.println(command);
 			runCommandOnShell(directory, command);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
@@ -526,10 +541,10 @@ public class Main {
 		}
 
 		int num= Math.floorDiv(fromReleaseIndexToDate.size(),2)+1;
-		        //aggiunta dei soli file creati prima della metà delle release
-			if (fromFileNameToDateOfCreation.get(filename).isBefore(fromReleaseIndexToDate.get(String.valueOf(num)))) {
-				fileNameOfFirstHalf.add(filename);
-			
+		//aggiunta dei soli file creati prima della metà delle release
+		if (fromFileNameToDateOfCreation.get(filename).isBefore(fromReleaseIndexToDate.get(String.valueOf(num)))) {
+			fileNameOfFirstHalf.add(filename);
+
 
 		}
 
@@ -810,10 +825,10 @@ public class Main {
 		for ( i = 1; i <= releases.size(); i++) {
 			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
 		}
-		
+
 		storeData=true;
 		searchingForDateOfCreation = true;
-		
+
 		System.out.println("Sto per chiamare la getCreation con numero di files ="+files.size());
 		//per ogni file
 		for (String s : files) {
@@ -823,7 +838,7 @@ public class Main {
 		}
 		files.clear();
 		searchingForDateOfCreation = false;
-		System.out.println("fileNameOfFirstHalf"+fileNameOfFirstHalf);
+		System.out.println("fileNameOfFirstHalf"+fileNameOfFirstHalf.size());
 
 		//System.out.println(fromFileNameToReleaseIndexOfCreation.size());
 
@@ -834,7 +849,6 @@ public class Main {
 		int num=0;
 		arr= new ArrayList<LineOfDataset>();
 		calculatingLOC = true;
-		System.out.println("Size of fromReleaseIndexTodate"+fromReleaseIndexToDate.size());
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
 			System.out.println("release "+i);
