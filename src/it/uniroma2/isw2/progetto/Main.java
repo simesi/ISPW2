@@ -278,6 +278,7 @@ public class Main {
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC) {
 
 						String nextLine;
+						String version;
 						int sumOfRealDeletedLOC=0;
 						int realDeletedLOC=0;
 						int maxChurn=0;
@@ -285,29 +286,20 @@ public class Main {
 						line=line.trim();
 						//"one or more whitespaces = \\s+"
 						String[] tokens = line.split("\\s+");
-						//set a pin for this location
-						br.mark(0);
-
+						
+						//operazioni per il primo output che è il numero di versione------------------------------
+						version=tokens[0];
+					      //--------------------------------------------------------- 
+							
+					      //lettura prox riga					      					      
 						nextLine =br.readLine();
-						//abbiamo raggiunto la fine (l'ultima riga ha il numero di versione)
-						if (nextLine == null) {                            //id versione, filename, LOC fino a quella versione
-							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename); //addedLines-deletedLines);
-							l.setSize(addedLines-deletedLines);//set del valore di LOC
-							l.setNR(numberOfCommit);
-							l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
-							l.setMax_Churn(maxChurn);
-							
-							if (numberOfCommit!=0) { 
-							l.setAVG_Churn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
-							}
-							else {l.setAVG_Churn(0);}
-							
-							arr.add(l);
-
-						}
-						else {
+						
+						
+						while (nextLine != null) {                            
 							//per NR
 							numberOfCommit=numberOfCommit+1;
+							nextLine.trim();
+							tokens=nextLine.split("\\s+");
 							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
 							addedLines=addedLines+Integer.parseInt(tokens[0]);
 							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
@@ -320,9 +312,23 @@ public class Main {
 							//per MAX_CHURN
 							maxChurn=Math.max((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1])-realDeletedLOC), maxChurn);
 							filename=tokens[2];
-							br.reset();
+							
+							nextLine =br.readLine();
 						}
-
+					
+						//abbiamo raggiunto la fine (l'ultima riga ha il numero di versione)
+						LineOfDataset l=new LineOfDataset(Integer.parseInt(version),filename); //id versione, filename
+						l.setSize(addedLines-deletedLines);//set del valore di LOC
+						l.setNR(numberOfCommit);
+						l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
+						l.setMax_Churn(maxChurn);
+						System.out.println("maxChurn = "+maxChurn);
+						if (numberOfCommit!=0) { 
+						l.setAVG_Churn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
+						}
+						else {l.setAVG_Churn(0);}
+						arr.add(l);
+                        break;//fa uscire dal while principale
 					}
 
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC_Touched) {
@@ -572,7 +578,7 @@ public class Main {
 
 		try {
 
-			command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+			command = "echo "+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
 
 			runCommandOnShell(directory, command);
 
@@ -594,10 +600,10 @@ public class Main {
 
 		try {
 			if(i>1) {
-				command = "git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+				command = "echo "+i+" && git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
 			}
 			else {  //prima release
-				command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+				command = "echo "+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
 			}
 			runCommandOnShell(directory, command);
 
@@ -810,7 +816,6 @@ public class Main {
 
 		storeData=true;
 		searchingForDateOfCreation = true;
-		  System.out.println("INIZIO ricerca date of creation");
 		//per ogni file
 		for (String s : files) {
 
@@ -851,7 +856,45 @@ public class Main {
 				}
 
 		} 
-		calculatingLOC = false;
+		
+//		j=0;
+//		i=0;
+//		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed”  in the project
+//		do {
+//			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+//			j = i + 1000;
+//
+//			https://issues.apache.org/jira/browse/BOOKKEEPER-1105?jql
+//				=project%20%3D%20BOOKKEEPER%20AND%20issuetype%20%3D%20Bug%20AND%20status%20in%20(Resolved%2C%20Closed)%20AND
+//				%20resolution%20%3D%20Fixed%20AND%20%20affectedVersion%20is%20not%20EMPTY
+//			
+//			
+//			
+//			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
+//			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+//					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+//					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+//					+ "&fields=key,resolutiondate,created&startAt="
+//					+ i.toString() + "&maxResults=" + j.toString();
+//
+//
+//			JSONObject json = readJsonFromUrl(url);
+//			JSONArray issues = json.getJSONArray("issues");
+//			//ci si prende il numero totale di ticket recuperati
+//			total = json.getInt("total");
+//
+//			ticketIDList= new ArrayList<>();
+//			yearsList= new ArrayList<>();
+//			// si itera sul numero di ticket
+//			for (; i < total && i < j; i++) {
+//
+//				String key = issues.getJSONObject(i%1000).get("key").toString();
+//
+//
+//				ticketIDList.add(key);
+//
+//			}  
+//		} while (i < total);project = BOOKKEEPER AND issuetype = Bug AND status in (Resolved, Closed) AND resolution = Fixed AND  affectedVersion is not EMPTY
 
 
 
