@@ -63,7 +63,7 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
  * @author simone
  *
  */
-public class RetrieveFixedBugs {
+public class Main {
 
 	private static String PROJECT_NAME ="MAHOUT";
 	private static String PROJECT_NAME_GIT ="apache/mahout.git";
@@ -93,6 +93,7 @@ public class RetrieveFixedBugs {
 	public static boolean searchingForDateOfCreation = false;
 	private static boolean calculatingLOC=false;
 	private static boolean calculatingLOC_Touched=false;
+	private static boolean calculatingNAuth=false;
 
 	//--------------------------
 
@@ -281,6 +282,7 @@ public class RetrieveFixedBugs {
 						int maxChurn=0;
 						int numberOfCommit=0;
 						line=line.trim();
+						//"one or more whitespaces = \\s+"
 						String[] tokens = line.split("\\s+");
 						//set a pin for this location
 						br.mark(0);
@@ -293,12 +295,13 @@ public class RetrieveFixedBugs {
 							l.setNR(numberOfCommit);
 							l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
 							l.setMax_Churn(maxChurn);
+							l.setAVG_Churn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
 							arr.add(l);
-							
+
 						}
 						else {
-							 //per NR
-							  numberOfCommit++;
+							//per NR
+							numberOfCommit++;
 							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
 							addedLines=addedLines+Integer.parseInt(tokens[0]);
 							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
@@ -307,7 +310,7 @@ public class RetrieveFixedBugs {
 							if((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1]))<0){
 								realDeletedLOC=Integer.parseInt(tokens[1])-Integer.parseInt(tokens[0]);
 								sumOfRealDeletedLOC= sumOfRealDeletedLOC + realDeletedLOC;
-							    }
+							}
 							//per MAX_CHURN
 							maxChurn=Math.max((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1])-realDeletedLOC), maxChurn);
 							filename=tokens[2];
@@ -317,7 +320,7 @@ public class RetrieveFixedBugs {
 					}
 
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC_Touched) {
-						
+
 						addedLinesForEveryRevision=new ArrayList<Integer>();
 						String nextLine;
 						int total=0;
@@ -335,13 +338,13 @@ public class RetrieveFixedBugs {
 								if((arr.get(i).getVersion()==Integer.parseInt(tokens[0]))&& arr.get(i).getFileName()==filename) {
 									arr.get(i).setLOC_Touched(addedLines+deletedLines);
 									arr.get(i).setMAX_LOC_Added(maxAddedlines);
-									
+
 									//per il AVG_LOC_Added -----------------------
 									for(int n=0; n<addedLinesForEveryRevision.size(); n++){
-							        	total = total + addedLinesForEveryRevision.get(n);
-							        }
-							        average = Math.floorDiv(addedLinesForEveryRevision.size(),total);
-							        //--------------------------------------------------
+										total = total + addedLinesForEveryRevision.get(n);
+									}
+									average = Math.floorDiv(addedLinesForEveryRevision.size(),total);
+									//--------------------------------------------------
 									arr.get(i).setAVG_LOC_Added(average);
 									arr.get(i).setLOC_Added(total);
 									break;
@@ -349,7 +352,7 @@ public class RetrieveFixedBugs {
 							}
 						}
 						else {
-							   
+
 							//per il Max_LOC_Added
 							maxAddedlines=Math.max(Integer.parseInt(tokens[0]), maxAddedlines);
 							//per il AVG_LOC_Added
@@ -362,6 +365,35 @@ public class RetrieveFixedBugs {
 							br.reset();
 						}
 
+
+					}
+
+					else if (storeData&&startToExecDeliverable2&&calculatingNAuth) {
+
+						String nextLine;
+						int version;
+						line=line.trim();
+						int nAuth=0;
+						String[] tokens = line.split("\\s+");
+						//set a pin for this location
+						br.mark(0);
+
+						nextLine =br.readLine();
+						//abbiamo raggiunto la fine (l'ultima riga ha il numero di versione)
+						if (nextLine == null) { 
+							version=Integer.parseInt(tokens[0]);
+							filename= tokens[1];
+							//cerchiamo l'oggetto giusto su cui scrivere
+							for (int i = 0; i < arr.size(); i++) { 
+								if((arr.get(i).getVersion()==version) && (arr.get(i).getFileName()==filename)) {
+									arr.get(i).setNAuth(nAuth);
+								}
+							}
+						}
+						else {
+							nAuth++;							
+							br.reset();
+						}
 
 					}
 					System.out.println("Linea fuori if: "+line);
@@ -521,7 +553,7 @@ public class RetrieveFixedBugs {
 
 
 	//data una versione/release e un filename si ricava il LOC/size del file
-	private static void getLOC(String filename, Integer i) {
+	private static void getChurnMetrics(String filename, Integer i) {
 
 
 
@@ -570,7 +602,27 @@ public class RetrieveFixedBugs {
 
 
 	}
-	
+
+	private static void getNumberOfAuthors(String filename, Integer i) {
+
+		//directory da cui far partire il comando git    
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		String command;
+
+		try {
+
+			command = "git shortlog -sn --all --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" "+filename+" && echo "+i+" "+filename;	
+
+			runCommandOnShell(directory, command);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
 
 	//--------------------------------------
 
@@ -713,42 +765,8 @@ public class RetrieveFixedBugs {
 			}
 		});
 
-		/*	FileWriter fileWriter = null;
-		try {
-			fileWriter = null;
-			String outname = PROJECT_NAME + " Version Info.csv";
-			//Name of CSV for output
-			fileWriter = new FileWriter(outname);
-			fileWriter.append("Index,Version ID,Version Name,Date");
-			fileWriter.append("\n");
-
-			numVersions = releases.size();
-			for ( i = 0; i < releases.size(); i++) {
-				Integer index = i + 1;
-				fileWriter.append(index.toString());
-				fileWriter.append(",");
-				fileWriter.append(releaseID.get(releases.get(i)));
-				fileWriter.append(",");
-				fileWriter.append(releaseNames.get(releases.get(i)));
-				fileWriter.append(",");
-				fileWriter.append(releases.get(i).toString());
-				fileWriter.append("\n");
-			}
-
-		} catch (Exception e) {
-			System.out.println("Error in csv writer");
-			e.printStackTrace();
-		} finally {
-			try {
-				fileWriter.flush();
-				fileWriter.close();
-			} catch (IOException e) {
-				System.out.println("Error while flushing/closing fileWriter !!!");
-				e.printStackTrace();
-			}
-		}*/
 		//--------------------------------------------------------
-		///ORA CREO IL VERO DATASET
+		///ORA CREO IL  DATASET
 
 
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
@@ -802,13 +820,16 @@ public class RetrieveFixedBugs {
 			//per ogni file
 			for (String s : fileNameOfFirstHalf) {
 				num++;
-                  //il metodo getLOC creerà l'arrayList di entry LineOfDataSet
-				getLOC(s,i);
+				//il metodo getLOC creerà l'arrayList di entry LineOfDataSet
+				getChurnMetrics(s,i);
 				calculatingLOC = false;
 				calculatingLOC_Touched = true;
 				//i metodi successivi modificano semplicemente le entry in quell'array
 				getLOCMetrics(s,i);
-				
+				calculatingLOC_Touched = false;
+				calculatingNAuth= true;
+				getNumberOfAuthors(s,i);
+
 
 
 
@@ -935,7 +956,9 @@ public class RetrieveFixedBugs {
 		return;
 	}
 
-	
+
+
+
 
 
 

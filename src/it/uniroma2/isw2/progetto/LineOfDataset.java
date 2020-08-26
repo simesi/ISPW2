@@ -15,7 +15,6 @@ public class LineOfDataset {
 	private int LOC_Added;
 	private int MAX_LOC_Added;
 	private int AVG_LOC_Added;
-	private int Age;
 	private String Buggy;
 
 	
@@ -208,23 +207,7 @@ public class LineOfDataset {
 		AVG_LOC_Added = aVG_LOC_Added;
 	}
 
-
-	/**
-	 * @return the age
-	 */
-	public int getAge() {
-		return Age;
-	}
-
-
-	/**
-	 * @param age the age to set
-	 */
-	public void setAge(int age) {
-		Age = age;
-	}
-
-
+	
 	/**
 	 * @return the buggy
 	 */
