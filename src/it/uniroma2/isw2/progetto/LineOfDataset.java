@@ -227,12 +227,12 @@ public class LineOfDataset {
 		Buggy = buggy;
 	}
 
-                                                            //LOC
-	public LineOfDataset(int version, String fileName, int size) {
+             //costruttore minimale                                             
+	public LineOfDataset(int version, String fileName) {
 		super();
 		this.version = version;
 		this.fileName = fileName;
-		Size = size; //LOC
+		
 	}
 
 	

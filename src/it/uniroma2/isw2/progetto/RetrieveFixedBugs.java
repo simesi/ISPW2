@@ -76,8 +76,7 @@ public class RetrieveFixedBugs {
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
 	private static boolean startToExecDeliverable2=false;
-	private static boolean calculatingLOC=false;
-	private static boolean calculatingLOC_Touched=false;
+
 	//--------------------------
 	//per deliverable 2
 
@@ -89,8 +88,11 @@ public class RetrieveFixedBugs {
 	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
 	public static ArrayList<String> fileNameOfFirstHalf;
+	public static ArrayList<LineOfDataset> arr;
 
 	public static boolean searchingForDateOfCreation = false;
+	private static boolean calculatingLOC=false;
+	private static boolean calculatingLOC_Touched=false;
 
 	//--------------------------
 
@@ -133,7 +135,7 @@ public class RetrieveFixedBugs {
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
 	}
-	
+
 	//questo metodo fa il comando'git log' del bug sulla repository (mostra il log dei commit)   
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
 
@@ -240,6 +242,7 @@ public class RetrieveFixedBugs {
 				String filename= "";
 				int addedLines=0;
 				int deletedLines=0;
+				int maxAddedlines=0;
 
 
 				while ((line = br.readLine()) != null) {
@@ -278,12 +281,14 @@ public class RetrieveFixedBugs {
 						br.mark(0);
 
 						nextLine =br.readLine();
-						//abbiamo raggiunto la fine
+						//abbiamo raggiunto la fine (l'ultima riga ha il numero di versione)
 						if (nextLine == null) {                            //id versione, filename, LOC fino a quella versione
-							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename, addedLines-deletedLines);
+							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename); //addedLines-deletedLines);
+							l.setSize(addedLines-deletedLines);//set del valore di LOC
+							arr.add(l);
 						}
 						else {
-							 //si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
+							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
 							addedLines=addedLines+Integer.parseInt(tokens[0]);
 							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
 							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
@@ -302,19 +307,29 @@ public class RetrieveFixedBugs {
 
 						nextLine =br.readLine();
 						//abbiamo raggiunto la fine
-						if (nextLine == null) {                            //id versione, filename, LOC aggiunte+eliminate in quella versione
-							LineOfDataset l=new LineOfDataset(Integer.parseInt(tokens[0]),filename, addedLines+deletedLines);
+						if (nextLine == null) {                            
+							//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
+							for (int i = 0; i < arr.size(); i++) {  
+								if((arr.get(i).getVersion()==Integer.parseInt(tokens[0]))&& arr.get(i).getFileName()==filename) {
+									arr.get(i).setLOC_Touched(addedLines+deletedLines);
+									arr.get(i).setMAX_LOC_Added(maxAddedlines);
+									break;
+								}
+							}
 						}
 						else {
-							 //si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
+							//per il Max_LOC_Added
+							maxAddedlines=Math.max(Integer.parseInt(tokens[0]), maxAddedlines);
+							
+							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
 							addedLines=addedLines+Integer.parseInt(tokens[0]);
 							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
 							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
 							filename=tokens[2];
 							br.reset();
 						}
-						
-						
+
+
 					}
 					System.out.println("Linea fuori if: "+line);
 				}
@@ -356,7 +371,7 @@ public class RetrieveFixedBugs {
 		}
 	}
 
-        //questo metodo scrive un file CSV con i dati richiesti per poter creare il control chart
+	//questo metodo scrive un file CSV con i dati richiesti per poter creare il control chart
 	private static void writeCSV(Map<String,Integer> map) {
 		String[] header;
 		if(COLLECT_DATA_AS_YEARS) {
@@ -403,7 +418,7 @@ public class RetrieveFixedBugs {
 		return;
 	}
 
-	     //passando una pathname se ne ricostruisce la data di creazione
+	//passando una pathname se ne ricostruisce la data di creazione
 	public static void getCreationDate(String filename) {
 
 		//directory da cui far partire il comando git    
@@ -453,7 +468,7 @@ public class RetrieveFixedBugs {
 			}
 
 			if (f.isFile()) {
-				  //si prendono solo i file java
+				//si prendono solo i file java
 				if (f.getName().matches(".*\\.java")) {
 
 					fileRenamed=f.getAbsolutePath();
@@ -496,20 +511,20 @@ public class RetrieveFixedBugs {
 		}
 
 	}
-	
 
-	private static void getLOC_Touched(String filename, Integer i) {
+
+	private static void getLOC_Touched_And_MAX_LOC_Added(String filename, Integer i) {
 		//directory da cui far partire il comando git    
 		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
 		String command;
 
 		try {
-                if(i>1) {
-			command = "git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
-                }
-                else {  //prima release
-                	command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
-                }
+			if(i>1) {
+				command = "git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+			}
+			else {  //prima release
+				command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+			}
 			runCommandOnShell(directory, command);
 
 		} catch (IOException e) {
@@ -520,6 +535,30 @@ public class RetrieveFixedBugs {
 			System.exit(-1);
 		}
 
+
+	}
+	
+	private static void getMAX_LOC_Added(String filename, Integer i) {
+		//directory da cui far partire il comando git    
+				Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+				String command;
+
+				try {
+					if(i>1) {
+						command = "git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+					}
+					else {  //prima release
+						command = "git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename+" && echo "+i;	
+					}
+					runCommandOnShell(directory, command);
+
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.exit(-1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					System.exit(-1);
+				}
 		
 	}
 	//--------------------------------------
@@ -608,13 +647,13 @@ public class RetrieveFixedBugs {
 			LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
 			//iteratore
 			LocalDate date = firstdate;
-			
+
 			// .... e si aggiungono i mesi tra i due periodi 			
 			while(date.isBefore(lastdate)) {
 				date =date.with(TemporalAdjusters.firstDayOfNextMonth());
 				sorted.put(date.format(formatterWithNoDay), 0);
 			}
-						
+
 			//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
 			sorted.putAll(map);
 			map=sorted;
@@ -628,7 +667,7 @@ public class RetrieveFixedBugs {
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
-		
+
 		PROJECT_NAME ="BOOKKEEPER";
 		PROJECT_NAME_GIT ="apache/bookkeeper.git";
 		startToExecDeliverable2=true;
@@ -662,8 +701,8 @@ public class RetrieveFixedBugs {
 				return o1.compareTo(o2);
 			}
 		});
-		
-	/*	FileWriter fileWriter = null;
+
+		/*	FileWriter fileWriter = null;
 		try {
 			fileWriter = null;
 			String outname = PROJECT_NAME + " Version Info.csv";
@@ -721,7 +760,7 @@ public class RetrieveFixedBugs {
 		searchFileJava(folder, files);
 		//System.out.println(result.get(702));
 		//	System.out.println(result.get(703));
-		
+
 		//popolo un'HasMap con associazione indice di release-data delle release
 		for ( i = 1; i <= releases.size(); i++) {
 			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
@@ -737,14 +776,14 @@ public class RetrieveFixedBugs {
 			//System.out.println(s+" "+fromFileNameToReleaseIndexOfCreation.get(s));
 		}
 		searchingForDateOfCreation = false;
-		
+
 
 		//System.out.println(fromFileNameToReleaseIndexOfCreation.size());
 
 		//----------------------------------------------
 		//System.out.println(fileNameOfFirstHalf);
 
-		ArrayList<LineOfDataset> arr = new ArrayList<LineOfDataset>();
+
 		int num=0;
 		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
@@ -757,7 +796,8 @@ public class RetrieveFixedBugs {
 				calculatingLOC = false;
 				calculatingLOC_Touched = true;
 				getLOC_Touched(s,i);
-				
+				getMAX_LOC_Added(s,i);
+
 
 
 				//LineOfDataset line = new LineOfDataset(1, fromFileNameToReleaseIndexOfCreation, fileName, size, lOC_Touched, nR, nFix, nAuth, lOC_Added, mAX_LOC_Added, aVG_LOC_Added, age, buggy)
@@ -765,13 +805,13 @@ public class RetrieveFixedBugs {
 
 		} 
 		calculatingLOC = false;
-		 
-		
-		
-		
+
+
+
+
 		/*----------------------------
 		 //parte per OpenJPA
-		  
+
 		fileWriter = null;
 		try {
 			fileWriter = null;
@@ -882,6 +922,8 @@ public class RetrieveFixedBugs {
 		 ************************/
 		return;
 	}
+
+	
 
 
 
