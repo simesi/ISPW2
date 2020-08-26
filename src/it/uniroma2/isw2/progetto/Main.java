@@ -84,7 +84,7 @@ public class Main {
 	public static HashMap<LocalDateTime, String> releaseID;
 	public static ArrayList<LocalDateTime> releases;
 	public static HashMap<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<String,LocalDateTime>();
-	public static HashMap<String,String> fromFileNameToReleaseIndexOfCreation=new HashMap<String,String>();
+	//public static HashMap<String,String> fromFileNameToReleaseIndexOfCreation=new HashMap<String,String>();
 	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
 	public static ArrayList<String> fileNameOfFirstHalf;
@@ -245,7 +245,7 @@ public class Main {
 				int addedLines=0;
 				int deletedLines=0;
 				int maxAddedlines=0;
-				ArrayList<Integer> addedLinesForEveryRevision;
+				
 
 
 				while ((line = br.readLine()) != null) {
@@ -272,7 +272,7 @@ public class Main {
 
 							fromFileNameToDateOfCreation.put(file,dateTime);
 							//le date ulteriori vengono ignorate
-							continue;}
+							break;}
 					}
 
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC) {
@@ -295,7 +295,8 @@ public class Main {
 						nextLine =br.readLine();
 
 
-						while (nextLine != null) {                            
+						while (nextLine != null) { 
+							System.out.println("Linea ="+nextLine);
 							//per NR
 							numberOfCommit=numberOfCommit+1;
 							nextLine.trim();
@@ -320,6 +321,7 @@ public class Main {
 						LineOfDataset l=new LineOfDataset(Integer.parseInt(version),filename); //id versione, filename
 						l.setSize(addedLines-deletedLines);//set del valore di LOC
 						l.setNR(numberOfCommit);
+						System.out.println("numberOfCommit = "+numberOfCommit);
 						l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
 						l.setMax_Churn(maxChurn);
 						System.out.println("maxChurn = "+maxChurn);
@@ -333,7 +335,7 @@ public class Main {
 
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC_Touched) {
 						String version;
-						addedLinesForEveryRevision=new ArrayList<Integer>();
+						ArrayList<Integer> addedLinesForEveryRevision=new ArrayList<Integer>();
 						String nextLine;
 						int total=0;
 						int average=0;
@@ -343,7 +345,7 @@ public class Main {
 						//operazione per il primo output che è il numero di versione------------------------------
 						version=tokens[0];
 						//--------------------------------------------------------- 
-
+                          
 						nextLine =br.readLine();
 
 						while(nextLine != null) {
@@ -409,7 +411,7 @@ public class Main {
 						for (int i = 0; i < arr.size(); i++) { 
 							if((arr.get(i).getVersion()==version) && (arr.get(i).getFileName()==filename)) {
 								arr.get(i).setNAuth(nAuth);
-								break;
+								br.close();
 							}
 
 						}
@@ -417,7 +419,7 @@ public class Main {
 					}
 					System.out.println("Linea fuori if: "+line);
 				}
-
+				br.close();
 			} catch (IOException ioe) {
 
 				ioe.printStackTrace();
@@ -523,19 +525,11 @@ public class Main {
 			System.exit(-1);
 		}
 
-
-
-		//per ogni versione della prima metà delle release
-		for (int i = 1; i <= Math.floorDiv(fromReleaseIndexToDate.size(),2); i++) {
-
-			if ((fromFileNameToDateOfCreation.get(filename).isAfter(fromReleaseIndexToDate.get(String.valueOf(i)))||
-					fromFileNameToDateOfCreation.get(filename).isEqual(fromReleaseIndexToDate.get(String.valueOf(i))))&&
-					fromFileNameToDateOfCreation.get(filename).isBefore(fromReleaseIndexToDate.get(String.valueOf(i+1)))) {
-				fromFileNameToReleaseIndexOfCreation.put(filename,String.valueOf(i));
+		int num= Math.floorDiv(fromReleaseIndexToDate.size(),2)+1;
+		        //aggiunta dei soli file creati prima della metà delle release
+			if (fromFileNameToDateOfCreation.get(filename).isBefore(fromReleaseIndexToDate.get(String.valueOf(num)))) {
 				fileNameOfFirstHalf.add(filename);
-				break;
-
-			}
+			
 
 		}
 
@@ -582,7 +576,7 @@ public class Main {
 
 		try {
 
-			command = "echo "+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
+			command = "echo "+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))+" --format= --numstat -- "+filename;	
 
 			runCommandOnShell(directory, command);
 
@@ -787,7 +781,6 @@ public class Main {
 				return o1.compareTo(o2);
 			}
 		});
-
 		//--------------------------------------------------------
 		///ORA CREO IL  DATASET
 
@@ -817,18 +810,20 @@ public class Main {
 		for ( i = 1; i <= releases.size(); i++) {
 			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
 		}
-
+		
 		storeData=true;
 		searchingForDateOfCreation = true;
+		
+		System.out.println("Sto per chiamare la getCreation con numero di files ="+files.size());
 		//per ogni file
 		for (String s : files) {
-
 
 			getCreationDate(s);		
 			//System.out.println(s+" "+fromFileNameToReleaseIndexOfCreation.get(s));
 		}
+		files.clear();
 		searchingForDateOfCreation = false;
-
+		System.out.println("fileNameOfFirstHalf"+fileNameOfFirstHalf);
 
 		//System.out.println(fromFileNameToReleaseIndexOfCreation.size());
 
@@ -839,8 +834,10 @@ public class Main {
 		int num=0;
 		arr= new ArrayList<LineOfDataset>();
 		calculatingLOC = true;
+		System.out.println("Size of fromReleaseIndexTodate"+fromReleaseIndexToDate.size());
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
+			System.out.println("release "+i);
 			//per ogni file
 			for (String s : fileNameOfFirstHalf) {
 				num++;
@@ -855,7 +852,7 @@ public class Main {
 				calculatingNAuth= true;
 				getNumberOfAuthors(s,i);
 				calculatingNAuth= false;
-				System.out.println(num);
+				System.out.println("Finito File "+num+" Release "+i );
 
 			}
 
