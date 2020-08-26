@@ -810,6 +810,7 @@ public class Main {
 
 		storeData=true;
 		searchingForDateOfCreation = true;
+		  System.out.println("INIZIO ricerca date of creation");
 		//per ogni file
 		for (String s : files) {
 
@@ -827,6 +828,7 @@ public class Main {
 
 
 		int num=0;
+		arr= new ArrayList<LineOfDataset>();
 		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
