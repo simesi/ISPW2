@@ -296,7 +296,6 @@ public class Main {
 
 
 						while (nextLine != null) { 
-							System.out.println("Linea ="+nextLine);
 							//per NR
 							numberOfCommit=numberOfCommit+1;
 							nextLine.trim();
@@ -353,6 +352,8 @@ public class Main {
 						nextLine =br.readLine();
 
 						while(nextLine != null) {
+
+							System.out.println("Linea LOCTouched ="+nextLine);
 							nextLine.trim();
 							tokens=nextLine.split("\\s+");
 							//per il Max_LOC_Added
@@ -365,6 +366,7 @@ public class Main {
 							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
 							filename=tokens[2];
 							iteration=1;
+							nextLine =br.readLine();
 						}
 
 
@@ -416,6 +418,7 @@ public class Main {
 
 						while(nextLine != null) {
 							nAuth++;
+							nextLine =br.readLine();
 						}
 						//file non è stato ancora creato in questa versione
 						if(nAuth==0) {
@@ -796,6 +799,11 @@ public class Main {
 				return o1.compareTo(o2);
 			}
 		});
+		
+		
+		releaseID.clear();
+		releaseNames.clear();
+		
 		//--------------------------------------------------------
 		///ORA CREO IL  DATASET
 
@@ -818,8 +826,7 @@ public class Main {
 
 		//search for java files in the cloned repository
 		searchFileJava(folder, files);
-		//System.out.println(result.get(702));
-		//	System.out.println(result.get(703));
+		
 
 		//popolo un'HasMap con associazione indice di release-data delle release
 		for ( i = 1; i <= releases.size(); i++) {
@@ -830,13 +837,18 @@ public class Main {
 		searchingForDateOfCreation = true;
 
 		System.out.println("Sto per chiamare la getCreation con numero di files ="+files.size());
+		
+		
 		//per ogni file
 		for (String s : files) {
-
-			getCreationDate(s);		
-			//System.out.println(s+" "+fromFileNameToReleaseIndexOfCreation.get(s));
-		}
+					getCreationDate(s);
+					}
+		
+		
 		files.clear();
+		releases.clear();
+		
+		
 		searchingForDateOfCreation = false;
 		System.out.println("fileNameOfFirstHalf"+fileNameOfFirstHalf.size());
 
