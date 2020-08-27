@@ -88,12 +88,14 @@ public class Main {
 	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
 	public static ArrayList<String> fileNameOfFirstHalf;
-	public static ArrayList<LineOfDataset> arr;
+	public static ArrayList<LineOfDataset> arrayOfEntryOfDataset;
+	public static ArrayList<TicketTakenFromJIRA> tickets;
 
 	public static boolean searchingForDateOfCreation = false;
 	private static boolean calculatingLOC=false;
 	private static boolean calculatingLOC_Touched=false;
 	private static boolean calculatingNAuth=false;
+	private static boolean gettingLastCommit=false;
 
 	//--------------------------
 
@@ -142,12 +144,13 @@ public class Main {
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
 
 		Path directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
-
+		//ritorna la data dell'ultimo commit con quel bug nel commento
 		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
 
 
 	}
+
 	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
 
 		Objects.requireNonNull(directory, "directory è NULL");
@@ -329,7 +332,7 @@ public class Main {
 							l.setAVG_Churn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
 						}
 						else {l.setAVG_Churn(0);}
-						arr.add(l);
+						arrayOfEntryOfDataset.add(l);
 						br.close();
 						break;//fa uscire dal while principale
 					}
@@ -376,10 +379,10 @@ public class Main {
 						}  
 
 						//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
-						for (int i = 0; i < arr.size(); i++) {  
-							if((arr.get(i).getVersion()==Integer.parseInt(version))&& arr.get(i).getFileName()==filename) {
-								arr.get(i).setLOC_Touched(addedLines+deletedLines);
-								arr.get(i).setMAX_LOC_Added(maxAddedlines);
+						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) {  
+							if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& arrayOfEntryOfDataset.get(i).getFileName()==filename) {
+								arrayOfEntryOfDataset.get(i).setLOC_Touched(addedLines+deletedLines);
+								arrayOfEntryOfDataset.get(i).setMAX_LOC_Added(maxAddedlines);
 
 								//per il AVG_LOC_Added -----------------------
 								for(int n=0; n<addedLinesForEveryRevision.size(); n++){
@@ -390,8 +393,8 @@ public class Main {
 								}
 								else average=0;
 								//--------------------------------------------------
-								arr.get(i).setAVG_LOC_Added(average);
-								arr.get(i).setLOC_Added(total);
+								arrayOfEntryOfDataset.get(i).setAVG_LOC_Added(average);
+								arrayOfEntryOfDataset.get(i).setLOC_Added(total);
 								br.close();
 								break;
 							}
@@ -426,9 +429,9 @@ public class Main {
 
 
 						//cerchiamo l'oggetto giusto su cui scrivere
-						for (int i = 0; i < arr.size(); i++) { 
-							if((arr.get(i).getVersion()==version) && (arr.get(i).getFileName()==filename)) {
-								arr.get(i).setNAuth(nAuth);
+						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) { 
+							if((arrayOfEntryOfDataset.get(i).getVersion()==version) && (arrayOfEntryOfDataset.get(i).getFileName()==filename)) {
+								arrayOfEntryOfDataset.get(i).setNAuth(nAuth);
 								br.close();
 								break;
 							}
@@ -436,6 +439,48 @@ public class Main {
 						}
 
 					}
+					else if (storeData&&startToExecDeliverable2&&gettingLastCommit) {
+						String nextLine;
+						ArrayList<String> filesAffected = new ArrayList<String>();
+						line=line.trim();
+						String[] tokens = line.split("\\s+");
+						String bug= tokens[0];
+						System.out.println("bug ="+bug);
+
+						//ora prendo la data dell'ultimo commit
+						nextLine =br.readLine();
+						//non c'è un commit con questo id
+						if(nextLine==null) {
+							br.close();
+							break;
+						}
+						nextLine=nextLine.trim();
+
+						//prendo anno mese e giorno
+						String date =nextLine.substring(0, 10);
+						System.out.println("data ="+date);
+
+						//ora prendo i file modificati aventi quel bug nel commento del commit 
+						nextLine =br.readLine();
+
+						while(nextLine != null) {
+							filename=nextLine;
+                     //potrebbero venire introdotti delle righe vuote o con solo '*'
+							if(!filename.contains("*")&&!filename.contains(" ")) {
+								System.out.println("filename ="+filename);
+								filesAffected.add(filename);
+							}							
+							nextLine =br.readLine();
+						}
+						for (int i = 0; i < tickets.size(); i++) {
+							if(tickets.get(i).getKey()== bug) {
+								tickets.get(i).setFilenames(filesAffected);
+								tickets.get(i).setFixedVersion(date);
+								break;
+							}
+						}
+					}
+
 					System.out.println("Linea fuori if: "+line);
 				}
 				br.close();
@@ -656,6 +701,29 @@ public class Main {
 		}
 	}
 
+	private static void getLastCommitOfBug(String id) throws IOException, InterruptedException{
+
+		//directory da cui far partire il comando git    
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		String command;
+
+		try {    //ritorna id bug, data dell'ultimo commit con quel bug nel commento e una lista di tutti i file java modificati
+			command= "echo "+id+" && git log --grep="+id+": -1 --date=short --pretty=format:%cd &&"
+					+ " git log --graph --pretty=format:%d --name-only --grep="+id+": -- *.java";
+
+			runCommandOnShell(directory, command);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+
+
+
 	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
@@ -804,11 +872,11 @@ public class Main {
 		});
 
 
-	
+
 
 		//--------------------------------------------------------
 		///ORA CREO IL  DATASET
-		
+
 
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
@@ -836,11 +904,11 @@ public class Main {
 		}
 
 		storeData=true;
-		searchingForDateOfCreation = true;
+		/*searchingForDateOfCreation = true;
 
 		System.out.println("Sto per chiamare la getCreation con numero di files ="+files.size());
 
-/*
+
 		//per ogni file
 		for (String s : files) {
 					getCreationDate(s);
@@ -859,7 +927,7 @@ public class Main {
 
 
 		int num=0;
-		arr= new ArrayList<LineOfDataset>();
+		arrayOfEntryOfDataset= new ArrayList<LineOfDataset>();
 		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
@@ -883,10 +951,10 @@ public class Main {
 			}
 
 		} */
-		
-		
+
+
 		//inizio operazioni per calcolo bugginess
-		ArrayList<TicketTakenFromJIRA> tickets=new ArrayList<TicketTakenFromJIRA>();
+		tickets=new ArrayList<TicketTakenFromJIRA>();
 		j=0;
 		i=0;
 		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed”  in the project
@@ -894,7 +962,7 @@ public class Main {
 			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
 			j = i + 1000;
 
-        //%20 = spazio                      %22=virgolette
+			//%20 = spazio                      %22=virgolette
 			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".
 			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
 					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
@@ -909,29 +977,35 @@ public class Main {
 			//ci si prende il numero totale di ticket recuperati
 			total = json.getInt("total");
 
-			
-		
+
+
 			// si itera sul numero di ticket
 			for (; i < total && i < j; i++) {
 
 				String key = issues.getJSONObject(i%1000).get("key").toString();
-                String createdVers= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString();
-                String affVers= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(0).get("name").toString();
-                
+				String createdVers= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString();
+				String affVers= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(0).get("name").toString();
+
 				TicketTakenFromJIRA tick= new TicketTakenFromJIRA(key, createdVers, affVers);
 				tickets.add(tick);
 				//System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
 			}  
 		} while (i < total);
 
+		gettingLastCommit=true;
+		for (TicketTakenFromJIRA ticket : tickets) {
+			//ora si prendono i commit su GIT associati a quei bug
+			try {
+				getLastCommitOfBug(ticket.getKey());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.exit(-1);
+			}
 
+		}
 
-//ora si prendono i commit su GIT associati a quei bug
-
-
-
-
-
+		gettingLastCommit=false;
 
 
 
