@@ -323,15 +323,14 @@ public class Main {
 						LineOfDataset l=new LineOfDataset(Integer.parseInt(version),filename); //id versione, filename
 						l.setSize(addedLines-deletedLines);//set del valore di LOC
 						l.setNR(numberOfCommit);
-						System.out.println("numberOfCommit = "+numberOfCommit);
 						l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
 						l.setMax_Churn(maxChurn);
-						System.out.println("maxChurn = "+maxChurn);
 						if (numberOfCommit!=0) { 
 							l.setAVG_Churn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
 						}
 						else {l.setAVG_Churn(0);}
 						arr.add(l);
+						br.close();
 						break;//fa uscire dal while principale
 					}
 
@@ -353,7 +352,6 @@ public class Main {
 
 						while(nextLine != null) {
 
-							System.out.println("Linea LOCTouched ="+nextLine);
 							nextLine.trim();
 							tokens=nextLine.split("\\s+");
 							//per il Max_LOC_Added
@@ -394,6 +392,7 @@ public class Main {
 								//--------------------------------------------------
 								arr.get(i).setAVG_LOC_Added(average);
 								arr.get(i).setLOC_Added(total);
+								br.close();
 								break;
 							}
 						}
@@ -431,6 +430,7 @@ public class Main {
 							if((arr.get(i).getVersion()==version) && (arr.get(i).getFileName()==filename)) {
 								arr.get(i).setNAuth(nAuth);
 								br.close();
+								break;
 							}
 
 						}
@@ -543,9 +543,10 @@ public class Main {
 			System.exit(-1);
 		}
 
-		int num= Math.floorDiv(fromReleaseIndexToDate.size(),2)+1;
+		int num= Math.floorDiv(fromReleaseIndexToDate.size(),2);
 		//aggiunta dei soli file creati prima della metà delle release
-		if (fromFileNameToDateOfCreation.get(filename).isBefore(fromReleaseIndexToDate.get(String.valueOf(num)))) {
+		if (fromFileNameToDateOfCreation.get(filename).isBefore(fromReleaseIndexToDate.get(String.valueOf(num)))||
+				fromFileNameToDateOfCreation.get(filename).isEqual(fromReleaseIndexToDate.get(String.valueOf(num)))) {
 			fileNameOfFirstHalf.add(filename);
 
 
@@ -660,9 +661,11 @@ public class Main {
 	public static void main(String[] args) throws IOException, JSONException {
 		Integer j = 0;
 		Integer i = 0;
+		Integer total = 1;
+		JSONObject json ;
+		JSONArray issues;
 
-		//		Integer total = 1;
-		//		ArrayList<String> ticketIDList;
+		ArrayList<String> ticketIDList;
 		//		//Get JSON API for closed bugs w/ AV in the project
 		//		do {
 		//			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
@@ -676,8 +679,8 @@ public class Main {
 		//					+ i.toString() + "&maxResults=" + j.toString();
 		//
 		//
-		//			JSONObject json = readJsonFromUrl(url);
-		//			JSONArray issues = json.getJSONArray("issues");
+		//			 json = readJsonFromUrl(url);
+		//			 issues = json.getJSONArray("issues");
 		//			//ci si prende il numero totale di ticket recuperati
 		//			total = json.getInt("total");
 		//
@@ -776,7 +779,7 @@ public class Main {
 		releases = new ArrayList<LocalDateTime>();
 		i=0;
 		String url = "https://issues.apache.org/jira/rest/api/2/project/" + PROJECT_NAME;
-		JSONObject json = readJsonFromUrl(url);
+		json = readJsonFromUrl(url);
 		JSONArray versions = json.getJSONArray("versions");
 		releaseNames = new HashMap<LocalDateTime, String>();
 		releaseID = new HashMap<LocalDateTime, String> ();
@@ -799,14 +802,13 @@ public class Main {
 				return o1.compareTo(o2);
 			}
 		});
-		
-		
-		releaseID.clear();
-		releaseNames.clear();
-		
+
+
+	
+
 		//--------------------------------------------------------
 		///ORA CREO IL  DATASET
-
+		
 
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
@@ -826,7 +828,7 @@ public class Main {
 
 		//search for java files in the cloned repository
 		searchFileJava(folder, files);
-		
+
 
 		//popolo un'HasMap con associazione indice di release-data delle release
 		for ( i = 1; i <= releases.size(); i++) {
@@ -837,22 +839,20 @@ public class Main {
 		searchingForDateOfCreation = true;
 
 		System.out.println("Sto per chiamare la getCreation con numero di files ="+files.size());
-		
-		
+
+/*
 		//per ogni file
 		for (String s : files) {
 					getCreationDate(s);
 					}
-		
-		
+
+
 		files.clear();
 		releases.clear();
-		
-		
+
+
 		searchingForDateOfCreation = false;
 		System.out.println("fileNameOfFirstHalf"+fileNameOfFirstHalf.size());
-
-		//System.out.println(fromFileNameToReleaseIndexOfCreation.size());
 
 		//----------------------------------------------
 		//System.out.println(fileNameOfFirstHalf);
@@ -882,46 +882,55 @@ public class Main {
 
 			}
 
-		} 
+		} */
+		
+		
+		//inizio operazioni per calcolo bugginess
+		ArrayList<TicketTakenFromJIRA> tickets=new ArrayList<TicketTakenFromJIRA>();
+		j=0;
+		i=0;
+		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed”  in the project
+		do {
+			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+			j = i + 1000;
 
-		//		j=0;
-		//		i=0;
-		//		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed”  in the project
-		//		do {
-		//			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-		//			j = i + 1000;
-		//
-		//			https://issues.apache.org/jira/browse/BOOKKEEPER-1105?jql
-		//				=project%20%3D%20BOOKKEEPER%20AND%20issuetype%20%3D%20Bug%20AND%20status%20in%20(Resolved%2C%20Closed)%20AND
-		//				%20resolution%20%3D%20Fixed%20AND%20%20affectedVersion%20is%20not%20EMPTY
-		//			
-		//			
-		//			
-		//			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
-		//			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-		//					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-		//					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-		//					+ "&fields=key,resolutiondate,created&startAt="
-		//					+ i.toString() + "&maxResults=" + j.toString();
-		//
-		//
-		//			JSONObject json = readJsonFromUrl(url);
-		//			JSONArray issues = json.getJSONArray("issues");
-		//			//ci si prende il numero totale di ticket recuperati
-		//			total = json.getInt("total");
-		//
-		//			ticketIDList= new ArrayList<>();
-		//			yearsList= new ArrayList<>();
-		//			// si itera sul numero di ticket
-		//			for (; i < total && i < j; i++) {
-		//
-		//				String key = issues.getJSONObject(i%1000).get("key").toString();
-		//
-		//
-		//				ticketIDList.add(key);
-		//
-		//			}  
-		//		} while (i < total);project = BOOKKEEPER AND issuetype = Bug AND status in (Resolved, Closed) AND resolution = Fixed AND  affectedVersion is not EMPTY
+        //%20 = spazio                      %22=virgolette
+			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".
+			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+					+ "&fields=key,created,versions&startAt="
+					+ i.toString() + "&maxResults=" + j.toString();
+			//System.out.println(url);
+
+			json = readJsonFromUrl(url);
+			issues = json.getJSONArray("issues");
+			//ci si prende il numero totale di ticket recuperati
+			total = json.getInt("total");
+
+			
+		
+			// si itera sul numero di ticket
+			for (; i < total && i < j; i++) {
+
+				String key = issues.getJSONObject(i%1000).get("key").toString();
+                String createdVers= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString();
+                String affVers= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(0).get("name").toString();
+                
+				TicketTakenFromJIRA tick= new TicketTakenFromJIRA(key, createdVers, affVers);
+				tickets.add(tick);
+				//System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
+			}  
+		} while (i < total);
+
+
+
+//ora si prendono i commit su GIT associati a quei bug
+
+
+
+
 
 
 
