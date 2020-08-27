@@ -445,12 +445,17 @@ public class Main {
 						line=line.trim();
 						String[] tokens = line.split("\\s+");
 						String bug= tokens[0];
-						System.out.println("bug ="+bug);
-
+						//System.out.println("bug ="+bug);
 						//ora prendo la data dell'ultimo commit
 						nextLine =br.readLine();
-						//non c'è un commit con questo id
+
+						//non c'è un commit con questo id quindi lo rimuovo
 						if(nextLine==null) {
+							for (int i = 0; i < tickets.size(); i++) {
+								if(tickets.get(i).getKey()== bug) {
+									tickets.remove(i);
+								}
+							}
 							br.close();
 							break;
 						}
@@ -458,30 +463,36 @@ public class Main {
 
 						//prendo anno mese e giorno
 						String date =nextLine.substring(0, 10);
-						System.out.println("data ="+date);
-
+						//System.out.println("data ="+date);
 						//ora prendo i file modificati aventi quel bug nel commento del commit 
 						nextLine =br.readLine();
 
 						while(nextLine != null) {
+							nextLine=nextLine.trim();
 							filename=nextLine;
-                     //potrebbero venire introdotti delle righe vuote o con solo '*'
+							//potrebbero venire introdotti delle righe vuote o con solo '*'
 							if(!filename.contains("*")&&!filename.contains(" ")) {
-								System.out.println("filename ="+filename);
+								//System.out.println("filename ="+filename);
 								filesAffected.add(filename);
 							}							
 							nextLine =br.readLine();
 						}
 						for (int i = 0; i < tickets.size(); i++) {
 							if(tickets.get(i).getKey()== bug) {
-								tickets.get(i).setFilenames(filesAffected);
 								tickets.get(i).setFixedVersion(date);
+								tickets.get(i).setFilenames(filesAffected);
+								//se i file affetti da bug non sono java allora cancelliamo il bug
+								if (filesAffected.size()==0) {
+									tickets.remove(i);
+								}
+
 								break;
 							}
 						}
 					}
-
-					System.out.println("Linea fuori if: "+line);
+					else {
+						System.out.println("Linea fuori if: "+line);
+					}
 				}
 				br.close();
 			} catch (IOException ioe) {
@@ -916,7 +927,6 @@ public class Main {
 
 
 		files.clear();
-		releases.clear();
 
 
 		searchingForDateOfCreation = false;
@@ -953,6 +963,8 @@ public class Main {
 		} */
 
 
+
+
 		//inizio operazioni per calcolo bugginess
 		tickets=new ArrayList<TicketTakenFromJIRA>();
 		j=0;
@@ -977,18 +989,55 @@ public class Main {
 			//ci si prende il numero totale di ticket recuperati
 			total = json.getInt("total");
 
+			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+			String createdVers="";
+			String affVers="";
+			LocalDate date;
+			LocalDate affReleaseDate;
+			TicketTakenFromJIRA tick;
 
 			// si itera sul numero di ticket
 			for (; i < total && i < j; i++) {
 
 				String key = issues.getJSONObject(i%1000).get("key").toString();
-				String createdVers= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString();
-				String affVers= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(0).get("name").toString();
+				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
+				//affVers è per es. 4.1.0
+				String affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(0).get("releaseDate").toString();
 
-				TicketTakenFromJIRA tick= new TicketTakenFromJIRA(key, createdVers, affVers);
-				tickets.add(tick);
-				//System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
+
+				date = LocalDate.parse(createdDate,format);
+				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
+
+				//se è la prima versione
+				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+					createdVers= String.valueOf(1);
+					affVers=String.valueOf(1);
+				}
+				else {
+					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+						if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+							createdVers= String.valueOf(a+1);
+
+							for(int k=0;k<releases.size();k++) {
+								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+									affVers=String.valueOf(k+1);
+									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
+									break;
+								}
+							}
+							break;
+						}
+					}
+				}
+				//check su opening version e affected version
+				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
+					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
+					tickets.add(tick);
+					System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
+				}
 			}  
 		} while (i < total);
 
@@ -996,7 +1045,9 @@ public class Main {
 		for (TicketTakenFromJIRA ticket : tickets) {
 			//ora si prendono i commit su GIT associati a quei bug
 			try {
+
 				getLastCommitOfBug(ticket.getKey());
+
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class TicketTakenFromJIRA {
      private String key;
-     private String createdVersion;
-     private String AffectedVersion;
+     private String createdVersionIndex;
+     private String affectedVersionIndex;
      private String FixedVersion;
      private ArrayList<String> filenames;
      
@@ -14,8 +14,8 @@ public class TicketTakenFromJIRA {
 	public TicketTakenFromJIRA(String key, String createdVersion, String affectedVersion) {
 		super();
 		this.key = key;
-		this.createdVersion = createdVersion;
-		AffectedVersion = affectedVersion;
+		this.createdVersionIndex = createdVersion;
+		affectedVersionIndex = affectedVersion;
 	}
 
 
@@ -40,19 +40,19 @@ public class TicketTakenFromJIRA {
 
 
 	/**
-	 * @return the createdVersion
+	 * @return the createdVersionIndex
 	 */
 	public String getCreatedVersion() {
-		return createdVersion;
+		return createdVersionIndex;
 	}
 
 
 
 	/**
-	 * @param createdVersion the createdVersion to set
+	 * @param createdVersionIndex the createdVersionIndex to set
 	 */
 	public void setCreatedVersion(String createdVersion) {
-		this.createdVersion = createdVersion;
+		this.createdVersionIndex = createdVersion;
 	}
 
 
@@ -61,7 +61,7 @@ public class TicketTakenFromJIRA {
 	 * @return the affectedVersion
 	 */
 	public String getAffectedVersion() {
-		return AffectedVersion;
+		return affectedVersionIndex;
 	}
 
 
@@ -70,7 +70,7 @@ public class TicketTakenFromJIRA {
 	 * @param affectedVersion the affectedVersion to set
 	 */
 	public void setAffectedVersion(String affectedVersion) {
-		AffectedVersion = affectedVersion;
+		affectedVersionIndex = affectedVersion;
 	}
 
 
