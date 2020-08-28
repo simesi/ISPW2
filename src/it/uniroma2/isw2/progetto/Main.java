@@ -96,6 +96,7 @@ public class Main {
 	private static boolean calculatingLOC_Touched=false;
 	private static boolean calculatingNAuth=false;
 	private static boolean gettingLastCommit=false;
+	private static int p; //relativo al metodo proportion per il calcolo della bugginess
 
 	//--------------------------
 
@@ -443,20 +444,15 @@ public class Main {
 						String nextLine;
 						ArrayList<String> filesAffected = new ArrayList<String>();
 						line=line.trim();
-						String fixedVers="";
+						String fixedVers=null;
 						String[] tokens = line.split("\\s+");
 						String bug= tokens[0];
 						//System.out.println("bug ="+bug);
 						//ora prendo la data dell'ultimo commit
 						nextLine =br.readLine();
 
-						//non c'è un commit con questo id quindi lo rimuovo
+						//non c'è un commit con questo id quindi non scrivo nulla
 						if(nextLine==null) {
-							for (int i = 0; i < tickets.size(); i++) {
-								if(tickets.get(i).getKey()== bug) {
-									tickets.remove(i);
-								}
-							}
 							br.close();
 							break;
 						}
@@ -479,28 +475,26 @@ public class Main {
 							nextLine =br.readLine();
 						}
 						for (int i = 0; i < tickets.size(); i++) {
-							if(tickets.get(i).getKey()== bug) {
-
+							if(tickets.get(i).getKey().equals(bug)) {
 								//se è la prima versione
 								if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-									fixedVers= String.valueOf(1);
+									fixedVers= String.valueOf(2);
+									//System.out.println("fixed version ="+fixedVers);
 								}
 								else {
 									for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
 										if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
 												&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 														(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-											fixedVers= String.valueOf(a+1);
+											fixedVers= String.valueOf(a+2);
+											//System.out.println("fixed version ="+fixedVers);
 											break;
 										}
 									}
 								}
 								tickets.get(i).setFixedVersion(fixedVers);
 								tickets.get(i).setFilenames(filesAffected);
-								//se i file affetti da bug non sono java allora cancelliamo il bug
-								if (filesAffected.size()==0) {
-									tickets.remove(i);
-								}
+								
 
 								break;
 							}
@@ -751,8 +745,47 @@ public class Main {
 		}
 	}
 
-
-
+   //metodo che computa P con il metodo incrementale come "average among the defects fixed in previous versions"
+	private static int computeP(int i) {
+		int validBugsFixed=0;
+		
+		//caso limite della prima versione
+		if(i==1) {
+			return 1;
+		}
+		
+		// //ora si calcola P con il metodo proportion
+	ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
+		for (TicketTakenFromJIRA ticket : tickets) {
+			//levo i ticket senza AV, OV o IV e quelli senza file java
+			  if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
+					  ||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+				   
+				    ticketsToDelete.add(ticket);
+				    continue;
+			  }
+			  //prendiamo solo i difetti fixed delle versioni passate
+			  if(Integer.parseInt(ticket.getFixedVersion())>=i) {
+				  continue;
+			  }
+			  validBugsFixed++;
+			  System.out.println("bug "+ticket.getKey()+"FV "+ticket.getFixedVersion()+" OV "+ticket.getCreatedVersion()+" IV "+ticket.getAffectedVersion());
+			p+=((Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getAffectedVersion())))
+					/(Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getCreatedVersion()));
+					}
+		
+		//si eliminano i ticket selezionati prima
+		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
+			tickets.remove(ticket);
+			
+		}
+		ticketsToDelete.clear();
+		System.out.println("p ="+p);
+		return p=p/validBugsFixed;
+		
+		
+	}
+	
 	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
@@ -982,7 +1015,6 @@ public class Main {
 
 
 
-
 		//inizio operazioni per calcolo bugginess
 		tickets=new ArrayList<TicketTakenFromJIRA>();
 		j=0;
@@ -1009,8 +1041,8 @@ public class Main {
 
 			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-			String createdVers="";
-			String affVers="";
+			String createdVers=null;
+			String affVers=null;
 			LocalDate date;
 			LocalDate affReleaseDate;
 			TicketTakenFromJIRA tick;
@@ -1054,14 +1086,14 @@ public class Main {
 				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
 					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
 					tickets.add(tick);
-					System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
+					//System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
 				}
 			}  
 		} while (i < total);
 
 		gettingLastCommit=true;
 		for (TicketTakenFromJIRA ticket : tickets) {
-			//ora si prendono i commit su GIT associati a quei bug
+			//ora si prendono i commit su GIT associati a quei bug per ottenere created version e affected version
 			try {
 
 				getLastCommitOfBug(ticket.getKey());
@@ -1076,8 +1108,13 @@ public class Main {
 
 		gettingLastCommit=false;
 
+		//computa P per la versione passata in ingresso
+computeP(1);
 
-
+		
+		
+		
+		
 		/*----------------------------
 		 //parte per OpenJPA
 
@@ -1191,6 +1228,8 @@ public class Main {
 		 ************************/
 		return;
 	}
+
+
 
 
 
