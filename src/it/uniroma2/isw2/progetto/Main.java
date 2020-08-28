@@ -443,6 +443,7 @@ public class Main {
 						String nextLine;
 						ArrayList<String> filesAffected = new ArrayList<String>();
 						line=line.trim();
+						String fixedVers="";
 						String[] tokens = line.split("\\s+");
 						String bug= tokens[0];
 						//System.out.println("bug ="+bug);
@@ -461,8 +462,8 @@ public class Main {
 						}
 						nextLine=nextLine.trim();
 
-						//prendo anno mese e giorno
-						String date =nextLine.substring(0, 10);
+						//prendo anno mese e giorno dell'ultimo commit
+						LocalDate date =LocalDate.parse(nextLine.substring(0, 10));
 						//System.out.println("data ="+date);
 						//ora prendo i file modificati aventi quel bug nel commento del commit 
 						nextLine =br.readLine();
@@ -479,7 +480,22 @@ public class Main {
 						}
 						for (int i = 0; i < tickets.size(); i++) {
 							if(tickets.get(i).getKey()== bug) {
-								tickets.get(i).setFixedVersion(date);
+
+								//se è la prima versione
+								if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+									fixedVers= String.valueOf(1);
+								}
+								else {
+									for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+										if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+												&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+														(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+											fixedVers= String.valueOf(a+1);
+											break;
+										}
+									}
+								}
+								tickets.get(i).setFixedVersion(fixedVers);
 								tickets.get(i).setFilenames(filesAffected);
 								//se i file affetti da bug non sono java allora cancelliamo il bug
 								if (filesAffected.size()==0) {
@@ -489,6 +505,8 @@ public class Main {
 								break;
 							}
 						}
+						br.close();
+						break;
 					}
 					else {
 						System.out.println("Linea fuori if: "+line);
