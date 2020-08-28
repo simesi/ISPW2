@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.sun.prism.image.CompoundTexture;
 import com.sun.xml.internal.ws.util.StringUtils;
 
 import java.nio.file.Files;
@@ -90,12 +91,15 @@ public class Main {
 	public static ArrayList<String> fileNameOfFirstHalf;
 	public static ArrayList<LineOfDataset> arrayOfEntryOfDataset;
 	public static ArrayList<TicketTakenFromJIRA> tickets;
+	public static ArrayList<TicketTakenFromJIRA> ticketsWithoutAV;
 
 	public static boolean searchingForDateOfCreation = false;
 	private static boolean calculatingLOC=false;
 	private static boolean calculatingLOC_Touched=false;
 	private static boolean calculatingNAuth=false;
 	private static boolean gettingLastCommit=false;
+	private static boolean ticketWithAV= false;
+	private static boolean ticketWithoutAV= false;
 	private static int p; //relativo al metodo proportion per il calcolo della bugginess
 
 	//--------------------------
@@ -334,7 +338,7 @@ public class Main {
 						}
 						else {l.setAVG_Churn(0);}
 						arrayOfEntryOfDataset.add(l);
-						br.close();
+
 						break;//fa uscire dal while principale
 					}
 
@@ -381,7 +385,7 @@ public class Main {
 
 						//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
 						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) {  
-							if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& arrayOfEntryOfDataset.get(i).getFileName()==filename) {
+							if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& arrayOfEntryOfDataset.get(i).getFileName().equals(filename)) {
 								arrayOfEntryOfDataset.get(i).setLOC_Touched(addedLines+deletedLines);
 								arrayOfEntryOfDataset.get(i).setMAX_LOC_Added(maxAddedlines);
 
@@ -396,7 +400,7 @@ public class Main {
 								//--------------------------------------------------
 								arrayOfEntryOfDataset.get(i).setAVG_LOC_Added(average);
 								arrayOfEntryOfDataset.get(i).setLOC_Added(total);
-								br.close();
+
 								break;
 							}
 						}
@@ -431,9 +435,9 @@ public class Main {
 
 						//cerchiamo l'oggetto giusto su cui scrivere
 						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) { 
-							if((arrayOfEntryOfDataset.get(i).getVersion()==version) && (arrayOfEntryOfDataset.get(i).getFileName()==filename)) {
+							if((arrayOfEntryOfDataset.get(i).getVersion()==version) && (arrayOfEntryOfDataset.get(i).getFileName().equals(filename))) {
 								arrayOfEntryOfDataset.get(i).setNAuth(nAuth);
-								br.close();
+
 								break;
 							}
 
@@ -453,7 +457,6 @@ public class Main {
 
 						//non c'è un commit con questo id quindi non scrivo nulla
 						if(nextLine==null) {
-							br.close();
 							break;
 						}
 						nextLine=nextLine.trim();
@@ -474,39 +477,67 @@ public class Main {
 							}							
 							nextLine =br.readLine();
 						}
-						for (int i = 0; i < tickets.size(); i++) {
-							if(tickets.get(i).getKey().equals(bug)) {
-								//se è la prima versione
-								if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-									fixedVers= String.valueOf(2);
-									//System.out.println("fixed version ="+fixedVers);
-								}
-								else {
-									for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-										if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-												&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-														(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-											fixedVers= String.valueOf(a+2);
-											//System.out.println("fixed version ="+fixedVers);
-											break;
+
+						if(ticketWithAV) {
+							for (int i = 0; i < tickets.size(); i++) {
+								if(tickets.get(i).getKey().equals(bug)) {
+									//se è la prima versione
+									if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+										fixedVers= String.valueOf(2);
+										//System.out.println("fixed version ="+fixedVers);
+									}
+									else {
+										for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+											if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+													&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+															(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+												fixedVers= String.valueOf(a+2);
+												//System.out.println("fixed version ="+fixedVers);
+												break;
+											}
 										}
 									}
-								}
-								tickets.get(i).setFixedVersion(fixedVers);
-								tickets.get(i).setFilenames(filesAffected);
-								
 
-								break;
+									tickets.get(i).setFixedVersion(fixedVers);
+									tickets.get(i).setFilenames(filesAffected);
+									break;
+								}
 							}
 						}
-						br.close();
-						break;
+						else if(ticketWithoutAV) {
+							for (int i = 0; i < tickets.size(); i++) {
+								if(ticketsWithoutAV.get(i).getKey().equals(bug)) {
+									//se è la prima versione
+									if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+										fixedVers= String.valueOf(2);
+										//System.out.println("fixed version ="+fixedVers);
+									}
+									else {
+										for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+											if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+													&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+															(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+												fixedVers= String.valueOf(a+2);
+												//System.out.println("fixed version ="+fixedVers);
+												break;
+											}
+										}
+
+									}
+									ticketsWithoutAV.get(i).setFixedVersion(fixedVers);
+									ticketsWithoutAV.get(i).setFilenames(filesAffected);
+									break;
+
+								}
+							}
+						}
 					}
+
 					else {
 						System.out.println("Linea fuori if: "+line);
 					}
 				}
-				br.close();
+
 			} catch (IOException ioe) {
 
 				ioe.printStackTrace();
@@ -601,7 +632,6 @@ public class Main {
 		try {
 			String command = "echo "+filename+" && git log --diff-filter=A --format=%as --reverse -- "
 					+filename;
-			System.out.println(command);
 			runCommandOnShell(directory, command);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -745,47 +775,39 @@ public class Main {
 		}
 	}
 
-   //metodo che computa P con il metodo incrementale come "average among the defects fixed in previous versions"
+	//metodo che computa P per la versione passata in ingresso con il metodo incrementale come "average among the defects fixed in previous versions"
 	private static int computeP(int i) {
 		int validBugsFixed=0;
-		
+
 		//caso limite della prima versione
 		if(i==1) {
 			return 1;
 		}
-		
+
 		// //ora si calcola P con il metodo proportion
-	ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
 		for (TicketTakenFromJIRA ticket : tickets) {
-			//levo i ticket senza AV, OV o IV e quelli senza file java
-			  if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
-					  ||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
-				   
-				    ticketsToDelete.add(ticket);
-				    continue;
-			  }
-			  //prendiamo solo i difetti fixed delle versioni passate
-			  if(Integer.parseInt(ticket.getFixedVersion())>=i) {
-				  continue;
-			  }
-			  validBugsFixed++;
-			  System.out.println("bug "+ticket.getKey()+"FV "+ticket.getFixedVersion()+" OV "+ticket.getCreatedVersion()+" IV "+ticket.getAffectedVersion());
+
+
+			//prendiamo solo i difetti fixed delle versioni passate
+			if(Integer.parseInt(ticket.getFixedVersion())>=i) {
+				continue;
+			}
+			validBugsFixed++;
+			System.out.println("bug "+ticket.getKey()+"FV "+ticket.getFixedVersion()+" OV "+ticket.getCreatedVersion()+" IV "+ticket.getAffectedVersion());
 			p+=((Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getAffectedVersion())))
 					/(Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getCreatedVersion()));
-					}
-		
-		//si eliminano i ticket selezionati prima
-		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
-			tickets.remove(ticket);
-			
 		}
-		ticketsToDelete.clear();
+
+
 		System.out.println("p ="+p);
-		return p=p/validBugsFixed;
-		
-		
+		 p=p/validBugsFixed;
+		 
+          if(p==0) {
+        	  return 1;
+          }
+         return p;
 	}
-	
+
 	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
@@ -966,15 +988,15 @@ public class Main {
 		}
 
 		storeData=true;
-		/*searchingForDateOfCreation = true;
+		searchingForDateOfCreation = true;
 
 		System.out.println("Sto per chiamare la getCreation con numero di files ="+files.size());
 
 
 		//per ogni file
 		for (String s : files) {
-					getCreationDate(s);
-					}
+			getCreationDate(s);
+		}
 
 
 		files.clear();
@@ -1011,7 +1033,7 @@ public class Main {
 
 			}
 
-		} */
+		} 
 
 
 
@@ -1019,13 +1041,13 @@ public class Main {
 		tickets=new ArrayList<TicketTakenFromJIRA>();
 		j=0;
 		i=0;
-		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed”  in the project
+		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
 		do {
 			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
 			j = i + 1000;
 
 			//%20 = spazio                      %22=virgolette
-			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".
+			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
 			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
 					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
@@ -1092,14 +1114,15 @@ public class Main {
 		} while (i < total);
 
 		gettingLastCommit=true;
+		ticketWithAV=true;
+
 		for (TicketTakenFromJIRA ticket : tickets) {
-			//ora si prendono i commit su GIT associati a quei bug per ottenere created version e affected version
+			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
 			try {
 
 				getLastCommitOfBug(ticket.getKey());
 
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.exit(-1);
 			}
@@ -1107,14 +1130,177 @@ public class Main {
 		}
 
 		gettingLastCommit=false;
+		ticketWithAV=false;
 
-		//computa P per la versione passata in ingresso
-computeP(1);
+		//rimuovo ticket senza file java o AV,IV e OV inconsistenti
+		ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
+
+		for (TicketTakenFromJIRA ticket : tickets) {
+			if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
+					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+
+				ticketsToDelete.add(ticket);
+			}
+		}
+
+		//si eliminano i ticket selezionati prima
+		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
+			tickets.remove(ticket);
+		}
+		ticketsToDelete.clear();
+
+
+
+		//set della bugginess per i file dei ticket presi da JIRA
+		for (TicketTakenFromJIRA tick : tickets) {
+			//per ogni file ritenuto buggy da quel ticket
+			for (String file : tick.getFilenames()) {
+				//cerca la inea giusta da scrivere
+				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
+					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
+							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
+							&&arrayOfEntryOfDataset.get(i).getVersion()>= Integer.parseInt(tick.getAffectedVersion())) {
+
+						arrayOfEntryOfDataset.get(i).setBuggy("YES");
+
+					}
+
+				}
+			}
+
+		}
+
+		//ora prendiamo da jira tutti i ticket di bug chiusi SENZA affected version
+
+		//inizio operazioni per calcolo bugginess
+		ticketsWithoutAV=new ArrayList<TicketTakenFromJIRA>();
+		j=0;
+		i=0;
+		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affected version = null in the project
+		do {
+			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+			j = i + 1000;
+
+			//%20 = spazio                      %22=virgolette
+			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e SENZA affected version.
+			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+					+ "&fields=key,created&startAt="
+					+ i.toString() + "&maxResults=" + j.toString();
+			System.out.println(url);
+
+			json = readJsonFromUrl(url);
+			issues = json.getJSONArray("issues");
+			//ci si prende il numero totale di ticket recuperati
+			total = json.getInt("total");
+
+			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+			String createdVers=null;
+			LocalDate date;
+			LocalDate affReleaseDate;
+			TicketTakenFromJIRA tick;
+
+			// si itera sul numero di ticket
+			for (; i < total && i < j; i++) {
+
+				String key = issues.getJSONObject(i%1000).get("key").toString();
+				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
+
+
+
+				date = LocalDate.parse(createdDate,format);
+
+				//se è la prima versione
+				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+					createdVers= String.valueOf(1);
+				}
+				else {
+					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+						if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+							createdVers= String.valueOf(a+1);
+
+							break;
+						}
+					}
+				}
+
+				tick= new TicketTakenFromJIRA(key, createdVers, null);
+				ticketsWithoutAV.add(tick);
+
+			}  
+		} while (i < total);
+
+		//ora si calcola la fixed version
+		gettingLastCommit=true;
+		ticketWithoutAV=true;
+		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
+			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
+			try {
+
+				getLastCommitOfBug(ticket.getKey());
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				System.exit(-1);
+			}
+
+		}
+
+		gettingLastCommit=false;
+		ticketWithoutAV=false;
+
+		//rimuovo ticket senza file java o IV e OV inconsistenti
+		ArrayList<TicketTakenFromJIRA> ticketsWithoutAVToDelete = new ArrayList<TicketTakenFromJIRA>();	
+
+		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
+			if((ticket.getCreatedVersion()==null)
+					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+
+				ticketsWithoutAVToDelete.add(ticket);
+			}
+		}
 
 		
+		//si eliminano i ticket selezionati prima
+		for (TicketTakenFromJIRA ticket : ticketsWithoutAVToDelete) {
+			ticketsWithoutAV.remove(ticket);
+		}
+		ticketsWithoutAVToDelete.clear();
+
+		int predictedInjectedVersion;
+		//set della bugginess per i file dei ticket presi da JIRA
+		for (TicketTakenFromJIRA tick : ticketsWithoutAV) {
+			
+			p=computeP(Integer.parseInt(tick.getFixedVersion()));
+			predictedInjectedVersion=(Integer.parseInt(tick.getFixedVersion())-(Integer.parseInt(tick.getFixedVersion())
+					-Integer.parseInt(tick.getCreatedVersion()))*p);
+			
+			//per ogni file ritenuto buggy da quel ticket
+			for (String file : tick.getFilenames()) {
+				//cerca la inea giusta da scrivere
+				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
+					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
+							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
+							&&arrayOfEntryOfDataset.get(i).getVersion()>= predictedInjectedVersion) {
+
+						arrayOfEntryOfDataset.get(i).setBuggy("YES");
+
+					}
+
+				}
+			}
+
+		}
 		
-		
-		
+
+
+
+
 		/*----------------------------
 		 //parte per OpenJPA
 

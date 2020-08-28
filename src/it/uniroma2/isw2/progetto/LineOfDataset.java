@@ -15,7 +15,7 @@ public class LineOfDataset {
 	private int LOC_Added;
 	private int MAX_LOC_Added;
 	private int AVG_LOC_Added;
-	private String Buggy;
+	private String Buggy= "NO";
 
 	
 	/**
