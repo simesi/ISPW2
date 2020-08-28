@@ -100,7 +100,6 @@ public class Main {
 	private static boolean gettingLastCommit=false;
 	private static boolean ticketWithAV= false;
 	private static boolean ticketWithoutAV= false;
-	private static int p; //relativo al metodo proportion per il calcolo della bugginess
 
 	//--------------------------
 
@@ -389,9 +388,11 @@ public class Main {
 								arrayOfEntryOfDataset.get(i).setLOC_Touched(addedLines+deletedLines);
 								arrayOfEntryOfDataset.get(i).setMAX_LOC_Added(maxAddedlines);
 
-								//per il AVG_LOC_Added -----------------------
+								//per il AVG_LOC_Added (è fatto solo sulle linee inserite)-----------------------
 								for(int n=0; n<addedLinesForEveryRevision.size(); n++){
-									total = total + addedLinesForEveryRevision.get(n);
+									if(addedLinesForEveryRevision.get(n) >= 0) {
+										total = total + addedLinesForEveryRevision.get(n);
+									}
 								}
 								if (total!=0) {
 									average = Math.floorDiv(addedLinesForEveryRevision.size(),total);
@@ -778,6 +779,7 @@ public class Main {
 	//metodo che computa P per la versione passata in ingresso con il metodo incrementale come "average among the defects fixed in previous versions"
 	private static int computeP(int i) {
 		int validBugsFixed=0;
+		int p=0;
 
 		//caso limite della prima versione
 		if(i==1) {
@@ -799,13 +801,14 @@ public class Main {
 		}
 
 
+
+		p=p/validBugsFixed;
 		System.out.println("p ="+p);
-		 p=p/validBugsFixed;
-		 
-          if(p==0) {
-        	  return 1;
-          }
-         return p;
+
+		if(p==0) {
+			return 1;
+		}
+		return p;
 	}
 
 	//--------------------------------------
@@ -990,7 +993,6 @@ public class Main {
 		storeData=true;
 		searchingForDateOfCreation = true;
 
-		System.out.println("Sto per chiamare la getCreation con numero di files ="+files.size());
 
 
 		//per ogni file
@@ -1003,7 +1005,7 @@ public class Main {
 
 
 		searchingForDateOfCreation = false;
-		System.out.println("fileNameOfFirstHalf"+fileNameOfFirstHalf.size());
+		System.out.println("fileNameOfFirstHalf= "+fileNameOfFirstHalf.size());
 
 		//----------------------------------------------
 		//System.out.println(fileNameOfFirstHalf);
@@ -1015,6 +1017,7 @@ public class Main {
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
 			System.out.println("release "+i);
+			num=0;
 			//per ogni file
 			for (String s : fileNameOfFirstHalf) {
 				num++;
@@ -1189,7 +1192,7 @@ public class Main {
 					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
-			System.out.println(url);
+
 
 			json = readJsonFromUrl(url);
 			issues = json.getJSONArray("issues");
@@ -1200,7 +1203,6 @@ public class Main {
 
 			String createdVers=null;
 			LocalDate date;
-			LocalDate affReleaseDate;
 			TicketTakenFromJIRA tick;
 
 			// si itera sul numero di ticket
@@ -1265,7 +1267,7 @@ public class Main {
 			}
 		}
 
-		
+		int p;
 		//si eliminano i ticket selezionati prima
 		for (TicketTakenFromJIRA ticket : ticketsWithoutAVToDelete) {
 			ticketsWithoutAV.remove(ticket);
@@ -1275,11 +1277,11 @@ public class Main {
 		int predictedInjectedVersion;
 		//set della bugginess per i file dei ticket presi da JIRA
 		for (TicketTakenFromJIRA tick : ticketsWithoutAV) {
-			
+
 			p=computeP(Integer.parseInt(tick.getFixedVersion()));
 			predictedInjectedVersion=(Integer.parseInt(tick.getFixedVersion())-(Integer.parseInt(tick.getFixedVersion())
 					-Integer.parseInt(tick.getCreatedVersion()))*p);
-			
+
 			//per ogni file ritenuto buggy da quel ticket
 			for (String file : tick.getFilenames()) {
 				//cerca la inea giusta da scrivere
@@ -1296,7 +1298,57 @@ public class Main {
 			}
 
 		}
-		
+
+		FileWriter fileWriter=null;
+		try {
+
+			String outname = PROJECT_NAME + "Deliverable2.csv";
+			//Name of CSV for output
+			fileWriter = new FileWriter(outname);
+			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+			fileWriter.append("\n");
+			for ( LineOfDataset line : arrayOfEntryOfDataset) {
+
+				fileWriter.append(String.valueOf(line.getVersion()));
+				fileWriter.append(",");
+				fileWriter.append(line.getFileName());
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getSize()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getLOC_Touched()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getNR()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getNAuth()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getLOC_Added()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getMAX_LOC_Added()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getAVG_LOC_Added()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getChurn()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getMax_Churn()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getAVG_Churn()));
+				fileWriter.append(",");
+				fileWriter.append(line.getBuggy());
+				fileWriter.append("\n");
+			}
+
+		} catch (Exception e) {
+			System.out.println("Error in csv writer");
+			e.printStackTrace();
+		} finally {
+			try {
+				fileWriter.flush();
+				fileWriter.close();
+			} catch (IOException e) {
+				System.out.println("Error while flushing/closing fileWriter !!!");
+				e.printStackTrace();
+			}
+		}
 
 
 
