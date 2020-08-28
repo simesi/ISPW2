@@ -271,15 +271,18 @@ public class Main {
 						String file = line.substring(0, line.length()-1);
 
 						LocalDateTime dateTime; 
-
 						String secondLine =br.readLine();
+						secondLine=secondLine.trim();
 						if (secondLine != null) {
 							LocalDate date = LocalDate.parse(secondLine);
 							dateTime = date.atStartOfDay();
 
 							fromFileNameToDateOfCreation.put(file,dateTime);
 							//le date ulteriori vengono ignorate
-							break;}
+							while(br.readLine()!=null) {
+                                   							
+							}
+						}
 					}
 
 					else if (storeData&&startToExecDeliverable2&&calculatingLOC) {
@@ -924,8 +927,8 @@ public class Main {
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
-		PROJECT_NAME ="BOOKKEEPER";
-		PROJECT_NAME_GIT ="apache/bookkeeper.git";
+		PROJECT_NAME ="OPENJPA";//"BOOKKEEPER";
+		PROJECT_NAME_GIT ="apache/openjpa.git";  // "apache/bookkeeper.git";
 		startToExecDeliverable2=true;
 		storeData=false;
 
@@ -1082,7 +1085,6 @@ public class Main {
 
 				date = LocalDate.parse(createdDate,format);
 				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
-
 				//se è la prima versione
 				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
 					createdVers= String.valueOf(1);
@@ -1298,6 +1300,10 @@ public class Main {
 
 		}
 
+		     ticketsWithoutAV.clear();
+		     tickets.clear();
+		     
+		     
 		FileWriter fileWriter=null;
 		try {
 
@@ -1349,10 +1355,10 @@ public class Main {
 			}
 		}
 
-  System.out.println("Finito Deliverable 2!!!!!");
+		System.out.println("Finito Deliverable 2!!!!!");
 
-		
-		
+
+
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 
