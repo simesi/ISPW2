@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.io.File;
+import java.io.FileReader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,8 +67,8 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
  */
 public class Main {
 
-	private static String PROJECT_NAME ="MAHOUT";
-	private static String PROJECT_NAME_GIT ="apache/mahout.git";
+	private static String PROJECT_NAME ="MAHOUT"; //per il Deliverable 1
+	private static String PROJECT_NAME_GIT ="apache/mahout.git"; //per il Deliverable 1
 	private static final String CLONED_PROJECT_FOLDER_DELIVERABLE1 = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
 	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
@@ -85,7 +86,6 @@ public class Main {
 	public static HashMap<LocalDateTime, String> releaseID;
 	public static ArrayList<LocalDateTime> releases;
 	public static HashMap<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<String,LocalDateTime>();
-	//public static HashMap<String,String> fromFileNameToReleaseIndexOfCreation=new HashMap<String,String>();
 	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
 	public static ArrayList<String> fileNameOfFirstHalf;
@@ -100,6 +100,8 @@ public class Main {
 	private static boolean gettingLastCommit=false;
 	private static boolean ticketWithAV= false;
 	private static boolean ticketWithoutAV= false;
+
+	private static String outname;
 
 	//--------------------------
 
@@ -280,7 +282,7 @@ public class Main {
 							fromFileNameToDateOfCreation.put(file,dateTime);
 							//le date ulteriori vengono ignorate
 							while(br.readLine()!=null) {
-                                   							
+
 							}
 						}
 					}
@@ -798,7 +800,7 @@ public class Main {
 				continue;
 			}
 			validBugsFixed++;
-			System.out.println("bug "+ticket.getKey()+"FV "+ticket.getFixedVersion()+" OV "+ticket.getCreatedVersion()+" IV "+ticket.getAffectedVersion());
+			//System.out.println("bug "+ticket.getKey()+"FV "+ticket.getFixedVersion()+" OV "+ticket.getCreatedVersion()+" IV "+ticket.getAffectedVersion());
 			p+=((Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getAffectedVersion())))
 					/(Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getCreatedVersion()));
 		}
@@ -1092,11 +1094,26 @@ public class Main {
 				}
 				else {
 					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-						if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+						
+						//abbiamo raggiunto nel for l'ultima release
+						if(a==fromReleaseIndexToDate.size()) {
+							createdVers= String.valueOf(a);
+							
+							for(int k=0;k<releases.size();k++) {
+								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+									affVers=String.valueOf(k+1);
+									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
+									break;
+								}
+							}
+                      break;
+						
+						}
+						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
 								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
 							createdVers= String.valueOf(a+1);
-
+						
 							for(int k=0;k<releases.size();k++) {
 								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
 									affVers=String.valueOf(k+1);
@@ -1300,14 +1317,14 @@ public class Main {
 
 		}
 
-		     ticketsWithoutAV.clear();
-		     tickets.clear();
-		     
-		     
+		ticketsWithoutAV.clear();
+		tickets.clear();
+
+
 		FileWriter fileWriter=null;
 		try {
 
-			String outname = PROJECT_NAME + "Deliverable2.csv";
+			outname = PROJECT_NAME + " Deliverable 2 Milestone 1.csv";
 			//Name of CSV for output
 			fileWriter = new FileWriter(outname);
 			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
@@ -1355,17 +1372,155 @@ public class Main {
 			}
 		}
 
-		System.out.println("Finito Deliverable 2!!!!!");
-
-
 
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
+
+		System.out.println("Finito Deliverable 2!!!!!");
+
+		//----------------------------------------------------------------------------
+
+		////MILESTONE 2 DELIVERABLE 2
+
+		//creo due file CSV (uno per il training con le vecchie release e uno per il testing) per ogni release
+
+		outname = PROJECT_NAME + " Deliverable 2 Milestone 1.csv";
+		String csvTrain;
+		String csvTest;
+		String row = "";
+
+		File csvFile = new File(outname);
+		if (!csvFile.isFile()) {
+			System.out.println("Error while opening file csv !!!");
+			System.exit(-1);
+		}
+
+		BufferedReader csvReader;
+		
+		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
+		for(i=2;i<=Math.floorDiv(releases.size(),2);i++) {
+
+
+			FileWriter fileWriterTrain=null;
+			FileWriter fileWriterTest=null;
+			try {
+
+				csvTrain = PROJECT_NAME+" Training for "+"Release "+i+".csv";
+                csvTest = PROJECT_NAME+" Testing for "+"Release "+i+".csv";
+                
+				fileWriterTrain = new FileWriter(csvTrain);
+				fileWriterTest = new FileWriter(csvTest);
+				
+				fileWriterTrain.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+				fileWriterTrain.append("\n");
+				
+				fileWriterTest.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+				fileWriterTest.append("\n");
+
+				 csvReader = new BufferedReader(new FileReader(outname));
+				while ((row = csvReader.readLine()) != null) {
+
+					String[] entry = row.split(",");
+
+					//per creare il dataset di training
+					if (Integer.parseInt(entry[0])<i) {
+
+						fileWriterTrain.append(entry[0]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[1]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[2]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[3]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[4]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[5]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[6]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[7]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[8]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[9]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[10]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[11]);
+						fileWriterTrain.append(",");
+						fileWriterTrain.append(entry[12]);
+						fileWriterTrain.append("\n");
+
+					} 
+					else if (Integer.parseInt(entry[0])==i) {
+						fileWriterTest.append(entry[0]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[1]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[2]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[3]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[4]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[5]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[6]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[7]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[8]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[9]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[10]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[11]);
+						fileWriterTest.append(",");
+						fileWriterTest.append(entry[12]);
+						fileWriterTest.append("\n");
+					}
+					
+					else {
+
+						break;
+					}
+				}//fine while
+				csvReader.close();
+
+			} catch (Exception e) {
+				System.out.println("Error in csv writer");
+				e.printStackTrace();
+			} finally {
+				try {
+					fileWriterTrain.flush();
+					fileWriterTrain.close();
+					fileWriterTest.flush();
+					fileWriterTest.close();
+				} catch (IOException e) {
+					System.out.println("Error while flushing/closing fileWriter !!!");
+					e.printStackTrace();
+				}
+			}
+		}
+
+
+
+		Weka w = new Weka();
+		
+		i=Math.floorDiv(releases.size(),2);
+		    //a doClassification() gli si passa il max numero di versioni da classificare
+		 w.doClassification(i, PROJECT_NAME);
+		
+
 
 		return;
 	}
 
 
+//--------------------------------------------------------------------------------
+	//inizio Deliverable 2 Milestone 3
 
 
 
