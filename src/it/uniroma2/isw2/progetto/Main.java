@@ -1094,11 +1094,11 @@ public class Main {
 				}
 				else {
 					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-						
+
 						//abbiamo raggiunto nel for l'ultima release
 						if(a==fromReleaseIndexToDate.size()) {
 							createdVers= String.valueOf(a);
-							
+
 							for(int k=0;k<releases.size();k++) {
 								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
 									affVers=String.valueOf(k+1);
@@ -1106,14 +1106,14 @@ public class Main {
 									break;
 								}
 							}
-                      break;
-						
+							break;
+
 						}
 						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
 								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
 							createdVers= String.valueOf(a+1);
-						
+
 							for(int k=0;k<releases.size();k++) {
 								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
 									affVers=String.valueOf(k+1);
@@ -1239,7 +1239,14 @@ public class Main {
 				}
 				else {
 					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-						if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+
+						//abbiamo raggiunto nel for l'ultima release
+						if(a==fromReleaseIndexToDate.size()) {
+							createdVers= String.valueOf(a);
+							break;
+						}
+
+						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
 								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
 							createdVers= String.valueOf(a+1);
@@ -1396,7 +1403,7 @@ public class Main {
 		}
 
 		BufferedReader csvReader;
-		
+
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
 		for(i=2;i<=Math.floorDiv(releases.size(),2);i++) {
 
@@ -1406,18 +1413,18 @@ public class Main {
 			try {
 
 				csvTrain = PROJECT_NAME+" Training for "+"Release "+i+".csv";
-                csvTest = PROJECT_NAME+" Testing for "+"Release "+i+".csv";
-                
+				csvTest = PROJECT_NAME+" Testing for "+"Release "+i+".csv";
+
 				fileWriterTrain = new FileWriter(csvTrain);
 				fileWriterTest = new FileWriter(csvTest);
-				
+
 				fileWriterTrain.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
 				fileWriterTrain.append("\n");
-				
+
 				fileWriterTest.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
 				fileWriterTest.append("\n");
 
-				 csvReader = new BufferedReader(new FileReader(outname));
+				csvReader = new BufferedReader(new FileReader(outname));
 				while ((row = csvReader.readLine()) != null) {
 
 					String[] entry = row.split(",");
@@ -1481,7 +1488,7 @@ public class Main {
 						fileWriterTest.append(entry[12]);
 						fileWriterTest.append("\n");
 					}
-					
+
 					else {
 
 						break;
@@ -1508,18 +1515,18 @@ public class Main {
 
 
 		Weka w = new Weka();
-		
+
 		i=Math.floorDiv(releases.size(),2);
-		    //a doClassification() gli si passa il max numero di versioni da classificare
-		 w.doClassification(i, PROJECT_NAME);
-		
+		//a doClassification() gli si passa il max numero di versioni da classificare
+		w.doClassification(i, PROJECT_NAME);
+
 
 
 		return;
 	}
 
 
-//--------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------
 	//inizio Deliverable 2 Milestone 3
 
 
