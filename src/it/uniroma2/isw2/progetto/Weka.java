@@ -32,7 +32,7 @@ public class Weka {
 		String myClassificator=null;
 		FileWriter fileWriter=null;
 		Evaluation eval = null;
-		DecimalFormat numberFormat = new DecimalFormat("#.000");
+		DecimalFormat numberFormat = new DecimalFormat("0.00");
 		
 		for(int version=2;version<=Maxversion;version++) {
 
@@ -145,31 +145,29 @@ public class Weka {
 					if( fileWriter==null) {
 
 						String name = ProjectName+" Deliverable 2 Milestone 2.csv";
-						System.out.println("file == null");
+						
 						//True = Append to file, false = Overwrite
 						fileWriter = new FileWriter(name,true);
 						fileWriter.append("Dataset,Training Release, Classifier, Precision, Recall, AUC, KAPPA");
 						fileWriter.append("\n");
 					}
 				
-					System.out.println("version ="+version);
 					fileWriter.append(ProjectName);
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(numberFormat.format(version)));
+					fileWriter.append(String.valueOf(version));
 					fileWriter.append(",");
 					fileWriter.append(myClassificator);
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(numberFormat.format(eval.precision(1))));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.precision(1))).replace(',', '.'));
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(numberFormat.format(eval.recall(1))));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.recall(1))).replace(',', '.'));
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(numberFormat.format(eval.areaUnderROC(1))));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.areaUnderROC(1))).replace(',', '.'));
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(numberFormat.format(eval.kappa())));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.kappa())).replace(',', '.'));
 					fileWriter.append("\n");
 
 				}
-
 
 			}
 
