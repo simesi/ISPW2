@@ -4,6 +4,7 @@ import weka.core.Instances;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import weka.classifiers.Evaluation;
 import weka.classifiers.meta.FilteredClassifier;
@@ -31,7 +32,8 @@ public class Weka {
 		String myClassificator=null;
 		FileWriter fileWriter=null;
 		Evaluation eval = null;
-
+		DecimalFormat numberFormat = new DecimalFormat("#.000");
+		
 		for(int version=2;version<=Maxversion;version++) {
 
 			String ARFFNAmeFileTrain = "";
@@ -49,11 +51,10 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				ARFFNAmeFileTrain = ProjectName.concat(" Training for "+"Release "+version+".arff");
+				ARFFNAmeFileTrain = ProjectName+" Training for "+"Release "+version+".arff";
 
 
 				saver.setFile(new File(ARFFNAmeFileTrain));
-				saver.setDestination(new File(ARFFNAmeFileTrain));
 				saver.writeBatch();
 
 			} catch (IOException e) {
@@ -76,11 +77,10 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				ARFFNAmeFileTest = ProjectName.concat(" Testing for "+"Release "+version+".arff");
+				ARFFNAmeFileTest = ProjectName +" Testing for "+"Release "+version+".arff";
 
 
 				saver.setFile(new File(ARFFNAmeFileTest));
-				saver.setDestination(new File(ARFFNAmeFileTest));
 				saver.writeBatch();
 
 			} catch (IOException e) {
@@ -88,11 +88,6 @@ public class Weka {
 				e.printStackTrace();
 				System.exit(-1);
 			}
-
-
-
-			System.out.println(" Finito di creare file arff per versione "+version);
-
 
 
 			//ora si classifica ------------------------- 
@@ -150,25 +145,27 @@ public class Weka {
 					if( fileWriter==null) {
 
 						String name = ProjectName+" Deliverable 2 Milestone 2.csv";
-
-						fileWriter = new FileWriter(name);
+						System.out.println("file == null");
+						//True = Append to file, false = Overwrite
+						fileWriter = new FileWriter(name,true);
 						fileWriter.append("Dataset,Training Release, Classifier, Precision, Recall, AUC, KAPPA");
 						fileWriter.append("\n");
 					}
-
+				
+					System.out.println("version ="+version);
 					fileWriter.append(ProjectName);
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(version));
+					fileWriter.append(String.valueOf(numberFormat.format(version)));
 					fileWriter.append(",");
 					fileWriter.append(myClassificator);
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(eval.precision(1)));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.precision(1))));
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(eval.recall(1)));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.recall(1))));
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(eval.areaUnderROC(1)));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.areaUnderROC(1))));
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(eval.kappa()));
+					fileWriter.append(String.valueOf(numberFormat.format(eval.kappa())));
 					fileWriter.append("\n");
 
 				}
@@ -183,6 +180,13 @@ public class Weka {
 			}
 
 		}
+		    try {
+		    	fileWriter.flush();
+				fileWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		return;
 
 	}

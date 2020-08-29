@@ -929,7 +929,7 @@ public class Main {
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
-		PROJECT_NAME ="OPENJPA";//"BOOKKEEPER";
+		/*PROJECT_NAME ="OPENJPA";//"BOOKKEEPER";
 		PROJECT_NAME_GIT ="apache/openjpa.git";  // "apache/bookkeeper.git";
 		startToExecDeliverable2=true;
 		storeData=false;
@@ -1383,7 +1383,7 @@ public class Main {
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 
-		System.out.println("Finito Deliverable 2!!!!!");
+		System.out.println("Finito Deliverable 2!!!!!");*/
 
 		//----------------------------------------------------------------------------
 
@@ -1391,6 +1391,8 @@ public class Main {
 
 		//creo due file CSV (uno per il training con le vecchie release e uno per il testing) per ogni release
 
+		PROJECT_NAME= "BOOKKEEPER";
+		
 		outname = PROJECT_NAME + " Deliverable 2 Milestone 1.csv";
 		String csvTrain;
 		String csvTest;
@@ -1405,9 +1407,9 @@ public class Main {
 		BufferedReader csvReader;
 
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
-		for(i=2;i<=Math.floorDiv(releases.size(),2);i++) {
-
-
+		
+//!!!!!!!    for(i=2;i<=Math.floorDiv(releases.size(),2);i++) {
+		for(i=2;i<=Math.floorDiv(14,2);i++) { //commenta questa linea e metti quella di sopra
 			FileWriter fileWriterTrain=null;
 			FileWriter fileWriterTest=null;
 			try {
@@ -1418,23 +1420,23 @@ public class Main {
 				fileWriterTrain = new FileWriter(csvTrain);
 				fileWriterTest = new FileWriter(csvTest);
 
-				fileWriterTrain.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+				fileWriterTrain.append("Version,Size(LOC),LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
 				fileWriterTrain.append("\n");
 
-				fileWriterTest.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+				fileWriterTest.append("Version,Size(LOC),LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
 				fileWriterTest.append("\n");
 
 				csvReader = new BufferedReader(new FileReader(outname));
+				//si leva l'header
+				csvReader.readLine();
 				while ((row = csvReader.readLine()) != null) {
 
 					String[] entry = row.split(",");
 
 					//per creare il dataset di training
-					if (Integer.parseInt(entry[0])<i) {
+					if ((Integer.parseInt(entry[0]))<i) {
 
 						fileWriterTrain.append(entry[0]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[1]);
 						fileWriterTrain.append(",");
 						fileWriterTrain.append(entry[2]);
 						fileWriterTrain.append(",");
@@ -1462,8 +1464,6 @@ public class Main {
 					} 
 					else if (Integer.parseInt(entry[0])==i) {
 						fileWriterTest.append(entry[0]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[1]);
 						fileWriterTest.append(",");
 						fileWriterTest.append(entry[2]);
 						fileWriterTest.append(",");
@@ -1516,7 +1516,9 @@ public class Main {
 
 		Weka w = new Weka();
 
-		i=Math.floorDiv(releases.size(),2);
+		//i=Math.floorDiv(releases.size(),2);
+		i=Math.floorDiv(14,2);//commenta questa linea di codice e lascia quella sopra!
+		
 		//a doClassification() gli si passa il max numero di versioni da classificare
 		w.doClassification(i, PROJECT_NAME);
 
