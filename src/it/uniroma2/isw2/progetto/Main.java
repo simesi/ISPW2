@@ -708,7 +708,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			System.exit(-1);
+			 Thread.currentThread().interrupt();
 		}
 
 	}
@@ -733,7 +733,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			System.exit(-1);
+			 Thread.currentThread().interrupt();
 		}
 
 
