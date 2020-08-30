@@ -756,7 +756,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			System.exit(-1);
+			 Thread.currentThread().interrupt();
 		}
 	}
 
@@ -777,7 +777,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			System.exit(-1);
+			 Thread.currentThread().interrupt();
 		}
 	}
 
@@ -806,9 +806,12 @@ public class Main {
 		}
 
 
-
+      if(validBugsFixed!=0) {
 		p=p/validBugsFixed;
-		System.out.println("p ="+p);
+      }
+      else {
+    	  p=1;
+      }
 
 		if(p==0) {
 			return 1;
