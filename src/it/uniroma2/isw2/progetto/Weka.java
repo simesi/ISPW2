@@ -755,7 +755,15 @@ public class Weka {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.exit(-1); ;
+			try {
+				fileWriter.flush();
+				fileWriter.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			System.exit(-1); 
 			// TODO: handle exception
 		}
 		finally {
