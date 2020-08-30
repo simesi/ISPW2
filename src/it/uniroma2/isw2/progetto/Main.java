@@ -90,6 +90,7 @@ public class Main {
 	private static boolean ticketWithoutAV= false;
 
 	private static String outname;
+	private static final String ECHO = "echo"; 
 
 	//--------------------------
 
@@ -624,7 +625,7 @@ public class Main {
 
 		//chiamata per ottenere la data di creazione del file e inserirla in una hashMap
 		try {
-			String command = "echo "+filename+" && git log --diff-filter=A --format=%as --reverse -- "
+			String command = ECHO+filename+" && git log --diff-filter=A --format=%as --reverse -- "
 					+filename;
 			runCommandOnShell(directory, command);
 		} catch (IOException e) {
@@ -687,7 +688,7 @@ public class Main {
 
 		try {
 
-			command = "echo "+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))+" --format= --numstat -- "+filename;	
+			command = ECHO+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))+" --format= --numstat -- "+filename;	
 
 			runCommandOnShell(directory, command);
 
@@ -709,10 +710,10 @@ public class Main {
 
 		try {
 			if(i>1) {
-				command = "echo "+i+" && git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
+				command = ECHO+i+" && git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
 			}
 			else {  //prima release
-				command = "echo "+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
+				command = ECHO+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
 			}
 			runCommandOnShell(directory, command);
 
@@ -735,7 +736,7 @@ public class Main {
 
 		try {
 
-			command = "echo "+i+" "+filename+" && git shortlog -sn --all --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" "+filename;	
+			command = ECHO+i+" "+filename+" && git shortlog -sn --all --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" "+filename;	
 
 			runCommandOnShell(directory, command);
 
@@ -755,7 +756,7 @@ public class Main {
 		String command;
 
 		try {    //ritorna id bug, data dell'ultimo commit con quel bug nel commento e una lista di tutti i file java modificati
-			command= "echo "+id+" && git log --grep="+id+": -1 --date=short --pretty=format:%cd &&"
+			command= ECHO+id+" && git log --grep="+id+": -1 --date=short --pretty=format:%cd &&"
 					+ " git log --graph --pretty=format:%d --name-only --grep="+id+": -- *.java";
 
 			runCommandOnShell(directory, command);
