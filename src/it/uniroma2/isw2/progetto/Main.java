@@ -1159,7 +1159,7 @@ public class Main {
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				System.exit(-1);
+				Thread.currentThread().interrupt();
 			}
 
 		}
@@ -1287,7 +1287,7 @@ public class Main {
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				System.exit(-1);
+				Thread.currentThread().interrupt();
 			}
 
 		}
@@ -1442,7 +1442,7 @@ public class Main {
 
 				csvReader = new BufferedReader(new FileReader(outname));
 				//si leva l'header
-				csvReader.readLine();
+				row=csvReader.readLine();
 				while ((row = csvReader.readLine()) != null) {
 
 					String[] entry = row.split(",");
