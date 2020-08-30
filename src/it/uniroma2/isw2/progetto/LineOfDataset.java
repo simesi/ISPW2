@@ -60,8 +60,8 @@ public class LineOfDataset {
 	/**
 	 * @param maxChurn the maxChurn to set
 	 */
-	public void setMaxChurn(int Max_Churn) {
-		maxChurn = Max_Churn;
+	public void setMaxChurn(int maxChurn) {
+		this.maxChurn = maxChurn;
 	}
 
 
@@ -76,8 +76,8 @@ public class LineOfDataset {
 	/**
 	 * @param aVG_Churn the aVG_Churn to set
 	 */
-	public void setAVGChurn(int aVG_Churn) {
-		avgChurn = aVG_Churn;
+	public void setAVGChurn(int avgChurn) {
+		this.avgChurn = avgChurn;
 	}
 	
 	/**
@@ -107,8 +107,8 @@ public class LineOfDataset {
 	/**
 	 * @param lOC_Touched the lOC_Touched to set
 	 */
-	public void setLOCTouched(int lOC_Touched) {
-		locTouched = lOC_Touched;
+	public void setLOCTouched(int locTouched) {
+		this.locTouched = locTouched;
 	}
 
 
@@ -163,7 +163,7 @@ public class LineOfDataset {
 	/**
 	 * @return the lOC_Added
 	 */
-	public int getLOC_Added() {
+	public int getLOCAdded() {
 		return locAdded;
 	}
 
@@ -171,8 +171,8 @@ public class LineOfDataset {
 	/**
 	 * @param lOC_Added the lOC_Added to set
 	 */
-	public void setLOCAdded(int lOC_Added) {
-		locAdded = lOC_Added;
+	public void setLOCAdded(int locAdded) {
+		this.locAdded = locAdded;
 	}
 
 
@@ -187,8 +187,8 @@ public class LineOfDataset {
 	/**
 	 * @param mAX_LOC_Added the mAX_LOC_Added to set
 	 */
-	public void setMAXLOCAdded(int mAX_LOC_Added) {
-		maxLOCAdded = mAX_LOC_Added;
+	public void setMAXLOCAdded(int maxLOCAdded) {
+		this.maxLOCAdded = maxLOCAdded;
 	}
 
 
@@ -203,8 +203,8 @@ public class LineOfDataset {
 	/**
 	 * @param aVG_LOC_Added the aVG_LOC_Added to set
 	 */
-	public void setAVGLOCAdded(int aVG_LOC_Added) {
-		avgLOCAdded = aVG_LOC_Added;
+	public void setAVGLOCAdded(int avgLOCAdded) {
+		this.avgLOCAdded = avgLOCAdded;
 	}
 
 	

@@ -1361,7 +1361,7 @@ public class Main {
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getNAuth()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getLOC_Added()));
+				fileWriter.append(String.valueOf(line.getLOCAdded()));
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
 				fileWriter.append(",");
