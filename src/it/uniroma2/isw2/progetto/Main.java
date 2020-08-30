@@ -5,28 +5,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.FileReader;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.sun.prism.image.CompoundTexture;
-import com.sun.xml.internal.ws.util.StringUtils;
-
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.io.FileWriter;
-import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 /**
  * Copyright (C) 2020 Simone Mesiano Laureani (a.k.a. Simesi)
@@ -67,13 +55,13 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
  */
 public class Main {
 
-	private static String PROJECT_NAME ="MAHOUT"; //per il Deliverable 1
-	private static String PROJECT_NAME_GIT ="apache/mahout.git"; //per il Deliverable 1
-	private static final String CLONED_PROJECT_FOLDER_DELIVERABLE1 = new File("").getAbsolutePath()+"\\"+PROJECT_NAME;	// This give me the localPath of the application where it is installed
-	private static final String CSV_PATH = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
+	private static String projectName ="MAHOUT"; //per il Deliverable 1
+	private static String projectNameGit ="apache/mahout.git"; //per il Deliverable 1
+	private static final String clonedProjectFolderDeliverable1 = new File("").getAbsolutePath()+"\\"+projectName;	// This give me the localPath of the application where it is installed
+	private static final String csvPathDeliverable1 = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
-	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare (per deliverable 1)
-	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura del control chart un anno
+	private static final int yearsInterval=14; //range degli anni passati su cui cercare (per deliverable 1)
+	private static final boolean collectDataAsYears = false;  //impostare come true per impostare come unità di misura del control chart un anno
 
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
@@ -133,14 +121,14 @@ public class Main {
 	private static void gitClone() throws IOException, InterruptedException {
 
 		Path directory;
-		String originUrl = "https://github.com/"+PROJECT_NAME_GIT;
+		String originUrl = "https://github.com/"+projectNameGit;
 
 		if (startToExecDeliverable2==false) {
 			//percorso dove salvare la directory in locale
-			directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
+			directory = Paths.get(clonedProjectFolderDeliverable1);
 		}
 		else {
-			directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+			directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
 		}
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
@@ -149,7 +137,7 @@ public class Main {
 	//questo metodo fa il comando'git log' del bug sulla repository (mostra il log dei commit)   
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
 
-		Path directory = Paths.get(CLONED_PROJECT_FOLDER_DELIVERABLE1);
+		Path directory = Paths.get(clonedProjectFolderDeliverable1);
 		//ritorna la data dell'ultimo commit con quel bug nel commento
 		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -259,7 +247,7 @@ public class Main {
 
 				while ((line = br.readLine()) != null) {
 					if(storeData&&(!startToExecDeliverable2)) {
-						if(COLLECT_DATA_AS_YEARS) {
+						if(collectDataAsYears) {
 							//get only year
 							yearsList.add(line.substring(0, 4));
 						} else {
@@ -555,7 +543,7 @@ public class Main {
 
 	/*
 	  Java isn't able to delete folders with data in it. We have to delete
-	     all files before deleting the CLONED_PROJECT_FOLDER_DELIVERABLE1.This utility class is used to delete 
+	     all files before deleting the clonedProjectFolderDeliverable1.This utility class is used to delete 
 	  folders recursively in java.*/
 
 	public static void recursiveDelete(File file) {
@@ -584,13 +572,13 @@ public class Main {
 	//questo metodo scrive un file CSV con i dati richiesti per poter creare il control chart
 	private static void writeCSV(Map<String,Integer> map) {
 		String[] header;
-		if(COLLECT_DATA_AS_YEARS) {
+		if(collectDataAsYears) {
 			header = new String[] { "years", "bugs fixed"};
 		} else {
 			header = new String[] { "years-month", "bugs fixed"};
 		}
 
-		try (FileWriter writer = new FileWriter(CSV_PATH, false)){
+		try (FileWriter writer = new FileWriter(csvPathDeliverable1, false)){
 			//True = Append to file, false = Overwrite
 
 			writer.write(header[0]);
@@ -632,7 +620,7 @@ public class Main {
 	public static void getCreationDate(String filename) {
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
 
 		//chiamata per ottenere la data di creazione del file e inserirla in una hashMap
 		try {
@@ -675,7 +663,7 @@ public class Main {
 					fileRenamed=f.getAbsolutePath();
 					//discard of the local prefix to the file name (that depends to this program)
 
-					fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME)+"\\").toString(), "");
+					fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+projectName)+"\\").toString(), "");
 					//System.out.println(s);
 					//ci si costruisce una HashMap con la data di creazione dei file java
 
@@ -694,7 +682,7 @@ public class Main {
 
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
 		String command;
 
 		try {
@@ -716,7 +704,7 @@ public class Main {
 
 	private static void getLOCMetrics(String filename, Integer i) {
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
 		String command;
 
 		try {
@@ -742,7 +730,7 @@ public class Main {
 	private static void getNumberOfAuthors(String filename, Integer i) {
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
 		String command;
 
 		try {
@@ -763,7 +751,7 @@ public class Main {
 	private static void getLastCommitOfBug(String id) throws IOException, InterruptedException{
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+PROJECT_NAME);
+		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
 		String command;
 
 		try {    //ritorna id bug, data dell'ultimo commit con quel bug nel commento e una lista di tutti i file java modificati
@@ -836,8 +824,8 @@ public class Main {
 		
 					/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
 					String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-							+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+							+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+yearsInterval+")"
 							+ "&fields=key,resolutiondate,created&startAt="
 							+ i.toString() + "&maxResults=" + j.toString();
 		
@@ -865,7 +853,7 @@ public class Main {
 		
 				// INIZIO DELIVERABLE 1
 				//cancellazione preventiva della directory clonata del progetto (se già esistente)   
-				recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
+				recursiveDelete(new File(clonedProjectFolderDeliverable1));
 				try {
 					gitClone();	
 		
@@ -882,18 +870,18 @@ public class Main {
 				}
 				finally {
 					//cancellazione directory clonata locale del progetto   
-					recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
+					recursiveDelete(new File(clonedProjectFolderDeliverable1));
 				}
 				Map<String, Integer> map = new HashMap<>();
 		
 		
-				//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
+				//popolamento map avente come chiave l'anno (e il mese se impostato collectDataAsYears= false) e come value il numero di bug risolti
 				for(i=0;i<yearsList.size();i++) {
 					map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
 				}
 		
 				//aggiunta dei mesi con valori nulli
-				if(!COLLECT_DATA_AS_YEARS) {
+				if(!collectDataAsYears) {
 					// TreeMap to store values of HashMap 
 					TreeMap<String, Integer> sorted = new TreeMap<>(); 
 					// Copy all data from hashMap into TreeMap 
@@ -925,15 +913,15 @@ public class Main {
 				
 				
 				//cancellazione directory clonata locale del progetto   
-						recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
+						recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
 
 		/*FINE DELIVERABLE 1*/
 
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
-		PROJECT_NAME ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
-		PROJECT_NAME_GIT ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
+		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
+		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
 		startToExecDeliverable2=true;
 		storeData=false;
 
@@ -941,7 +929,7 @@ public class Main {
 		//Ignores releases with missing dates
 		releases = new ArrayList<LocalDateTime>();
 		i=0;
-		String url = "https://issues.apache.org/jira/rest/api/2/project/" + PROJECT_NAME;
+		String url = "https://issues.apache.org/jira/rest/api/2/project/" + projectName;
 		json = readJsonFromUrl(url);
 		JSONArray versions = json.getJSONArray("versions");
 		releaseNames = new HashMap<LocalDateTime, String>();
@@ -974,7 +962,7 @@ public class Main {
 
 
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
+		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
 		try {
 			gitClone();	
 		}
@@ -985,7 +973,7 @@ public class Main {
 		}
 
 
-		File folder = new File(PROJECT_NAME);
+		File folder = new File(projectName);
 		List<String> files = new ArrayList<>();
 		fileNameOfFirstHalf = new ArrayList<String>();
 
@@ -1059,9 +1047,9 @@ public class Main {
 			//%20 = spazio                      %22=virgolette
 			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
 			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+yearsInterval+")"
 					+ "&fields=key,created,versions&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 			//System.out.println(url);
@@ -1219,9 +1207,9 @@ public class Main {
 			//%20 = spazio                      %22=virgolette
 			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e SENZA affected version.
 			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+yearsInterval+")"
 					+ "&fields=key,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 
@@ -1345,7 +1333,7 @@ public class Main {
 		FileWriter fileWriter=null;
 		try {
 
-			outname = PROJECT_NAME + " Deliverable 2 Milestone 1.csv";
+			outname = projectName + " Deliverable 2 Milestone 1.csv";
 			//Name of CSV for output
 			fileWriter = new FileWriter(outname);
 			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
@@ -1395,7 +1383,7 @@ public class Main {
 
 
 		//cancellazione directory clonata locale del progetto   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
+		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
 
 		
 
@@ -1405,9 +1393,9 @@ public class Main {
 
 		//creo due file CSV (uno per il training con le vecchie release e uno per il testing) per ogni release
 
-		PROJECT_NAME= "BOOKKEEPER";
+		projectName= "BOOKKEEPER";
 
-		outname = PROJECT_NAME + " Deliverable 2 Milestone 1.csv";
+		outname = projectName + " Deliverable 2 Milestone 1.csv";
 		String csvTrain;
 		String csvTest;
 		String row = "";
@@ -1428,8 +1416,8 @@ public class Main {
 			FileWriter fileWriterTest=null;
 			try {
 
-				csvTrain = PROJECT_NAME+" Training for "+"Release "+i+".csv";
-				csvTest = PROJECT_NAME+" Testing for "+"Release "+i+".csv";
+				csvTrain = projectName+" Training for "+"Release "+i+".csv";
+				csvTest = projectName+" Testing for "+"Release "+i+".csv";
 
 				fileWriterTrain = new FileWriter(csvTrain);
 				fileWriterTest = new FileWriter(csvTest);
@@ -1534,7 +1522,7 @@ public class Main {
 		//i=Math.floorDiv(14,2);//commenta questa linea di codice e lascia quella sopra!
 
 		//a doClassification() gli si passa il max numero di versioni da classificare
-		w.doClassificationMilestone2(i, PROJECT_NAME);
+		w.doClassificationMilestone2(i, projectName);
 
 		
 	
@@ -1545,7 +1533,7 @@ public class Main {
 
 
 
-    w.doClassificationMilestone3(i, PROJECT_NAME);
+    w.doClassificationMilestone3(i, projectName);
 
 
 
