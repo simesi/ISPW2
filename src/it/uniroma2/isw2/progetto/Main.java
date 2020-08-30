@@ -310,7 +310,7 @@ public class Main {
 						while (nextLine != null) { 
 							//per NR
 							numberOfCommit=numberOfCommit+1;
-							nextLine.trim();
+							nextLine=nextLine.trim();
 							tokens=nextLine.split("\\s+");
 							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
 							addedLines=addedLines+Integer.parseInt(tokens[0]);
@@ -364,7 +364,7 @@ public class Main {
 
 						while(nextLine != null) {
 
-							nextLine.trim();
+							nextLine=nextLine.trim();
 							tokens=nextLine.split("\\s+");
 							//per il Max_LOC_Added
 							maxAddedlines=Math.max(Integer.parseInt(tokens[0]), maxAddedlines);
@@ -644,7 +644,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			System.exit(-1);
+			 Thread.currentThread().interrupt();
 		}
 
 		int num= Math.floorDiv(fromReleaseIndexToDate.size(),2);
