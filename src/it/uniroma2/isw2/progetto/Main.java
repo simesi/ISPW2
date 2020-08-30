@@ -929,8 +929,8 @@ public class Main {
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
-		PROJECT_NAME ="OPENJPA";//"BOOKKEEPER";
-		PROJECT_NAME_GIT ="apache/openjpa.git";  // "apache/bookkeeper.git";
+		PROJECT_NAME ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
+		PROJECT_NAME_GIT ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
 		startToExecDeliverable2=true;
 		storeData=false;
 
@@ -969,7 +969,7 @@ public class Main {
 		//--------------------------------------------------------
 		///ORA CREO IL  DATASET
 
-
+/*
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 		try {
@@ -1394,7 +1394,7 @@ public class Main {
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 
-		System.out.println("Finito Deliverable 2!!!!!");
+		System.out.println("Finito Deliverable 2 Milestone 1!!!!!");*/
 
 		//----------------------------------------------------------------------------
 
@@ -1419,8 +1419,8 @@ public class Main {
 
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
 
-		//!!!!!!!    for(i=2;i<=Math.floorDiv(releases.size(),2);i++) {
-		for(i=2;i<=Math.floorDiv(14,2);i++) { //commenta questa linea e metti quella di sopra
+		  for(i=2;i<=(Math.floorDiv(releases.size(),2));i++) {
+		//for(i=2;i<=Math.floorDiv(14,2);i++) { //commenta questa linea e metti quella di sopra
 			FileWriter fileWriterTrain=null;
 			FileWriter fileWriterTest=null;
 			try {
@@ -1527,20 +1527,19 @@ public class Main {
 
 		Weka w = new Weka();
 
-		//i=Math.floorDiv(releases.size(),2);
-		i=Math.floorDiv(14,2);//commenta questa linea di codice e lascia quella sopra!
+		i=Math.floorDiv(releases.size(),2);
+		//i=Math.floorDiv(14,2);//commenta questa linea di codice e lascia quella sopra!
 
 		//a doClassification() gli si passa il max numero di versioni da classificare
 		w.doClassification(i, PROJECT_NAME);
 
-
-
+		
 		return;
 	}
 
 
 	//--------------------------------------------------------------------------------
-	//inizio Deliverable 2 Milestone 3
+	//inizio ultima milestone Deliverable 2 
 
 
 

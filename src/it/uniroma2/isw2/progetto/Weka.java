@@ -4,6 +4,8 @@ import weka.core.Instances;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.text.DecimalFormat;
 
 import weka.classifiers.Evaluation;
@@ -56,6 +58,7 @@ public class Weka {
 
 				saver.setFile(new File(ARFFNAmeFileTrain));
 				saver.writeBatch();
+				
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -82,7 +85,7 @@ public class Weka {
 
 				saver.setFile(new File(ARFFNAmeFileTest));
 				saver.writeBatch();
-
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -148,13 +151,13 @@ public class Weka {
 						
 						//True = Append to file, false = Overwrite
 						fileWriter = new FileWriter(name,true);
-						fileWriter.append("Dataset,Training Release, Classifier, Precision, Recall, AUC, KAPPA");
+						fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
 						fileWriter.append("\n");
 					}
 				
 					fileWriter.append(ProjectName);
 					fileWriter.append(",");
-					fileWriter.append(String.valueOf(version));
+					fileWriter.append(String.valueOf(version-1));
 					fileWriter.append(",");
 					fileWriter.append(myClassificator);
 					fileWriter.append(",");
