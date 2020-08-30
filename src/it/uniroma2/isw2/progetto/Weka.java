@@ -212,6 +212,7 @@ public class Weka {
 		int numAttrNoFilter=0;
 		int numDefectiveTrain=0;
 		int numDefectiveTest=0;
+		int percentInstOfMajorityClass=0;
 		Resample resample= null;
 
 		try {
@@ -271,11 +272,11 @@ public class Weka {
 
 					}//fine if
 
-					
+
 					//qui si contano le istanze positive...
 					numDefectiveTrain=0;
 					numDefectiveTest=0;
-					
+
 					if(fs==0) {
 
 						//ora si contano il numero di buggy nelle Instances
@@ -290,8 +291,11 @@ public class Weka {
 								numDefectiveTest++;
 							}
 						}
+						percentInstOfMajorityClass=2*Math.max(numDefectiveTrain/noFilterTraining.size(),1-numDefectiveTrain/noFilterTraining.size())*100;
+						
+
 					}
-					else {
+					else if(fs==1){
 						//ora si contano il numero di buggy nelle Instances
 						for(Instance instance: filteredTraining){
 							if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
@@ -303,7 +307,11 @@ public class Weka {
 								numDefectiveTest++;
 							}
 						}
+
+						percentInstOfMajorityClass=2*Math.max(numDefectiveTrain/filteredTraining.size(),1-numDefectiveTrain/filteredTraining.size())*100;
+                      
 					}
+
 
 
 					//senza balancing o con i tre tipi di balancing			
@@ -319,27 +327,26 @@ public class Weka {
 								myClassificator ="NaiveBayes";
 								if(fs==0) {
 
-
 									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
-
 									//no resample
-									if(balancing==1) {
+									if(balancing==1) {										
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(classifier, testing);
 									}
 									//Oversampling
 									else if(balancing==2) {
+										
 										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
+										resample.setNoReplacement(false);
 										FilteredClassifier fc = new FilteredClassifier();
 										fc.setClassifier(classifier);
-										String[] opts = new String[]{ "-B", "1.0", "-Z",""};
-										spreadSubsample.setOptions(opts);
-										fc.setFilter(spreadSubsample);
-										
-										
-										
+										String[] opts = new String[]{ "-B", "1.0", "-Z", ""+percentInstOfMajorityClass+""};
+										resample.setOptions(opts);
 										fc.setFilter(resample);
+										fc.buildClassifier(noFilterTraining);
+										eval = new Evaluation(testing);	
+										eval.evaluateModel(fc, testing); //sampled
 									}
 
 									//undersampling
@@ -359,8 +366,8 @@ public class Weka {
 									}
 
 									else if(balancing==4) {
-										
-										 resample = new Resample();
+
+										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										FilteredClassifier fc = new FilteredClassifier();
 										SMOTE smote = new SMOTE();
@@ -369,7 +376,7 @@ public class Weka {
 										fc.buildClassifier(noFilterTraining);
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testing);	
-										
+
 									}
 
 
@@ -383,6 +390,21 @@ public class Weka {
 
 									}
 									
+									//Oversampling
+									else if(balancing==2) {
+										
+										resample = new Resample();
+										resample.setInputFormat(filteredTraining);
+										resample.setNoReplacement(false);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										String[] opts = new String[]{ "-B", "1.0", "-Z", ""+percentInstOfMajorityClass+""};
+										resample.setOptions(opts);
+										fc.setFilter(resample);
+										fc.buildClassifier(filteredTraining);
+										eval = new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered); //sampled
+									}
 									//undersampling
 									else if(balancing==3) {
 
@@ -398,10 +420,10 @@ public class Weka {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered);						               
 									}
-								
+
 									else if(balancing==4) {
-										
-										 resample = new Resample();
+
+										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										FilteredClassifier fc = new FilteredClassifier();
 										SMOTE smote = new SMOTE();
@@ -410,11 +432,11 @@ public class Weka {
 										fc.buildClassifier(filteredTraining);
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered);	
-										
+
 									}								
-								
-								
-								
+
+
+
 								}
 
 							}
@@ -423,17 +445,34 @@ public class Weka {
 								//RandomForest---------------
 								RandomForest classifier = new RandomForest(); //scelgo come classificatore RandomForest
 								myClassificator ="RandomForest";
-								
+
 								if(fs==0) {
 									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
-									
+
 									//no resample
 									if(balancing==1) {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(classifier, testing);
 									}
 
-
+									//Oversampling
+									else if(balancing==2) {
+										
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										resample.setNoReplacement(false);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										String[] opts = new String[]{ "-B", "1.0", "-Z", ""+percentInstOfMajorityClass+""};
+										resample.setOptions(opts);
+										fc.setFilter(resample);
+										fc.buildClassifier(noFilterTraining);
+										eval = new Evaluation(testing);	
+										eval.evaluateModel(fc, testing); //sampled
+									}
+									
+									
+									
 									//undersampling
 									else if(balancing==3) {
 
@@ -449,11 +488,11 @@ public class Weka {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testing);						               
 									}
-									
-									
+								
+
 									else if(balancing==4) {
-										
-										 resample = new Resample();
+
+										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										FilteredClassifier fc = new FilteredClassifier();
 										SMOTE smote = new SMOTE();
@@ -462,7 +501,7 @@ public class Weka {
 										fc.buildClassifier(noFilterTraining);
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testing);	
-										
+
 									}
 								}
 								else if(fs==1){
@@ -472,6 +511,22 @@ public class Weka {
 										eval =new Evaluation(testing);
 										eval.evaluateModel(classifier, testingFiltered);
 
+									}
+
+									//Oversampling
+									else if(balancing==2) {
+										
+										resample = new Resample();
+										resample.setInputFormat(filteredTraining);
+										resample.setNoReplacement(false);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										String[] opts = new String[]{ "-B", "1.0", "-Z", ""+percentInstOfMajorityClass+""};
+										resample.setOptions(opts);
+										fc.setFilter(resample);
+										fc.buildClassifier(filteredTraining);
+										eval = new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered); //sampled
 									}
 									
 									//undersampling
@@ -489,19 +544,19 @@ public class Weka {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered);						               
 									}
-									
+
 									else if(balancing==4) {
-										
-										 resample = new Resample();
+
+										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										FilteredClassifier fc = new FilteredClassifier();
 										SMOTE smote = new SMOTE();
 										smote.setInputFormat(filteredTraining);
 										fc.setFilter(smote);
-										fc.buildClassifier(noFilterTraining);
+										fc.buildClassifier(filteredTraining);
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered);	
-										
+
 									}
 								} 
 							}
@@ -511,14 +566,29 @@ public class Weka {
 								myClassificator ="IBk";
 								if(fs==0) {
 									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
-									
+
 									//no resample
 									if(balancing==1) {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(classifier, testing);
 									}
 
-
+									//Oversampling
+									else if(balancing==2) {
+										
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										resample.setNoReplacement(false);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										String[] opts = new String[]{ "-B", "1.0", "-Z", ""+percentInstOfMajorityClass+""};
+										resample.setOptions(opts);
+										fc.setFilter(resample);
+										fc.buildClassifier(noFilterTraining);
+										eval = new Evaluation(testing);	
+										eval.evaluateModel(fc, testing); //sampled
+									}
+									
 									//undersampling
 									else if(balancing==3) {
 
@@ -534,10 +604,10 @@ public class Weka {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testing);						               
 									}
-									
+
 									else if(balancing==4) {
-										
-										 resample = new Resample();
+
+										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										FilteredClassifier fc = new FilteredClassifier();
 										SMOTE smote = new SMOTE();
@@ -546,12 +616,12 @@ public class Weka {
 										fc.buildClassifier(noFilterTraining);
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testing);	
-										
+
 									}
-									
-									
-									
-									
+
+
+
+
 								}
 								else if(fs==1){
 									classifier.buildClassifier(filteredTraining); //qui si fa il training filtrato
@@ -560,6 +630,22 @@ public class Weka {
 										eval =new Evaluation(testing);
 										eval.evaluateModel(classifier, testingFiltered);
 
+									}
+
+									//Oversampling
+									else if(balancing==2) {
+										
+										resample = new Resample();
+										resample.setInputFormat(filteredTraining);
+										resample.setNoReplacement(false);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										String[] opts = new String[]{ "-B", "1.0", "-Z", ""+percentInstOfMajorityClass+""};
+										resample.setOptions(opts);
+										fc.setFilter(resample);
+										fc.buildClassifier(filteredTraining);
+										eval = new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered); //sampled
 									}
 									
 									//undersampling
@@ -577,26 +663,26 @@ public class Weka {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered);						               
 									}
-									
+
 									else if(balancing==4) {
-										
-										 resample = new Resample();
+
+										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										FilteredClassifier fc = new FilteredClassifier();
 										SMOTE smote = new SMOTE();
 										smote.setInputFormat(filteredTraining);
 										fc.setFilter(smote);
-										fc.buildClassifier(noFilterTraining);
+										fc.buildClassifier(filteredTraining);
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered);	
-										
+
 									}
-									
-									
+
+
 								} 
 							}
 
-							
+
 
 
 							//--------------------------------------------------------------
