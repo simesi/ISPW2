@@ -57,8 +57,8 @@ public class Main {
 
 	private static String projectName ="MAHOUT"; //per il Deliverable 1
 	private static String projectNameGit ="apache/mahout.git"; //per il Deliverable 1
-	private static final String ClonedProjectFolderDeliverable1 = new File("").getAbsolutePath()+"\\"+projectName;	// This give me the localPath of the application where it is installed
-	private static final String csvPathDeliverable1 = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
+	private static final String CLONED_PROJECT_DELIVERABLE1 = new File("").getAbsolutePath()+"\\"+projectName;	// This give me the localPath of the application where it is installed
+	private static final String CSV_PATH_DELIVERABLE1 = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
 	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare (per deliverable 1)
 	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura del control chart un anno
@@ -70,16 +70,16 @@ public class Main {
 	//--------------------------
 	//per deliverable 2
 
-	public static HashMap<LocalDateTime, String> releaseNames;
-	public static HashMap<LocalDateTime, String> releaseID;
-	public static ArrayList<LocalDateTime> releases;
-	public static HashMap<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<String,LocalDateTime>();
-	public static HashMap<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
+	public static Map<LocalDateTime, String> releaseNames;
+	public static Map<LocalDateTime, String> releaseID;
+	public static List<LocalDateTime> releases;
+	public static Map<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<String,LocalDateTime>();
+	public static Map<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
-	public static ArrayList<String> fileNameOfFirstHalf;
-	public static ArrayList<LineOfDataset> arrayOfEntryOfDataset;
-	public static ArrayList<TicketTakenFromJIRA> tickets;
-	public static ArrayList<TicketTakenFromJIRA> ticketsWithoutAV;
+	public static List<String> fileNameOfFirstHalf;
+	public static List<LineOfDataset> arrayOfEntryOfDataset;
+	public static List<TicketTakenFromJIRA> tickets;
+	public static List<TicketTakenFromJIRA> ticketsWithoutAV;
 
 	public static boolean searchingForDateOfCreation = false;
 	private static boolean calculatingLOC=false;
@@ -126,7 +126,7 @@ public class Main {
 
 		if (startToExecDeliverable2==false) {
 			//percorso dove salvare la directory in locale
-			directory = Paths.get(ClonedProjectFolderDeliverable1);
+			directory = Paths.get(CLONED_PROJECT_DELIVERABLE1);
 		}
 		else {
 			directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
@@ -138,7 +138,7 @@ public class Main {
 	//questo metodo fa il comando'git log' del bug sulla repository (mostra il log dei commit)   
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
 
-		Path directory = Paths.get(ClonedProjectFolderDeliverable1);
+		Path directory = Paths.get(CLONED_PROJECT_DELIVERABLE1);
 		//ritorna la data dell'ultimo commit con quel bug nel commento
 		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -544,7 +544,7 @@ public class Main {
 
 	/*
 	  Java isn't able to delete folders with data in it. We have to delete
-	     all files before deleting the ClonedProjectFolderDeliverable1.This utility class is used to delete 
+	     all files before deleting the CLONED_PROJECT_DELIVERABLE1.This utility class is used to delete 
 	  folders recursively in java.*/
 
 	public static void recursiveDelete(File file) {
@@ -579,7 +579,7 @@ public class Main {
 			header = new String[] { "years-month", "bugs fixed"};
 		}
 
-		try (FileWriter writer = new FileWriter(csvPathDeliverable1, false)){
+		try (FileWriter writer = new FileWriter(CSV_PATH_DELIVERABLE1, false)){
 			//True = Append to file, false = Overwrite
 
 			writer.write(header[0]);
@@ -854,7 +854,7 @@ public class Main {
 		
 				// INIZIO DELIVERABLE 1
 				//cancellazione preventiva della directory clonata del progetto (se già esistente)   
-				recursiveDelete(new File(ClonedProjectFolderDeliverable1));
+				recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
 				try {
 					gitClone();	
 		
@@ -871,7 +871,7 @@ public class Main {
 				}
 				finally {
 					//cancellazione directory clonata locale del progetto   
-					recursiveDelete(new File(ClonedProjectFolderDeliverable1));
+					recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
 				}
 				Map<String, Integer> map = new HashMap<>();
 		
