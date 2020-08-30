@@ -179,7 +179,7 @@ public class Weka {
 					fileWriter.append("\n");
 
 				}
-				fileWriter.close();
+				
 			}
 
 			catch (Exception e) {
@@ -187,6 +187,16 @@ public class Weka {
 				System.exit(-1); ;
 				// TODO: handle exception
 			} 
+			finally {
+				try {
+					fileWriter.flush();
+					fileWriter.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					Thread.currentThread().interrupt();
+				}
+			}
 
 		}
 		try {
@@ -742,13 +752,21 @@ public class Weka {
 					}//per ogni sampling
 				}//per ogni fs
 			}//per ogni versione
-			fileWriter.flush();
-			fileWriter.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1); ;
 			// TODO: handle exception
+		}
+		finally {
+			try {
+				fileWriter.flush();
+				fileWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Thread.currentThread().interrupt();
+			}
 		}
 		
 	}
