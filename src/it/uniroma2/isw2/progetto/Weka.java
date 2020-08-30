@@ -179,14 +179,14 @@ public class Weka {
 					fileWriter.append("\n");
 
 				}
-
+				fileWriter.close();
 			}
 
 			catch (Exception e) {
 				e.printStackTrace();
 				System.exit(-1); ;
 				// TODO: handle exception
-			}
+			} 
 
 		}
 		try {
@@ -292,7 +292,7 @@ public class Weka {
 							}
 						}
 						percentInstOfMajorityClass=2*Math.max(numDefectiveTrain/noFilterTraining.size(),1-numDefectiveTrain/noFilterTraining.size())*100;
-						
+
 
 					}
 					else if(fs==1){
@@ -309,7 +309,7 @@ public class Weka {
 						}
 
 						percentInstOfMajorityClass=2*Math.max(numDefectiveTrain/filteredTraining.size(),1-numDefectiveTrain/filteredTraining.size())*100;
-                      
+
 					}
 
 
@@ -335,7 +335,7 @@ public class Weka {
 									}
 									//Oversampling
 									else if(balancing==2) {
-										
+
 										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										resample.setNoReplacement(false);
@@ -389,10 +389,10 @@ public class Weka {
 										eval.evaluateModel(classifier, testingFiltered);
 
 									}
-									
+
 									//Oversampling
 									else if(balancing==2) {
-										
+
 										resample = new Resample();
 										resample.setInputFormat(filteredTraining);
 										resample.setNoReplacement(false);
@@ -457,7 +457,7 @@ public class Weka {
 
 									//Oversampling
 									else if(balancing==2) {
-										
+
 										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										resample.setNoReplacement(false);
@@ -470,9 +470,9 @@ public class Weka {
 										eval = new Evaluation(testing);	
 										eval.evaluateModel(fc, testing); //sampled
 									}
-									
-									
-									
+
+
+
 									//undersampling
 									else if(balancing==3) {
 
@@ -488,7 +488,7 @@ public class Weka {
 										eval =new Evaluation(testing);	
 										eval.evaluateModel(fc, testing);						               
 									}
-								
+
 
 									else if(balancing==4) {
 
@@ -515,7 +515,7 @@ public class Weka {
 
 									//Oversampling
 									else if(balancing==2) {
-										
+
 										resample = new Resample();
 										resample.setInputFormat(filteredTraining);
 										resample.setNoReplacement(false);
@@ -528,7 +528,7 @@ public class Weka {
 										eval = new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered); //sampled
 									}
-									
+
 									//undersampling
 									else if(balancing==3) {
 
@@ -575,7 +575,7 @@ public class Weka {
 
 									//Oversampling
 									else if(balancing==2) {
-										
+
 										resample = new Resample();
 										resample.setInputFormat(noFilterTraining);
 										resample.setNoReplacement(false);
@@ -588,7 +588,7 @@ public class Weka {
 										eval = new Evaluation(testing);	
 										eval.evaluateModel(fc, testing); //sampled
 									}
-									
+
 									//undersampling
 									else if(balancing==3) {
 
@@ -634,7 +634,7 @@ public class Weka {
 
 									//Oversampling
 									else if(balancing==2) {
-										
+
 										resample = new Resample();
 										resample.setInputFormat(filteredTraining);
 										resample.setNoReplacement(false);
@@ -647,7 +647,7 @@ public class Weka {
 										eval = new Evaluation(testing);	
 										eval.evaluateModel(fc, testingFiltered); //sampled
 									}
-									
+
 									//undersampling
 									else if(balancing==3) {
 
@@ -741,21 +741,16 @@ public class Weka {
 
 					}//per ogni sampling
 				}//per ogni fs
-			}//per oggni versione
+			}//per ogni versione
+			fileWriter.flush();
+			fileWriter.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1); ;
 			// TODO: handle exception
 		}
-
-		try {
-			fileWriter.flush();
-			fileWriter.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
 }
