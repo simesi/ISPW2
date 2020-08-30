@@ -281,7 +281,7 @@ public class Main {
 
 							fromFileNameToDateOfCreation.put(file,dateTime);
 							//le date ulteriori vengono ignorate
-							while(br.readLine()!=null) {
+							while((line = br.readLine())!=null) {
 
 							}
 						}
