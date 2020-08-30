@@ -57,11 +57,11 @@ public class Main {
 
 	private static String projectName ="MAHOUT"; //per il Deliverable 1
 	private static String projectNameGit ="apache/mahout.git"; //per il Deliverable 1
-	private static final String clonedProjectFolderDeliverable1 = new File("").getAbsolutePath()+"\\"+projectName;	// This give me the localPath of the application where it is installed
+	private static final String ClonedProjectFolderDeliverable1 = new File("").getAbsolutePath()+"\\"+projectName;	// This give me the localPath of the application where it is installed
 	private static final String csvPathDeliverable1 = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
 
-	private static final int yearsInterval=14; //range degli anni passati su cui cercare (per deliverable 1)
-	private static final boolean collectDataAsYears = false;  //impostare come true per impostare come unità di misura del control chart un anno
+	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare (per deliverable 1)
+	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura del control chart un anno
 
 	private static ArrayList<String> yearsList;
 	private static boolean storeData=false;
@@ -126,7 +126,7 @@ public class Main {
 
 		if (startToExecDeliverable2==false) {
 			//percorso dove salvare la directory in locale
-			directory = Paths.get(clonedProjectFolderDeliverable1);
+			directory = Paths.get(ClonedProjectFolderDeliverable1);
 		}
 		else {
 			directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
@@ -138,7 +138,7 @@ public class Main {
 	//questo metodo fa il comando'git log' del bug sulla repository (mostra il log dei commit)   
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
 
-		Path directory = Paths.get(clonedProjectFolderDeliverable1);
+		Path directory = Paths.get(ClonedProjectFolderDeliverable1);
 		//ritorna la data dell'ultimo commit con quel bug nel commento
 		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
@@ -248,7 +248,7 @@ public class Main {
 
 				while ((line = br.readLine()) != null) {
 					if(storeData&&(!startToExecDeliverable2)) {
-						if(collectDataAsYears) {
+						if(COLLECT_DATA_AS_YEARS) {
 							//get only year
 							yearsList.add(line.substring(0, 4));
 						} else {
@@ -544,7 +544,7 @@ public class Main {
 
 	/*
 	  Java isn't able to delete folders with data in it. We have to delete
-	     all files before deleting the clonedProjectFolderDeliverable1.This utility class is used to delete 
+	     all files before deleting the ClonedProjectFolderDeliverable1.This utility class is used to delete 
 	  folders recursively in java.*/
 
 	public static void recursiveDelete(File file) {
@@ -573,7 +573,7 @@ public class Main {
 	//questo metodo scrive un file CSV con i dati richiesti per poter creare il control chart
 	private static void writeCSV(Map<String,Integer> map) {
 		String[] header;
-		if(collectDataAsYears) {
+		if(COLLECT_DATA_AS_YEARS) {
 			header = new String[] { "years", "bugs fixed"};
 		} else {
 			header = new String[] { "years-month", "bugs fixed"};
@@ -826,7 +826,7 @@ public class Main {
 					/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
 					String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
 							+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+yearsInterval+")"
+							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 							+ "&fields=key,resolutiondate,created&startAt="
 							+ i.toString() + "&maxResults=" + j.toString();
 		
@@ -854,7 +854,7 @@ public class Main {
 		
 				// INIZIO DELIVERABLE 1
 				//cancellazione preventiva della directory clonata del progetto (se già esistente)   
-				recursiveDelete(new File(clonedProjectFolderDeliverable1));
+				recursiveDelete(new File(ClonedProjectFolderDeliverable1));
 				try {
 					gitClone();	
 		
@@ -871,18 +871,18 @@ public class Main {
 				}
 				finally {
 					//cancellazione directory clonata locale del progetto   
-					recursiveDelete(new File(clonedProjectFolderDeliverable1));
+					recursiveDelete(new File(ClonedProjectFolderDeliverable1));
 				}
 				Map<String, Integer> map = new HashMap<>();
 		
 		
-				//popolamento map avente come chiave l'anno (e il mese se impostato collectDataAsYears= false) e come value il numero di bug risolti
+				//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
 				for(i=0;i<yearsList.size();i++) {
 					map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
 				}
 		
 				//aggiunta dei mesi con valori nulli
-				if(!collectDataAsYears) {
+				if(!COLLECT_DATA_AS_YEARS) {
 					// TreeMap to store values of HashMap 
 					TreeMap<String, Integer> sorted = new TreeMap<>(); 
 					// Copy all data from hashMap into TreeMap 
@@ -1050,7 +1050,7 @@ public class Main {
 			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
 					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+yearsInterval+")"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created,versions&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 			//System.out.println(url);
@@ -1210,7 +1210,7 @@ public class Main {
 			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
 					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+yearsInterval+")"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 
