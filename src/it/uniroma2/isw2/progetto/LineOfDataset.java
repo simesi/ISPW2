@@ -139,15 +139,15 @@ public class LineOfDataset {
 	/**
 	 * @param Churn the Churn to set
 	 */
-	public void setChurn(int Churn) {
-		churn = Churn;
+	public void setChurn(int churn) {
+		this.churn = churn;
 	}
 
 
 	/**
 	 * @return the nAuth
 	 */
-	public int getNAuth() {
+	public int getNauth() {
 		return nAuth;
 	}
 
@@ -155,15 +155,15 @@ public class LineOfDataset {
 	/**
 	 * @param nAuth the nAuth to set
 	 */
-	public void setNAuth(int NAuth) {
-		nAuth = NAuth;
+	public void setNauth(int nAuth) {
+		this.nAuth = nAuth;
 	}
 
 
 	/**
 	 * @return the lOC_Added
 	 */
-	public int getLOCAdded() {
+	public int getLocadded() {
 		return locAdded;
 	}
 
@@ -219,26 +219,12 @@ public class LineOfDataset {
 	/**
 	 * @param buggy the buggy to set
 	 */
-	public void setBuggy(String Buggy) {
-		buggy = Buggy;
-	}
-
-
-	public LineOfDataset(int version, String fileName, int mySize, int lOC_Touched, int nR, int churn,
-			int nAuth, int lOC_Added, int mAX_LOC_Added, int aVG_LOC_Added, int age, String buggy) {
-		super();
-		this.version = version;
-		this.fileName = fileName;
-		size = mySize;
-		locTouched = lOC_Touched;
-		this.nr = nR;
-		this.churn = churn;
-		this.nAuth = nAuth;
-		locAdded = lOC_Added;
-		maxLOCAdded = mAX_LOC_Added;
-		avgLOCAdded = aVG_LOC_Added;
+	public void setBuggy(String buggy) {
 		this.buggy = buggy;
 	}
+
+
+	
 
              //costruttore minimale                                             
 	public LineOfDataset(int version, String fileName) {

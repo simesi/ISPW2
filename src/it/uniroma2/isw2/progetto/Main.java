@@ -442,7 +442,7 @@ public class Main {
 						//cerchiamo l'oggetto giusto su cui scrivere
 						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) { 
 							if((arrayOfEntryOfDataset.get(i).getVersion()==version) && (arrayOfEntryOfDataset.get(i).getFileName().equals(filename))) {
-								arrayOfEntryOfDataset.get(i).setNAuth(nAuth);
+								arrayOfEntryOfDataset.get(i).setNauth(nAuth);
 
 								break;
 							}
@@ -1359,9 +1359,9 @@ public class Main {
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getNR()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getNAuth()));
+				fileWriter.append(String.valueOf(line.getNauth()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getLOCAdded()));
+				fileWriter.append(String.valueOf(line.getLocadded()));
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
 				fileWriter.append(",");
