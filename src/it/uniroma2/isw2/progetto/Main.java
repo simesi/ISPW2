@@ -826,103 +826,103 @@ public class Main {
 		JSONArray issues;
 
 		ArrayList<String> ticketIDList;
-		//		//Get JSON API for closed bugs w/ AV in the project
-		//		do {
-		//			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-		//			j = i + 1000;
-		//
-		//			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
-		//			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-		//					+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-		//					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-		//					+ "&fields=key,resolutiondate,created&startAt="
-		//					+ i.toString() + "&maxResults=" + j.toString();
-		//
-		//
-		//			 json = readJsonFromUrl(url);
-		//			 issues = json.getJSONArray("issues");
-		//			//ci si prende il numero totale di ticket recuperati
-		//			total = json.getInt("total");
-		//
-		//			ticketIDList= new ArrayList<>();
-		//			yearsList= new ArrayList<>();
-		//			// si itera sul numero di ticket
-		//			for (; i < total && i < j; i++) {
-		//
-		//				String key = issues.getJSONObject(i%1000).get("key").toString();
-		//
-		//
-		//				ticketIDList.add(key);
-		//
-		//			}  
-		//		} while (i < total);
-		//
-		//
-		//		String myID;
-		//
-		//		// INIZIO DELIVERABLE 1
-		//		//cancellazione preventiva della directory clonata del progetto (se già esistente)   
-		//		recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
-		//		try {
-		//			gitClone();	
-		//
-		//			//abilito il salvataggio dei valori ottenuti dalla riga di output del processo che eseguirà il git log
-		//			storeData=true;
-		//			for ( i = 0; i < ticketIDList.size(); i++) {
-		//				myID=ticketIDList.get(i);
-		//				gitLogOfBug(myID);
-		//			}
-		//		} catch (InterruptedException e) {
-		//			e.printStackTrace();
-		//			Thread.currentThread().interrupt();
-		//			System.exit(-1);
-		//		}
-		//		finally {
-		//			//cancellazione directory clonata locale del progetto   
-		//			recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
-		//		}
-		//		Map<String, Integer> map = new HashMap<>();
-		//
-		//
-		//		//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
-		//		for(i=0;i<yearsList.size();i++) {
-		//			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
-		//		}
-		//
-		//		//aggiunta dei mesi con valori nulli
-		//		if(!COLLECT_DATA_AS_YEARS) {
-		//			// TreeMap to store values of HashMap 
-		//			TreeMap<String, Integer> sorted = new TreeMap<>(); 
-		//			// Copy all data from hashMap into TreeMap 
-		//			sorted.putAll(map); 
-		//
-		//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		//			DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
-		//
-		//			//si prende il primo e l'ultimo anno-mese ....
-		//			LocalDate firstdate = LocalDate.parse(sorted.firstKey()+"-01",formatter);
-		//			LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
-		//			//iteratore
-		//			LocalDate date = firstdate;
-		//
-		//			// .... e si aggiungono i mesi tra i due periodi 			
-		//			while(date.isBefore(lastdate)) {
-		//				date =date.with(TemporalAdjusters.firstDayOfNextMonth());
-		//				sorted.put(date.format(formatterWithNoDay), 0);
-		//			}
-		//
-		//			//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
-		//			sorted.putAll(map);
-		//			map=sorted;
-		//		}
-		//
-		//
-		//		writeCSV(map);
-		//		System.out.println("Finito deliverable 1");
-		//		
-		//		
-		//		//cancellazione directory clonata locale del progetto   
-		//				recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
+				//Get JSON API for closed bugs w/ AV in the project
+				do {
+					//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+					j = i + 1000;
+		
+					/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
+					String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+							+ PROJECT_NAME + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+							+ "&fields=key,resolutiondate,created&startAt="
+							+ i.toString() + "&maxResults=" + j.toString();
+		
+		
+					 json = readJsonFromUrl(url);
+					 issues = json.getJSONArray("issues");
+					//ci si prende il numero totale di ticket recuperati
+					total = json.getInt("total");
+		
+					ticketIDList= new ArrayList<>();
+					yearsList= new ArrayList<>();
+					// si itera sul numero di ticket
+					for (; i < total && i < j; i++) {
+		
+						String key = issues.getJSONObject(i%1000).get("key").toString();
+		
+		
+						ticketIDList.add(key);
+		
+					}  
+				} while (i < total);
+		
+		
+				String myID;
+		
+				// INIZIO DELIVERABLE 1
+				//cancellazione preventiva della directory clonata del progetto (se già esistente)   
+				recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
+				try {
+					gitClone();	
+		
+					//abilito il salvataggio dei valori ottenuti dalla riga di output del processo che eseguirà il git log
+					storeData=true;
+					for ( i = 0; i < ticketIDList.size(); i++) {
+						myID=ticketIDList.get(i);
+						gitLogOfBug(myID);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					Thread.currentThread().interrupt();
+					System.exit(-1);
+				}
+				finally {
+					//cancellazione directory clonata locale del progetto   
+					recursiveDelete(new File(CLONED_PROJECT_FOLDER_DELIVERABLE1));
+				}
+				Map<String, Integer> map = new HashMap<>();
+		
+		
+				//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
+				for(i=0;i<yearsList.size();i++) {
+					map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
+				}
+		
+				//aggiunta dei mesi con valori nulli
+				if(!COLLECT_DATA_AS_YEARS) {
+					// TreeMap to store values of HashMap 
+					TreeMap<String, Integer> sorted = new TreeMap<>(); 
+					// Copy all data from hashMap into TreeMap 
+					sorted.putAll(map); 
+		
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
+		
+					//si prende il primo e l'ultimo anno-mese ....
+					LocalDate firstdate = LocalDate.parse(sorted.firstKey()+"-01",formatter);
+					LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
+					//iteratore
+					LocalDate date = firstdate;
+		
+					// .... e si aggiungono i mesi tra i due periodi 			
+					while(date.isBefore(lastdate)) {
+						date =date.with(TemporalAdjusters.firstDayOfNextMonth());
+						sorted.put(date.format(formatterWithNoDay), 0);
+					}
+		
+					//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
+					sorted.putAll(map);
+					map=sorted;
+				}
+		
+		
+				writeCSV(map);
+				System.out.println("Finito deliverable 1");
+				
+				
+				//cancellazione directory clonata locale del progetto   
+						recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 
 		/*FINE DELIVERABLE 1*/
 
@@ -969,7 +969,7 @@ public class Main {
 		//--------------------------------------------------------
 		///ORA CREO IL  DATASET
 
-/*
+
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 		try {
@@ -1394,7 +1394,7 @@ public class Main {
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 
-		System.out.println("Finito Deliverable 2 Milestone 1!!!!!");*/
+		
 
 		//----------------------------------------------------------------------------
 
