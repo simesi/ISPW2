@@ -1531,11 +1531,10 @@ public class Main {
 		//i=Math.floorDiv(14,2);//commenta questa linea di codice e lascia quella sopra!
 
 		//a doClassification() gli si passa il max numero di versioni da classificare
-		w.doClassification(i, PROJECT_NAME);
+		w.doClassificationMilestone2(i, PROJECT_NAME);
 
 		
-		return;
-	}
+	
 
 
 	//--------------------------------------------------------------------------------
@@ -1543,10 +1542,12 @@ public class Main {
 
 
 
+    w.doClassificationMilestone3(i, PROJECT_NAME);
 
 
 
 
-
-
+    	return;
+    	}
+	
 }

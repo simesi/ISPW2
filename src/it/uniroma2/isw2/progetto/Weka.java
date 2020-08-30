@@ -1,4 +1,6 @@
 package it.uniroma2.isw2.progetto;
+import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.Instances;
 
 import java.io.File;
@@ -8,10 +10,14 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.text.DecimalFormat;
 
+import weka.attributeSelection.CfsSubsetEval;
+import weka.attributeSelection.GreedyStepwise;
 import weka.classifiers.Evaluation;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.RandomForest;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.filters.Filter;
+import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.supervised.instance.Resample;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
@@ -26,16 +32,16 @@ public class Weka {
 
 
 	public Weka() {}
-	
+
 
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
-	public void doClassification(int Maxversion, String ProjectName) {
-		
+	public void doClassificationMilestone2(int Maxversion, String ProjectName) {
+
 		String myClassificator=null;
 		FileWriter fileWriter=null;
 		Evaluation eval = null;
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
-		
+
 		for(int version=2;version<=Maxversion;version++) {
 
 			String ARFFNAmeFileTrain = "";
@@ -58,7 +64,7 @@ public class Weka {
 
 				saver.setFile(new File(ARFFNAmeFileTrain));
 				saver.writeBatch();
-				
+
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -85,7 +91,7 @@ public class Weka {
 
 				saver.setFile(new File(ARFFNAmeFileTest));
 				saver.writeBatch();
-				
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -148,13 +154,13 @@ public class Weka {
 					if( fileWriter==null) {
 
 						String name = ProjectName+" Deliverable 2 Milestone 2.csv";
-						
+
 						//True = Append to file, false = Overwrite
 						fileWriter = new FileWriter(name,true);
 						fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
 						fileWriter.append("\n");
 					}
-				
+
 					fileWriter.append(ProjectName);
 					fileWriter.append(",");
 					fileWriter.append(String.valueOf(version-1));
@@ -181,18 +187,258 @@ public class Weka {
 			}
 
 		}
-		    try {
-		    	fileWriter.flush();
-				fileWriter.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+			fileWriter.flush();
+			fileWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return;
 
 	}
 
+
+	public void doClassificationMilestone3(int Maxversion, String ProjectName) {
+
+
+		String myClassificator=null;
+		FileWriter fileWriter=null;
+		Evaluation eval = null;
+		DecimalFormat numberFormat = new DecimalFormat("0.00");
+		int numAttrFiltered=0;
+		int numAttrNoFilter=0;
+		int numDefectiveTrain=0;
+		int numDefectiveTest=0;
+
+		try {
+			for(int version=2;version<=Maxversion;version++) {
+
+
+				DataSource source = new DataSource(ProjectName +" Training for "+"Release "+version+".arff");
+
+				DataSource source2 = new DataSource(ProjectName +" Testing for "+"Release "+version+".arff");
+
+				Instances noFilterTraining = source.getDataSet();
+				Instances testing = source2.getDataSet();
+				Instances filteredTraining = null;
+				Instances testingFiltered = null;
+
+				//stima senza filtri
+				numAttrNoFilter = noFilterTraining.numAttributes();
+				noFilterTraining.setClassIndex(numAttrNoFilter - 1);
+				testing.setClassIndex(numAttrNoFilter - 1);
+
+
+
+				//System.out.println("Numero di attributi nel file prima del filtro (inclusa la bugginess): "+ numAttrNoFilter);
+				//System.out.println("Numero di attributi nel file dopo il filtro(inclusa la bugginess): "+ numAttrFiltered);
+
+
+				//senza e con feature selection
+				for (int fs=0;fs<=1;fs++) {
+
+					//fs=1 allora con feature selection
+					if(fs==1) {
+
+						//create AttributeSelection object
+						AttributeSelection filter = new AttributeSelection();
+						//create evaluator and search algorithm objects
+						CfsSubsetEval subEval = new CfsSubsetEval();
+						GreedyStepwise search = new GreedyStepwise();
+						//set the algorithm to search backward
+						search.setSearchBackwards(true);
+						//set the filter to use the evaluator and search algorithm
+						filter.setEvaluator(subEval);
+						filter.setSearch(search);
+
+						//specify the dataset
+						filter.setInputFormat(noFilterTraining);
+
+						//qui si crea il training filtrato
+						filteredTraining = Filter.useFilter(noFilterTraining, filter);
+
+						//stima numero attributi con i filtri
+						numAttrFiltered = filteredTraining.numAttributes();
+
+						//evaluation with filtered
+						filteredTraining.setClassIndex(numAttrFiltered - 1);
+						testingFiltered = Filter.useFilter(testing, filter);
+						testingFiltered.setClassIndex(numAttrFiltered - 1);
+
+					}//fine if
+
+
+
+
+					//senza balancing o con i tre tipi di balancing			
+					for(int balancing=1;balancing<=4;balancing++) {
+
+
+
+
+						//per ogni classificatore
+						for(int n=1;n<=3;n++) {
+							if(n==1) {
+
+								//NaiveBayes---------------
+								NaiveBayes classifier = new NaiveBayes(); //scelgo come classificatore il naive bayes
+								myClassificator ="NaiveBayes";
+								if(fs==0) {
+									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
+
+									eval =new Evaluation(testing);	
+									eval.evaluateModel(classifier, testing);
+								}
+								else {
+									classifier.buildClassifier(filteredTraining); //qui si fa il training filtrato
+
+									eval =new Evaluation(testing);
+									eval.evaluateModel(classifier, testingFiltered);
+								}
+
+
+							}
+
+							else if (n==2) {
+								//RandomForest---------------
+								RandomForest classifier = new RandomForest(); //scelgo come classificatore RandomForest
+								myClassificator ="RandomForest";
+								if(fs==0) {
+									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
+
+									eval =new Evaluation(testing);	
+									eval.evaluateModel(classifier, testing);
+								}
+								else {
+									classifier.buildClassifier(filteredTraining); //qui si fa il training filtrato
+
+									eval =new Evaluation(testing);
+									eval.evaluateModel(classifier, testingFiltered);
+								} 
+							}
+							else if (n==3) {
+								//Ibk---------------
+								IBk classifier = new IBk(); //scelgo come classificatore Ibk
+								myClassificator ="IBk";
+								if(fs==0) {
+									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
+
+									eval =new Evaluation(testing);	
+									eval.evaluateModel(classifier, testing);
+								}
+								else {
+									classifier.buildClassifier(filteredTraining); //qui si fa il training filtrato
+
+									eval =new Evaluation(testing);
+									eval.evaluateModel(classifier, testingFiltered);
+								}
+							}
+
+							numDefectiveTrain=0;
+							numDefectiveTest=0;
+							//MODIFICA AL SAMPLING
+							if(fs==0) {
+								
+								//ora si contano il numero di buggy nelle Instances
+								for(Instance instance: noFilterTraining){
+									      
+									if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
+										numDefectiveTrain++;
+									}
+								}
+								for(Instance instance: testing){
+									if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
+										numDefectiveTest++;
+									}
+								}
+							}
+							else {
+								//ora si contano il numero di buggy nelle Instances
+								for(Instance instance: filteredTraining){
+									if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
+										numDefectiveTrain++;
+									}
+								}
+								for(Instance instance: testingFiltered){
+									if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
+										numDefectiveTest++;
+									}
+								}
+							}
+
+
+							//--------------------------------------------------------------
+							//ora si scrive file csv coi risultati
+
+							//se è la prima iterazione
+							if( fileWriter==null) {
+
+								String name = ProjectName+" Deliverable 2 Milestone 3.csv";
+
+								//True = Append to file, false = Overwrite
+								fileWriter = new FileWriter(name,true);
+								fileWriter.append("Dataset,#Training Release,%Training,%Defective in training,"
+										+ "%Defective in testing,classifier,balancing,Feature Selection,TP,FP,TN,FN,"
+										+ "Precision,Recall,ROC Area, Kappa");
+
+								fileWriter.append("\n");
+							}
+
+							//System.out.println((double)noFilterTraining.size()/(double)(testing.size()+noFilterTraining.size()));
+							//System.out.println(noFilterTraining.size()+testing.size());
+							fileWriter.append(ProjectName);
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf(version-1));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf((String.format("%.3f", (double) (noFilterTraining.size()/(double)(testing.size()+noFilterTraining.size()))))).replace(',', '.'));//modifica con sampling
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf((String.format("%.3f",(double)numDefectiveTrain/(double)noFilterTraining.size()))).replace(',', '.'));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf((String.format("%.3f",(double)numDefectiveTest/(double)testing.size()))).replace(',', '.'));
+							fileWriter.append(",");
+							fileWriter.append(myClassificator);
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf(String.valueOf(balancing)));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf(fs));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf((int)eval.numTruePositives(1)));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf((int)eval.numFalsePositives(1)));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf((int)eval.numTrueNegatives(1)));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf((int)eval.numFalseNegatives(1)));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf(numberFormat.format(eval.precision(1)).replace(',', '.')));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf(numberFormat.format(eval.recall(1)).replace(',', '.')));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf(numberFormat.format(eval.areaUnderROC(1)).replace(',', '.')));
+							fileWriter.append(",");
+							fileWriter.append(String.valueOf(numberFormat.format(eval.kappa()).replace(',', '.')));
+							fileWriter.append("\n");
+		
+						}//per ogni classificatore
+
+					}//per ogni sampling
+				}//per ogni fs
+			}//per oggni versione
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1); ;
+			// TODO: handle exception
+		}
+		
+		try {
+			fileWriter.flush();
+			fileWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }
-
-
-
