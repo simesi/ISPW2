@@ -929,7 +929,7 @@ public class Main {
 		//-------------------------------------------------------------------------------------------------
 		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
-		/*PROJECT_NAME ="OPENJPA";//"BOOKKEEPER";
+		PROJECT_NAME ="OPENJPA";//"BOOKKEEPER";
 		PROJECT_NAME_GIT ="apache/openjpa.git";  // "apache/bookkeeper.git";
 		startToExecDeliverable2=true;
 		storeData=false;
@@ -1075,15 +1075,26 @@ public class Main {
 			LocalDate date;
 			LocalDate affReleaseDate;
 			TicketTakenFromJIRA tick;
+			String affVersReleaseDate="";
 
 			// si itera sul numero di ticket
 			for (; i < total && i < j; i++) {
 
 				String key = issues.getJSONObject(i%1000).get("key").toString();
 				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
-				//affVers è per es. 4.1.0
-				String affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(0).get("releaseDate").toString();
 
+				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
+				
+				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").length();h++) {
+					if(issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).has("releaseDate")) {
+						//affVers è per es. 4.1.0
+						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).get("releaseDate").toString();
+						break;
+					}
+				}
+				//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
+				// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
+				  
 
 				date = LocalDate.parse(createdDate,format);
 				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
@@ -1383,7 +1394,7 @@ public class Main {
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+PROJECT_NAME));
 
-		System.out.println("Finito Deliverable 2!!!!!");*/
+		System.out.println("Finito Deliverable 2!!!!!");
 
 		//----------------------------------------------------------------------------
 
@@ -1392,7 +1403,7 @@ public class Main {
 		//creo due file CSV (uno per il training con le vecchie release e uno per il testing) per ogni release
 
 		PROJECT_NAME= "BOOKKEEPER";
-		
+
 		outname = PROJECT_NAME + " Deliverable 2 Milestone 1.csv";
 		String csvTrain;
 		String csvTest;
@@ -1407,8 +1418,8 @@ public class Main {
 		BufferedReader csvReader;
 
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
-		
-//!!!!!!!    for(i=2;i<=Math.floorDiv(releases.size(),2);i++) {
+
+		//!!!!!!!    for(i=2;i<=Math.floorDiv(releases.size(),2);i++) {
 		for(i=2;i<=Math.floorDiv(14,2);i++) { //commenta questa linea e metti quella di sopra
 			FileWriter fileWriterTrain=null;
 			FileWriter fileWriterTest=null;
@@ -1518,7 +1529,7 @@ public class Main {
 
 		//i=Math.floorDiv(releases.size(),2);
 		i=Math.floorDiv(14,2);//commenta questa linea di codice e lascia quella sopra!
-		
+
 		//a doClassification() gli si passa il max numero di versioni da classificare
 		w.doClassification(i, PROJECT_NAME);
 
