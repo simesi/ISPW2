@@ -19,6 +19,8 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.supervised.instance.Resample;
+import weka.filters.supervised.instance.SMOTE;
+import weka.filters.supervised.instance.SpreadSubsample;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -210,6 +212,7 @@ public class Weka {
 		int numAttrNoFilter=0;
 		int numDefectiveTrain=0;
 		int numDefectiveTest=0;
+		Resample resample= null;
 
 		try {
 			for(int version=2;version<=Maxversion;version++) {
@@ -268,13 +271,43 @@ public class Weka {
 
 					}//fine if
 
+					
+					//qui si contano le istanze positive...
+					numDefectiveTrain=0;
+					numDefectiveTest=0;
+					
+					if(fs==0) {
 
+						//ora si contano il numero di buggy nelle Instances
+						for(Instance instance: noFilterTraining){
+
+							if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
+								numDefectiveTrain++;
+							}
+						}
+						for(Instance instance: testing){
+							if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
+								numDefectiveTest++;
+							}
+						}
+					}
+					else {
+						//ora si contano il numero di buggy nelle Instances
+						for(Instance instance: filteredTraining){
+							if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
+								numDefectiveTrain++;
+							}
+						}
+						for(Instance instance: testingFiltered){
+							if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
+								numDefectiveTest++;
+							}
+						}
+					}
 
 
 					//senza balancing o con i tre tipi di balancing			
 					for(int balancing=1;balancing<=4;balancing++) {
-
-
 
 
 						//per ogni classificatore
@@ -285,18 +318,104 @@ public class Weka {
 								NaiveBayes classifier = new NaiveBayes(); //scelgo come classificatore il naive bayes
 								myClassificator ="NaiveBayes";
 								if(fs==0) {
+
+
 									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
 
-									eval =new Evaluation(testing);	
-									eval.evaluateModel(classifier, testing);
+									//no resample
+									if(balancing==1) {
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(classifier, testing);
+									}
+									//Oversampling
+									else if(balancing==2) {
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										String[] opts = new String[]{ "-B", "1.0", "-Z",""};
+										spreadSubsample.setOptions(opts);
+										fc.setFilter(spreadSubsample);
+										
+										
+										
+										fc.setFilter(resample);
+									}
+
+									//undersampling
+									else if(balancing==3) {
+
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										SpreadSubsample  spreadSubsample = new SpreadSubsample();
+										String[] opts = new String[]{ "-M", "1.0"};
+										spreadSubsample.setOptions(opts);
+										fc.setFilter(spreadSubsample);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testing);						               
+									}
+
+									else if(balancing==4) {
+										
+										 resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										SMOTE smote = new SMOTE();
+										smote.setInputFormat(noFilterTraining);
+										fc.setFilter(smote);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testing);	
+										
+									}
+
+
 								}
-								else {
+								else if(fs==1) {
 									classifier.buildClassifier(filteredTraining); //qui si fa il training filtrato
 
-									eval =new Evaluation(testing);
-									eval.evaluateModel(classifier, testingFiltered);
-								}
+									if(balancing==1) {
+										eval =new Evaluation(testing);
+										eval.evaluateModel(classifier, testingFiltered);
 
+									}
+									
+									//undersampling
+									else if(balancing==3) {
+
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										SpreadSubsample  spreadSubsample = new SpreadSubsample();
+										String[] opts = new String[]{ "-M", "1.0"};
+										spreadSubsample.setOptions(opts);
+										fc.setFilter(spreadSubsample);
+										fc.buildClassifier(filteredTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered);						               
+									}
+								
+									else if(balancing==4) {
+										
+										 resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										SMOTE smote = new SMOTE();
+										smote.setInputFormat(noFilterTraining);
+										fc.setFilter(smote);
+										fc.buildClassifier(filteredTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered);	
+										
+									}								
+								
+								
+								
+								}
 
 							}
 
@@ -304,17 +423,86 @@ public class Weka {
 								//RandomForest---------------
 								RandomForest classifier = new RandomForest(); //scelgo come classificatore RandomForest
 								myClassificator ="RandomForest";
+								
 								if(fs==0) {
 									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
+									
+									//no resample
+									if(balancing==1) {
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(classifier, testing);
+									}
 
-									eval =new Evaluation(testing);	
-									eval.evaluateModel(classifier, testing);
+
+									//undersampling
+									else if(balancing==3) {
+
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										SpreadSubsample  spreadSubsample = new SpreadSubsample();
+										String[] opts = new String[]{ "-M", "1.0"};
+										spreadSubsample.setOptions(opts);
+										fc.setFilter(spreadSubsample);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testing);						               
+									}
+									
+									
+									else if(balancing==4) {
+										
+										 resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										SMOTE smote = new SMOTE();
+										smote.setInputFormat(noFilterTraining);
+										fc.setFilter(smote);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testing);	
+										
+									}
 								}
-								else {
+								else if(fs==1){
 									classifier.buildClassifier(filteredTraining); //qui si fa il training filtrato
 
-									eval =new Evaluation(testing);
-									eval.evaluateModel(classifier, testingFiltered);
+									if(balancing==1) {
+										eval =new Evaluation(testing);
+										eval.evaluateModel(classifier, testingFiltered);
+
+									}
+									
+									//undersampling
+									else if(balancing==3) {
+
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										SpreadSubsample  spreadSubsample = new SpreadSubsample();
+										String[] opts = new String[]{ "-M", "1.0"};
+										spreadSubsample.setOptions(opts);
+										fc.setFilter(spreadSubsample);
+										fc.buildClassifier(filteredTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered);						               
+									}
+									
+									else if(balancing==4) {
+										
+										 resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										SMOTE smote = new SMOTE();
+										smote.setInputFormat(filteredTraining);
+										fc.setFilter(smote);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered);	
+										
+									}
 								} 
 							}
 							else if (n==3) {
@@ -323,49 +511,92 @@ public class Weka {
 								myClassificator ="IBk";
 								if(fs==0) {
 									classifier.buildClassifier(noFilterTraining); //qui si fa il training non filtrato
+									
+									//no resample
+									if(balancing==1) {
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(classifier, testing);
+									}
 
-									eval =new Evaluation(testing);	
-									eval.evaluateModel(classifier, testing);
+
+									//undersampling
+									else if(balancing==3) {
+
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										SpreadSubsample  spreadSubsample = new SpreadSubsample();
+										String[] opts = new String[]{ "-M", "1.0"};
+										spreadSubsample.setOptions(opts);
+										fc.setFilter(spreadSubsample);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testing);						               
+									}
+									
+									else if(balancing==4) {
+										
+										 resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										SMOTE smote = new SMOTE();
+										smote.setInputFormat(noFilterTraining);
+										fc.setFilter(smote);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testing);	
+										
+									}
+									
+									
+									
+									
 								}
-								else {
+								else if(fs==1){
 									classifier.buildClassifier(filteredTraining); //qui si fa il training filtrato
 
-									eval =new Evaluation(testing);
-									eval.evaluateModel(classifier, testingFiltered);
-								}
+									if(balancing==1) {
+										eval =new Evaluation(testing);
+										eval.evaluateModel(classifier, testingFiltered);
+
+									}
+									
+									//undersampling
+									else if(balancing==3) {
+
+										resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										fc.setClassifier(classifier);
+										SpreadSubsample  spreadSubsample = new SpreadSubsample();
+										String[] opts = new String[]{ "-M", "1.0"};
+										spreadSubsample.setOptions(opts);
+										fc.setFilter(spreadSubsample);
+										fc.buildClassifier(filteredTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered);						               
+									}
+									
+									else if(balancing==4) {
+										
+										 resample = new Resample();
+										resample.setInputFormat(noFilterTraining);
+										FilteredClassifier fc = new FilteredClassifier();
+										SMOTE smote = new SMOTE();
+										smote.setInputFormat(filteredTraining);
+										fc.setFilter(smote);
+										fc.buildClassifier(noFilterTraining);
+										eval =new Evaluation(testing);	
+										eval.evaluateModel(fc, testingFiltered);	
+										
+									}
+									
+									
+								} 
 							}
 
-							numDefectiveTrain=0;
-							numDefectiveTest=0;
-							//MODIFICA AL SAMPLING
-							if(fs==0) {
-								
-								//ora si contano il numero di buggy nelle Instances
-								for(Instance instance: noFilterTraining){
-									      
-									if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
-										numDefectiveTrain++;
-									}
-								}
-								for(Instance instance: testing){
-									if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
-										numDefectiveTest++;
-									}
-								}
-							}
-							else {
-								//ora si contano il numero di buggy nelle Instances
-								for(Instance instance: filteredTraining){
-									if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
-										numDefectiveTrain++;
-									}
-								}
-								for(Instance instance: testingFiltered){
-									if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
-										numDefectiveTest++;
-									}
-								}
-							}
+							
 
 
 							//--------------------------------------------------------------
@@ -419,7 +650,7 @@ public class Weka {
 							fileWriter.append(",");
 							fileWriter.append(String.valueOf(numberFormat.format(eval.kappa()).replace(',', '.')));
 							fileWriter.append("\n");
-		
+
 						}//per ogni classificatore
 
 					}//per ogni sampling
@@ -431,7 +662,7 @@ public class Weka {
 			System.exit(-1); ;
 			// TODO: handle exception
 		}
-		
+
 		try {
 			fileWriter.flush();
 			fileWriter.close();
