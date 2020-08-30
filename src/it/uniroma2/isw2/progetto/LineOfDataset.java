@@ -2,20 +2,20 @@ package it.uniroma2.isw2.progetto;
 
 public class LineOfDataset {
 
-	private int numeroDiRiga;
+	
 	private int version;//id versione
 	private String fileName;
-	private int Size;
-	private int Max_Churn;
-	private int AVG_Churn;
-	private int LOC_Touched;
-	private int NR;
-	private int Churn;
-	private int NAuth;
-	private int LOC_Added;
-	private int MAX_LOC_Added;
-	private int AVG_LOC_Added;
-	private String Buggy= "NO";
+	private int size;
+	private int max_Churn;
+	private int avg_Churn;
+	private int loc_Touched;
+	private int nr;
+	private int churn;
+	private int nAuth;
+	private int loc_Added;
+	private int max_LOC_Added;
+	private int avg_LOC_Added;
+	private String buggy= "NO";
 
 	
 	/**
@@ -53,15 +53,15 @@ public class LineOfDataset {
 	 * @return the max_Churn
 	 */
 	public int getMax_Churn() {
-		return Max_Churn;
+		return max_Churn;
 	}
 
 
 	/**
 	 * @param max_Churn the max_Churn to set
 	 */
-	public void setMax_Churn(int max_Churn) {
-		Max_Churn = max_Churn;
+	public void setMax_Churn(int Max_Churn) {
+		max_Churn = Max_Churn;
 	}
 
 
@@ -69,7 +69,7 @@ public class LineOfDataset {
 	 * @return the aVG_Churn
 	 */
 	public int getAVG_Churn() {
-		return AVG_Churn;
+		return avg_Churn;
 	}
 
 
@@ -77,22 +77,22 @@ public class LineOfDataset {
 	 * @param aVG_Churn the aVG_Churn to set
 	 */
 	public void setAVG_Churn(int aVG_Churn) {
-		AVG_Churn = aVG_Churn;
+		avg_Churn = aVG_Churn;
 	}
 	
 	/**
 	 * @return the size
 	 */
 	public int getSize() {
-		return Size;
+		return size;
 	}
 
 
 	/**
 	 * @param size the size to set
 	 */
-	public void setSize(int size) {
-		Size = size;
+	public void setSize(int mySize) {
+		size = mySize;
 	}
 
 
@@ -100,7 +100,7 @@ public class LineOfDataset {
 	 * @return the lOC_Touched
 	 */
 	public int getLOC_Touched() {
-		return LOC_Touched;
+		return loc_Touched;
 	}
 
 
@@ -108,7 +108,7 @@ public class LineOfDataset {
 	 * @param lOC_Touched the lOC_Touched to set
 	 */
 	public void setLOC_Touched(int lOC_Touched) {
-		LOC_Touched = lOC_Touched;
+		loc_Touched = lOC_Touched;
 	}
 
 
@@ -116,7 +116,7 @@ public class LineOfDataset {
 	 * @return the nR
 	 */
 	public int getNR() {
-		return NR;
+		return nr;
 	}
 
 
@@ -124,7 +124,7 @@ public class LineOfDataset {
 	 * @param nR the nR to set
 	 */
 	public void setNR(int nR) {
-		NR = nR;
+		nr = nR;
 	}
 
 
@@ -132,15 +132,15 @@ public class LineOfDataset {
 	 * @return the Churn
 	 */
 	public int getChurn() {
-		return Churn;
+		return churn;
 	}
 
 
 	/**
 	 * @param Churn the Churn to set
 	 */
-	public void setChurn(int churn) {
-		Churn = churn;
+	public void setChurn(int Churn) {
+		churn = Churn;
 	}
 
 
@@ -148,15 +148,15 @@ public class LineOfDataset {
 	 * @return the nAuth
 	 */
 	public int getNAuth() {
-		return NAuth;
+		return nAuth;
 	}
 
 
 	/**
 	 * @param nAuth the nAuth to set
 	 */
-	public void setNAuth(int nAuth) {
-		NAuth = nAuth;
+	public void setNAuth(int NAuth) {
+		nAuth = NAuth;
 	}
 
 
@@ -164,7 +164,7 @@ public class LineOfDataset {
 	 * @return the lOC_Added
 	 */
 	public int getLOC_Added() {
-		return LOC_Added;
+		return loc_Added;
 	}
 
 
@@ -172,7 +172,7 @@ public class LineOfDataset {
 	 * @param lOC_Added the lOC_Added to set
 	 */
 	public void setLOC_Added(int lOC_Added) {
-		LOC_Added = lOC_Added;
+		loc_Added = lOC_Added;
 	}
 
 
@@ -180,7 +180,7 @@ public class LineOfDataset {
 	 * @return the mAX_LOC_Added
 	 */
 	public int getMAX_LOC_Added() {
-		return MAX_LOC_Added;
+		return max_LOC_Added;
 	}
 
 
@@ -188,7 +188,7 @@ public class LineOfDataset {
 	 * @param mAX_LOC_Added the mAX_LOC_Added to set
 	 */
 	public void setMAX_LOC_Added(int mAX_LOC_Added) {
-		MAX_LOC_Added = mAX_LOC_Added;
+		max_LOC_Added = mAX_LOC_Added;
 	}
 
 
@@ -196,7 +196,7 @@ public class LineOfDataset {
 	 * @return the aVG_LOC_Added
 	 */
 	public int getAVG_LOC_Added() {
-		return AVG_LOC_Added;
+		return avg_LOC_Added;
 	}
 
 
@@ -204,7 +204,7 @@ public class LineOfDataset {
 	 * @param aVG_LOC_Added the aVG_LOC_Added to set
 	 */
 	public void setAVG_LOC_Added(int aVG_LOC_Added) {
-		AVG_LOC_Added = aVG_LOC_Added;
+		avg_LOC_Added = aVG_LOC_Added;
 	}
 
 	
@@ -212,33 +212,32 @@ public class LineOfDataset {
 	 * @return the buggy
 	 */
 	public String getBuggy() {
-		return Buggy;
+		return buggy;
 	}
 
 
 	/**
 	 * @param buggy the buggy to set
 	 */
-	public void setBuggy(String buggy) {
-		Buggy = buggy;
+	public void setBuggy(String Buggy) {
+		buggy = Buggy;
 	}
 
 
-	public LineOfDataset(int numeroDiRiga, int version, String fileName, int size, int lOC_Touched, int nR, int churn,
+	public LineOfDataset(int version, String fileName, int mySize, int lOC_Touched, int nR, int churn,
 			int nAuth, int lOC_Added, int mAX_LOC_Added, int aVG_LOC_Added, int age, String buggy) {
 		super();
-		this.numeroDiRiga = numeroDiRiga;
 		this.version = version;
 		this.fileName = fileName;
-		Size = size;
-		LOC_Touched = lOC_Touched;
-		NR = nR;
-		Churn = churn;
-		NAuth = nAuth;
-		LOC_Added = lOC_Added;
-		MAX_LOC_Added = mAX_LOC_Added;
-		AVG_LOC_Added = aVG_LOC_Added;
-		Buggy = buggy;
+		size = mySize;
+		loc_Touched = lOC_Touched;
+		this.nr = nR;
+		this.churn = churn;
+		this.nAuth = nAuth;
+		loc_Added = lOC_Added;
+		max_LOC_Added = mAX_LOC_Added;
+		avg_LOC_Added = aVG_LOC_Added;
+		this.buggy = buggy;
 	}
 
              //costruttore minimale                                             
