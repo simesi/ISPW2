@@ -52,7 +52,7 @@ public class LineOfDataset {
 	/**
 	 * @return the maxChurn
 	 */
-	public int getMax_Churn() {
+	public int getMaxChurn() {
 		return maxChurn;
 	}
 
@@ -60,7 +60,7 @@ public class LineOfDataset {
 	/**
 	 * @param maxChurn the maxChurn to set
 	 */
-	public void setMax_Churn(int Max_Churn) {
+	public void setMaxChurn(int Max_Churn) {
 		maxChurn = Max_Churn;
 	}
 
@@ -68,7 +68,7 @@ public class LineOfDataset {
 	/**
 	 * @return the aVG_Churn
 	 */
-	public int getAVG_Churn() {
+	public int getAVGChurn() {
 		return avgChurn;
 	}
 
@@ -76,7 +76,7 @@ public class LineOfDataset {
 	/**
 	 * @param aVG_Churn the aVG_Churn to set
 	 */
-	public void setAVG_Churn(int aVG_Churn) {
+	public void setAVGChurn(int aVG_Churn) {
 		avgChurn = aVG_Churn;
 	}
 	
@@ -99,7 +99,7 @@ public class LineOfDataset {
 	/**
 	 * @return the lOC_Touched
 	 */
-	public int getLOC_Touched() {
+	public int getLOCTouched() {
 		return locTouched;
 	}
 
@@ -107,7 +107,7 @@ public class LineOfDataset {
 	/**
 	 * @param lOC_Touched the lOC_Touched to set
 	 */
-	public void setLOC_Touched(int lOC_Touched) {
+	public void setLOCTouched(int lOC_Touched) {
 		locTouched = lOC_Touched;
 	}
 
@@ -171,7 +171,7 @@ public class LineOfDataset {
 	/**
 	 * @param lOC_Added the lOC_Added to set
 	 */
-	public void setLOC_Added(int lOC_Added) {
+	public void setLOCAdded(int lOC_Added) {
 		locAdded = lOC_Added;
 	}
 
@@ -179,7 +179,7 @@ public class LineOfDataset {
 	/**
 	 * @return the mAX_LOC_Added
 	 */
-	public int getMAX_LOC_Added() {
+	public int getMAXLOCAdded() {
 		return maxLOCAdded;
 	}
 
@@ -187,7 +187,7 @@ public class LineOfDataset {
 	/**
 	 * @param mAX_LOC_Added the mAX_LOC_Added to set
 	 */
-	public void setMAX_LOC_Added(int mAX_LOC_Added) {
+	public void setMAXLOCAdded(int mAX_LOC_Added) {
 		maxLOCAdded = mAX_LOC_Added;
 	}
 
@@ -195,7 +195,7 @@ public class LineOfDataset {
 	/**
 	 * @return the aVG_LOC_Added
 	 */
-	public int getAVG_LOC_Added() {
+	public int getAVGLOCAdded() {
 		return avgLOCAdded;
 	}
 
@@ -203,7 +203,7 @@ public class LineOfDataset {
 	/**
 	 * @param aVG_LOC_Added the aVG_LOC_Added to set
 	 */
-	public void setAVG_LOC_Added(int aVG_LOC_Added) {
+	public void setAVGLOCAdded(int aVG_LOC_Added) {
 		avgLOCAdded = aVG_LOC_Added;
 	}
 

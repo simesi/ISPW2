@@ -336,11 +336,11 @@ public class Main {
 						l.setSize(addedLines-deletedLines);//set del valore di LOC
 						l.setNR(numberOfCommit);
 						l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
-						l.setMax_Churn(maxChurn);
+						l.setMaxChurn(maxChurn);
 						if (numberOfCommit!=0) { 
-							l.setAVG_Churn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
+							l.setAVGChurn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
 						}
-						else {l.setAVG_Churn(0);}
+						else {l.setAVGChurn(0);}
 						arrayOfEntryOfDataset.add(l);
 
 						break;//fa uscire dal while principale
@@ -390,8 +390,8 @@ public class Main {
 						//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
 						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) {  
 							if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& arrayOfEntryOfDataset.get(i).getFileName().equals(filename)) {
-								arrayOfEntryOfDataset.get(i).setLOC_Touched(addedLines+deletedLines);
-								arrayOfEntryOfDataset.get(i).setMAX_LOC_Added(maxAddedlines);
+								arrayOfEntryOfDataset.get(i).setLOCTouched(addedLines+deletedLines);
+								arrayOfEntryOfDataset.get(i).setMAXLOCAdded(maxAddedlines);
 
 								//per il AVG_LOC_Added (è fatto solo sulle linee inserite)-----------------------
 								for(int n=0; n<addedLinesForEveryRevision.size(); n++){
@@ -404,8 +404,8 @@ public class Main {
 								}
 								else average=0;
 								//--------------------------------------------------
-								arrayOfEntryOfDataset.get(i).setAVG_LOC_Added(average);
-								arrayOfEntryOfDataset.get(i).setLOC_Added(total);
+								arrayOfEntryOfDataset.get(i).setAVGLOCAdded(average);
+								arrayOfEntryOfDataset.get(i).setLOCAdded(total);
 
 								break;
 							}
@@ -1355,7 +1355,7 @@ public class Main {
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getSize()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getLOC_Touched()));
+				fileWriter.append(String.valueOf(line.getLOCTouched()));
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getNR()));
 				fileWriter.append(",");
@@ -1363,15 +1363,15 @@ public class Main {
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getLOC_Added()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getMAX_LOC_Added()));
+				fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getAVG_LOC_Added()));
+				fileWriter.append(String.valueOf(line.getAVGLOCAdded()));
 				fileWriter.append(",");
 				fileWriter.append(String.valueOf(line.getChurn()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getMax_Churn()));
+				fileWriter.append(String.valueOf(line.getMaxChurn()));
 				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getAVG_Churn()));
+				fileWriter.append(String.valueOf(line.getAVGChurn()));
 				fileWriter.append(",");
 				fileWriter.append(line.getBuggy());
 				fileWriter.append("\n");
