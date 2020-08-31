@@ -188,7 +188,6 @@ public class Main {
 
 	public static void runCommandOnShell(Path directory, String command) throws IOException, InterruptedException {
 
-		//ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","dir && echo hello");
 		ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","E: && cd "+directory.toString()+" && "+command);	
 
 		//lancio un nuovo processo che invocherà il comando command,
@@ -246,13 +245,7 @@ public class Main {
 
 				while ((line = br.readLine()) != null) {
 					if(storeData&&(!startToExecDeliverable2)) {
-						if(COLLECT_DATA_AS_YEARS) {
-							//get only year
-							yearsList.add(line.substring(0, 4));
-						} else {
-							//get month and year
-							yearsList.add(line.substring(0, 7));
-						}
+						collectDataDeliverable1(line);
 					}
 					else if (storeData&&startToExecDeliverable2&&searchingForDateOfCreation) {
 
@@ -535,6 +528,17 @@ public class Main {
 
 			}
 
+		}
+
+		private void collectDataDeliverable1(String line) {
+			if(COLLECT_DATA_AS_YEARS) {
+				//get only year
+				yearsList.add(line.substring(0, 4));
+			} else {
+				//get month and year
+				yearsList.add(line.substring(0, 7));
+			}
+			
 		}
 	}
 
