@@ -170,59 +170,41 @@ public class Main {
 
 				.directory(directory.toFile());
 
+		   runProcAndWait(pb);
+
+	}
+
+	private static void runProcAndWait(ProcessBuilder pb) throws IOException, InterruptedException {
 		//lancio un nuovo processo che invocherà il comando 'command',
-		//nella working directory fornita. 
-		Process p = pb.start();
+				//nella working directory fornita. 
+				Process p = pb.start();
 
-		StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream());
+				StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream());
 
-		StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream());
+				StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream());
 
-		outputGobbler.start();
+				outputGobbler.start();
 
-		errorGobbler.start();
+				errorGobbler.start();
 
-		int exit = p.waitFor();
+				int exit = p.waitFor();
 
-		errorGobbler.join();
+				errorGobbler.join();
 
-		outputGobbler.join();
+				outputGobbler.join();
 
-		if (exit != 0) {
+				if (exit != 0) {
 
-			throw new AssertionError(String.format("runCommand returned %d", exit));
+					throw new AssertionError(String.format("runCommand returned %d", exit));
 
-		}
-
+				}
 	}
 
 	public static void runCommandOnShell(Path directory, String command) throws IOException, InterruptedException {
 
 		ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c","E: && cd "+directory.toString()+" && "+command);	
 
-		//lancio un nuovo processo che invocherà il comando command,
-		//nella working directory fornita. 
-		Process p = pb.start();
-
-		StreamGobbler errorGobbler = new StreamGobbler(p.getErrorStream());
-
-		StreamGobbler outputGobbler = new StreamGobbler(p.getInputStream());
-
-		outputGobbler.start();
-
-		errorGobbler.start();
-
-		int exit = p.waitFor();
-
-		errorGobbler.join();
-
-		outputGobbler.join();
-
-		if (exit != 0) {
-
-			throw new AssertionError(String.format("runCommand returned %d", exit));
-
-		}
+		runProcAndWait(pb);
 
 	}
 
