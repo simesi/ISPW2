@@ -99,6 +99,7 @@ public class Main {
 	private static final String ISSUES= "issues";
 	private static final String TOTAL= "total"; 
 	private static final String FORMAT_DATE= "yyyy-MM-dd";
+	private static final String RELEASE_DATE="releaseDate";
 	//--------------------------
 
 
@@ -1248,22 +1249,7 @@ public class Main {
 		gettingLastCommit=false;
 		ticketWithAV=false;
 
-		//rimuovo ticket senza file java o AV,IV e OV inconsistenti
-		ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
-
-		for (TicketTakenFromJIRA ticket : tickets) {
-			if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
-					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
-
-				ticketsToDelete.add(ticket);
-			}
-		}
-
-		//si eliminano i ticket selezionati prima
-		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
-			tickets.remove(ticket);
-		}
-		ticketsToDelete.clear();
+		checkTicket();
 
 
 
@@ -1286,6 +1272,26 @@ public class Main {
 
 		}
 
+	}
+
+	private static void checkTicket() {
+		//rimuovo ticket senza file java o AV,IV e OV inconsistenti
+				ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<>();	
+
+				for (TicketTakenFromJIRA ticket : tickets) {
+					if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
+							||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+
+						ticketsToDelete.add(ticket);
+					}
+				}
+
+				//si eliminano i ticket selezionati prima
+				for (TicketTakenFromJIRA ticket : ticketsToDelete) {
+					tickets.remove(ticket);
+				}
+				ticketsToDelete.clear();
+		
 	}
 
 	private static void startToGetFixedVersWithAV() throws IOException {
@@ -1336,11 +1342,9 @@ public class Main {
 
 			DateTimeFormatter format = DateTimeFormatter.ofPattern(FORMAT_DATE);
 
-			String createdVers=null;
-			String affVers=null;
+			
 			LocalDate date;
 			LocalDate affReleaseDate;
-			TicketTakenFromJIRA tick;
 			String affVersReleaseDate="";
 
 
@@ -1354,9 +1358,9 @@ public class Main {
 				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
 
 				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).length();h++) {
-					if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).has("releaseDate")) {
+					if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).has(RELEASE_DATE)) {
 						//affVers è per es. 4.1.0
-						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).get("releaseDate").toString();
+						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).get(RELEASE_DATE).toString();
 						break;
 					}
 				}
@@ -1366,50 +1370,61 @@ public class Main {
 
 				date = LocalDate.parse(createdDate,format);
 				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
-				//se è la prima versione
-				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-					createdVers= String.valueOf(1);
-					affVers=String.valueOf(1);
-				}
-				else {
-					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-
-						//abbiamo raggiunto nel for l'ultima release
-						if(a==fromReleaseIndexToDate.size()) {
-							createdVers= String.valueOf(a);
-
-							for(int k=0;k<releases.size();k++) {
-								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-									affVers=String.valueOf(k+1);
-									break;
-								}
-							}
-							break;
-
-						}
-						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-							createdVers= String.valueOf(a+1);
-
-							for(int k=0;k<releases.size();k++) {
-								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-									affVers=String.valueOf(k+1);
-									break;
-								}
-							}
-							break;
-						}
-					}
-				}
-				//check su opening version e affected version
-				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
-					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
-					tickets.add(tick);
-				}
+				
+           checkAndGetCreatedVersion(date,affReleaseDate,key);
+           
 			}  
 		} while (i < total);
 
+	}
+
+	private static void checkAndGetCreatedVersion(LocalDate date,LocalDate affReleaseDate,String key) {
+		String createdVers=null;
+		String affVers=null;
+		TicketTakenFromJIRA tick;
+		
+		//se è la prima versione
+		if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+			createdVers= String.valueOf(1);
+			affVers=String.valueOf(1);
+		}
+		else {
+			for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+
+				//abbiamo raggiunto nel for l'ultima release
+				if(a==fromReleaseIndexToDate.size()) {
+					createdVers= String.valueOf(a);
+
+					for(int k=0;k<releases.size();k++) {
+						if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+							affVers=String.valueOf(k+1);
+							break;
+						}
+					}
+					break;
+
+				}
+				else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+						&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+								(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+					createdVers= String.valueOf(a+1);
+
+					for(int k=0;k<releases.size();k++) {
+						if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+							affVers=String.valueOf(k+1);
+							break;
+						}
+					}
+					break;
+				}
+			}
+		}
+
+		//check su opening version e affected version
+		if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
+			tick= new TicketTakenFromJIRA(key, createdVers, affVers);
+			tickets.add(tick);
+		}
 	}
 
 	private static void calculateSomeMetrics() {
@@ -1459,12 +1474,12 @@ public class Main {
 		for (i = 0; i < versions.length(); i++ ) {
 			String name = "";
 			String id = "";
-			if(versions.getJSONObject(i).has("releaseDate")) {
+			if(versions.getJSONObject(i).has(RELEASE_DATE)) {
 				if (versions.getJSONObject(i).has("name"))
 					name = versions.getJSONObject(i).get("name").toString();
 				if (versions.getJSONObject(i).has("id"))
 					id = versions.getJSONObject(i).get("id").toString();
-				addRelease(versions.getJSONObject(i).get("releaseDate").toString(),
+				addRelease(versions.getJSONObject(i).get(RELEASE_DATE).toString(),
 						name,id);
 			}
 		}
