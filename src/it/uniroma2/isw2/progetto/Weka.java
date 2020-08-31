@@ -26,9 +26,9 @@ import weka.classifiers.lazy.IBk;
 
 public class Weka {
 
-	private final String TRAINING_FOR_RELEASE =" Training for Release "; 
-	private final String TESTING_FOR_RELEASE =" Testing for Release ";
-
+	private static final String TRAINING_FOR_RELEASE =" Training for Release "; 
+	private static final String TESTING_FOR_RELEASE =" Testing for Release ";
+	private static final String ARFF=".arff";
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
 	public void doClassificationMilestone2(int maxVersion, String projectName) {
 
@@ -53,7 +53,7 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				arffNameFileTrain = projectName+TRAINING_FOR_RELEASE+version+".arff";
+				arffNameFileTrain = projectName+TRAINING_FOR_RELEASE+version+ARFF;
 
 
 				saver.setFile(new File(arffNameFileTrain));
@@ -61,7 +61,6 @@ public class Weka {
 
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.exit(-1);
 			}
@@ -80,14 +79,13 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				arffNameFileTest = projectName +TESTING_FOR_RELEASE+version+".arff";
+				arffNameFileTest = projectName +TESTING_FOR_RELEASE+version+ARFF;
 
 
 				saver.setFile(new File(arffNameFileTest));
 				saver.writeBatch();
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.exit(-1);
 			}
@@ -173,8 +171,7 @@ public class Weka {
 
 			catch (Exception e) {
 				e.printStackTrace();
-				System.exit(-1); ;
-				// TODO: handle exception
+				System.exit(-1);
 			} 
 
 		}
@@ -212,9 +209,9 @@ public class Weka {
 			for(int version=2;version<=Maxversion;version++) {
 
 
-				DataSource source = new DataSource(ProjectName +TRAINING_FOR_RELEASE+version+".arff");
+				DataSource source = new DataSource(ProjectName +TRAINING_FOR_RELEASE+version+ARFF);
 
-				DataSource source2 = new DataSource(ProjectName +TESTING_FOR_RELEASE+version+".arff");
+				DataSource source2 = new DataSource(ProjectName +TESTING_FOR_RELEASE+version+ARFF);
 
 				Instances noFilterTraining = source.getDataSet();
 				Instances testing = source2.getDataSet();
