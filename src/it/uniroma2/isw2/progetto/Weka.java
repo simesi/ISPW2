@@ -33,7 +33,6 @@ public class Weka {
 	private int numDefectiveTest=0;
 	private Instances filteredTraining = null;
 	private Instances testingFiltered = null;
-	private int numAttrFiltered=0;
 	private int numAttrNoFilter=0;
 	int percentInstOfMajorityClass=0;
 	
@@ -664,7 +663,7 @@ public class Weka {
 	}
 
 
-	private void doOrNotFeatureSelection(int fs, Instances train, Instances testing) throws Exception {
+	private void doOrNotFeatureSelection(int fs, Instances train, Instances testing)  {
 		//fs=1 allora con feature selection
 		if(fs==1) {
 
@@ -679,25 +678,37 @@ public class Weka {
 			filter.setEvaluator(subEval);
 			filter.setSearch(search);
 
-			//specify the dataset
-			filter.setInputFormat(train);
+			
+			try {
+				
+				//specify the dataset
+				filter.setInputFormat(train);
 
-			//qui si crea il training filtrato
-			this.filteredTraining = Filter.useFilter(train, filter);
+				//qui si crea il training filtrato
+				this.filteredTraining = Filter.useFilter(train, filter);
 
-			//stima numero attributi con i filtri
-			numAttrFiltered = filteredTraining.numAttributes();
+				//stima numero attributi con i filtri
+				int numAttrFiltered = filteredTraining.numAttributes();
 
-			//evaluation with filtered
-			filteredTraining.setClassIndex(numAttrFiltered - 1);
-			testingFiltered = Filter.useFilter(testing, filter);
-			testingFiltered.setClassIndex(numAttrFiltered - 1);
+				//evaluation with filtered
+				filteredTraining.setClassIndex(numAttrFiltered - 1);
+				
+				
+				testingFiltered = Filter.useFilter(testing, filter);
+				
+				
+				testingFiltered.setClassIndex(numAttrFiltered - 1);
 
 
-			//qui si contano le istanze positive...
-			 this.percentInstOfMajorityClass=calculateDefectiveInInstances(filteredTraining,testingFiltered,numAttrFiltered);
+				//qui si contano le istanze positive...
+				 this.percentInstOfMajorityClass=calculateDefectiveInInstances(filteredTraining,testingFiltered,numAttrFiltered);
 
 
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 
 
 		}//fine if
