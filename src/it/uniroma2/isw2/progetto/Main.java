@@ -327,73 +327,7 @@ public class Main {
 					}
 
 					else if (calculatingLocTouched) {
-						String version;
-						ArrayList<Integer> addedLinesForEveryRevision=new ArrayList<Integer>();
-						String nextLine;
-						int total=0;
-						int iteration=0;
-						int average=0;
-						line=line.trim();
-						String[] tokens = line.split("\\s+");
-
-						//operazione per il primo output che è il numero di versione------------------------------
-						version=tokens[0];
-						//--------------------------------------------------------- 
-
-						nextLine =br.readLine();
-
-						while(nextLine != null) {
-
-							nextLine=nextLine.trim();
-							tokens=nextLine.split("\\s+");
-							//per il Max_LOC_Added
-							maxAddedlines=Math.max(Integer.parseInt(tokens[0]), maxAddedlines);
-							//per il AVG_LOC_Added
-							addedLinesForEveryRevision.add(Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1]));
-							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
-							addedLines=addedLines+Integer.parseInt(tokens[0]);
-							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
-							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
-							filename=tokens[2];
-							iteration=1;
-							nextLine =br.readLine();
-						}
-
-
-						//abbiamo raggiunto la fine
-
-						//file non è stato ancora creato in questa versione
-						if (iteration==0) {
-							break;
-						}  
-
-						//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
-						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) {  
-							if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& arrayOfEntryOfDataset.get(i).getFileName().equals(filename)) {
-								arrayOfEntryOfDataset.get(i).setLOCTouched(addedLines+deletedLines);
-								arrayOfEntryOfDataset.get(i).setMAXLOCAdded(maxAddedlines);
-
-								//per il AVG_LOC_Added (è fatto solo sulle linee inserite)-----------------------
-								for(int n=0; n<addedLinesForEveryRevision.size(); n++){
-									if(addedLinesForEveryRevision.get(n) >= 0) {
-										total = total + addedLinesForEveryRevision.get(n);
-									}
-								}
-								if (total!=0) {
-									average = Math.floorDiv(addedLinesForEveryRevision.size(),total);
-								}
-								else average=0;
-								//--------------------------------------------------
-								arrayOfEntryOfDataset.get(i).setAVGLOCAdded(average);
-								arrayOfEntryOfDataset.get(i).setLOCAdded(total);
-
-								break;
-							}
-						}
-
-
-
-
+						calculatingLocTouched(line,br);
 					}
 
 					else if (calculatingNAuth) {
@@ -528,6 +462,78 @@ public class Main {
 
 			}
 
+		}
+
+		private void calculatingLocTouched(String line,BufferedReader br) throws IOException {
+			String version;
+			ArrayList<Integer> addedLinesForEveryRevision=new ArrayList<>();
+			String nextLine;
+			int total=0;
+			int iteration=0;
+			int addedLines=0;
+			int deletedLines=0;
+			int maxAddedlines=0;
+			int average=0;
+			String filename="";
+			
+			line=line.trim();
+			String[] tokens = line.split("\\s+");
+
+			//operazione per il primo output che è il numero di versione------------------------------
+			version=tokens[0];
+			//--------------------------------------------------------- 
+
+			nextLine =br.readLine();
+
+			while(nextLine != null) {
+
+				nextLine=nextLine.trim();
+				tokens=nextLine.split("\\s+");
+				//per il Max_LOC_Added
+				maxAddedlines=Math.max(Integer.parseInt(tokens[0]), maxAddedlines);
+				//per il AVG_LOC_Added
+				addedLinesForEveryRevision.add(Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1]));
+				//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
+				addedLines=addedLines+Integer.parseInt(tokens[0]);
+				//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
+				deletedLines=deletedLines+Integer.parseInt(tokens[1]);
+				filename=tokens[2];
+				iteration=1;
+				nextLine =br.readLine();
+			}
+
+
+			//abbiamo raggiunto la fine
+
+			//file non è stato ancora creato in questa versione
+			if (iteration==0) {
+				return;
+			}  
+
+			//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
+			for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) {  
+				if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& arrayOfEntryOfDataset.get(i).getFileName().equals(filename)) {
+					arrayOfEntryOfDataset.get(i).setLOCTouched(addedLines+deletedLines);
+					arrayOfEntryOfDataset.get(i).setMAXLOCAdded(maxAddedlines);
+
+					//per il AVG_LOC_Added (è fatto solo sulle linee inserite)-----------------------
+					for(int n=0; n<addedLinesForEveryRevision.size(); n++){
+						if(addedLinesForEveryRevision.get(n) >= 0) {
+							total = total + addedLinesForEveryRevision.get(n);
+						}
+					}
+					if (total!=0) {
+						average = Math.floorDiv(addedLinesForEveryRevision.size(),total);
+					}
+					else average=0;
+					//--------------------------------------------------
+					arrayOfEntryOfDataset.get(i).setAVGLOCAdded(average);
+					arrayOfEntryOfDataset.get(i).setLOCAdded(total);
+
+					break;
+				}
+			}
+			
 		}
 
 		private void collectDataDeliverable1(String line) {
