@@ -1239,7 +1239,7 @@ public class Main {
 
 			}
 		}
-		return createdVers= String.valueOf(fromReleaseIndexToDate.size());
+		return  String.valueOf(fromReleaseIndexToDate.size());
 	}
 
 	private static void setBuggy() {
