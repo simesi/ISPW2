@@ -26,14 +26,13 @@ import weka.classifiers.lazy.IBk;
 
 public class Weka {
 
-private final String TRAINING_FOR_RELEASE =" Training for Release "; 
-private final String TESTING_FOR_RELEASE =" Testing for Release ";
+	private final String TRAINING_FOR_RELEASE =" Training for Release "; 
+	private final String TESTING_FOR_RELEASE =" Testing for Release ";
 
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
 	public void doClassificationMilestone2(int maxVersion, String projectName) {
 
 		String myClassificator=null;
-		FileWriter fileWriter=null;
 		Evaluation eval = null;
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
 
@@ -93,10 +92,16 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 				System.exit(-1);
 			}
 
-
+			String name = projectName+" Deliverable 2 Milestone 2.csv";
 			//ora si classifica ------------------------- 
 
-			try {
+			try (   	//True = Append to file, false = Overwrite
+						FileWriter fileWriter = new FileWriter(name,true);
+					 )
+			{
+				fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
+				fileWriter.append("\n");
+				
 				//load datasets
 				DataSource source1 = new DataSource(arffNameFileTrain);
 				Instances training = source1.getDataSet();
@@ -145,16 +150,7 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 
 					//ora si scrive file csv coi risultati
 
-					//se è la prima iterazione
-					if( fileWriter==null) {
-
-						String name = projectName+" Deliverable 2 Milestone 2.csv";
-
-						//True = Append to file, false = Overwrite
-						fileWriter = new FileWriter(name,true);
-						fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
-						fileWriter.append("\n");
-					}
+					
 
 					fileWriter.append(projectName);
 					fileWriter.append(",");
@@ -172,7 +168,7 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 					fileWriter.append("\n");
 
 				}
-				
+
 			}
 
 			catch (Exception e) {
@@ -180,24 +176,7 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 				System.exit(-1); ;
 				// TODO: handle exception
 			} 
-			finally {
-				try {
-					fileWriter.flush();
-					fileWriter.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					Thread.currentThread().interrupt();
-				}
-			}
 
-		}
-		try {
-			fileWriter.flush();
-			fileWriter.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return;
 
@@ -208,7 +187,6 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 
 
 		String myClassificator=null;
-		FileWriter fileWriter=null;
 		Evaluation eval = null;
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
 		int numAttrFiltered=0;
@@ -217,8 +195,20 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 		int numDefectiveTest=0;
 		int percentInstOfMajorityClass=0;
 		Resample resample= null;
+		String name = ProjectName+" Deliverable 2 Milestone 3.csv";
 
-		try {
+		try (
+				//True = Append to file, false = Overwrite
+				FileWriter fileWriter = new FileWriter(name,true);
+				)
+		{
+			fileWriter.append("Dataset,#Training Release,%Training,%Defective in training,"
+					+ "%Defective in testing,classifier,balancing,Feature Selection,TP,FP,TN,FN,"
+					+ "Precision,Recall,ROC Area, Kappa");
+
+			fileWriter.append("\n");
+
+
 			for(int version=2;version<=Maxversion;version++) {
 
 
@@ -235,11 +225,6 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 				numAttrNoFilter = noFilterTraining.numAttributes();
 				noFilterTraining.setClassIndex(numAttrNoFilter - 1);
 				testing.setClassIndex(numAttrNoFilter - 1);
-
-
-
-				//System.out.println("Numero di attributi nel file prima del filtro (inclusa la bugginess): "+ numAttrNoFilter);
-				//System.out.println("Numero di attributi nel file dopo il filtro(inclusa la bugginess): "+ numAttrFiltered);
 
 
 				//senza e con feature selection
@@ -691,22 +676,8 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 							//--------------------------------------------------------------
 							//ora si scrive file csv coi risultati
 
-							//se è la prima iterazione
-							if( fileWriter==null) {
 
-								String name = ProjectName+" Deliverable 2 Milestone 3.csv";
 
-								//True = Append to file, false = Overwrite
-								fileWriter = new FileWriter(name,true);
-								fileWriter.append("Dataset,#Training Release,%Training,%Defective in training,"
-										+ "%Defective in testing,classifier,balancing,Feature Selection,TP,FP,TN,FN,"
-										+ "Precision,Recall,ROC Area, Kappa");
-
-								fileWriter.append("\n");
-							}
-
-							//System.out.println((double)noFilterTraining.size()/(double)(testing.size()+noFilterTraining.size()));
-							//System.out.println(noFilterTraining.size()+testing.size());
 							fileWriter.append(ProjectName);
 							fileWriter.append(",");
 							fileWriter.append(String.valueOf(version-1));
@@ -748,28 +719,11 @@ private final String TESTING_FOR_RELEASE =" Testing for Release ";
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			try {
-				fileWriter.flush();
-				fileWriter.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
 			System.exit(-1); 
-			// TODO: handle exception
 		}
-		finally {
-			try {
-				fileWriter.flush();
-				fileWriter.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
-			}
-		}
-		
+
+
+
 	}
 
 }

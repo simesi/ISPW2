@@ -816,108 +816,108 @@ public class Main {
 		JSONObject json ;
 		JSONArray issues;
 		String outname;
-
-		ArrayList<String> ticketIDList;
-		//Get JSON API for closed bugs w/ AV in the project
-		do {
-			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-			j = i + 1000;
-
-			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
-			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-					+ "&fields=key,resolutiondate,created&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
-
-
-			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
-			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
-
-			ticketIDList= new ArrayList<>();
-			yearsList= new ArrayList<>();
-			// si itera sul numero di ticket
-			for (; i < total && i < j; i++) {
-
-				String key = issues.getJSONObject(i%1000).get("key").toString();
-
-
-				ticketIDList.add(key);
-
-			}  
-		} while (i < total);
-
-
-		String myID;
-
-		// INIZIO DELIVERABLE 1
-		//cancellazione preventiva della directory clonata del progetto (se già esistente)   
-		recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
-		try {
-			gitClone();	
-
-			for ( i = 0; i < ticketIDList.size(); i++) {
-				myID=ticketIDList.get(i);
-				gitLogOfBug(myID);
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			Thread.currentThread().interrupt();
-			System.exit(-1);
-		}
-		finally {
-			//cancellazione directory clonata locale del progetto   
-			recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
-		}
-		Map<String, Integer> map = new HashMap<>();
-
-
-		//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
-		for(i=0;i<yearsList.size();i++) {
-			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
-		}
-
-		//aggiunta dei mesi con valori nulli
-		if(!COLLECT_DATA_AS_YEARS) {
-			// TreeMap to store values of HashMap 
-			TreeMap<String, Integer> sorted = new TreeMap<>(); 
-			// Copy all data from hashMap into TreeMap 
-			sorted.putAll(map); 
-
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
-
-			//si prende il primo e l'ultimo anno-mese ....
-			LocalDate firstdate = LocalDate.parse(sorted.firstKey()+"-01",formatter);
-			LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
-			//iteratore
-			LocalDate date = firstdate;
-
-			// .... e si aggiungono i mesi tra i due periodi 			
-			while(date.isBefore(lastdate)) {
-				date =date.with(TemporalAdjusters.firstDayOfNextMonth());
-				sorted.put(date.format(formatterWithNoDay), 0);
-			}
-
-			//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
-			sorted.putAll(map);
-			map=sorted;
-		}
-
-
-		writeCSV(map);
-		System.out.println("Finito deliverable 1");
-
-
-		//cancellazione directory clonata locale del progetto   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
-
-		/*FINE DELIVERABLE 1*/
-
-		//-------------------------------------------------------------------------------------------------
-		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
+//
+//		ArrayList<String> ticketIDList;
+//		//Get JSON API for closed bugs w/ AV in the project
+//		do {
+//			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+//			j = i + 1000;
+//
+//			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
+//			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+//					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+//					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+//					+ "&fields=key,resolutiondate,created&startAt="
+//					+ i.toString() + "&maxResults=" + j.toString();
+//
+//
+//			json = readJsonFromUrl(url);
+//			issues = json.getJSONArray("issues");
+//			//ci si prende il numero totale di ticket recuperati
+//			total = json.getInt("total");
+//
+//			ticketIDList= new ArrayList<>();
+//			yearsList= new ArrayList<>();
+//			// si itera sul numero di ticket
+//			for (; i < total && i < j; i++) {
+//
+//				String key = issues.getJSONObject(i%1000).get("key").toString();
+//
+//
+//				ticketIDList.add(key);
+//
+//			}  
+//		} while (i < total);
+//
+//
+//		String myID;
+//
+//		// INIZIO DELIVERABLE 1
+//		//cancellazione preventiva della directory clonata del progetto (se già esistente)   
+//		recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
+//		try {
+//			gitClone();	
+//
+//			for ( i = 0; i < ticketIDList.size(); i++) {
+//				myID=ticketIDList.get(i);
+//				gitLogOfBug(myID);
+//			}
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//			Thread.currentThread().interrupt();
+//			System.exit(-1);
+//		}
+//		finally {
+//			//cancellazione directory clonata locale del progetto   
+//			recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
+//		}
+//		Map<String, Integer> map = new HashMap<>();
+//
+//
+//		//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
+//		for(i=0;i<yearsList.size();i++) {
+//			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
+//		}
+//
+//		//aggiunta dei mesi con valori nulli
+//		if(!COLLECT_DATA_AS_YEARS) {
+//			// TreeMap to store values of HashMap 
+//			TreeMap<String, Integer> sorted = new TreeMap<>(); 
+//			// Copy all data from hashMap into TreeMap 
+//			sorted.putAll(map); 
+//
+//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//			DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
+//
+//			//si prende il primo e l'ultimo anno-mese ....
+//			LocalDate firstdate = LocalDate.parse(sorted.firstKey()+"-01",formatter);
+//			LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
+//			//iteratore
+//			LocalDate date = firstdate;
+//
+//			// .... e si aggiungono i mesi tra i due periodi 			
+//			while(date.isBefore(lastdate)) {
+//				date =date.with(TemporalAdjusters.firstDayOfNextMonth());
+//				sorted.put(date.format(formatterWithNoDay), 0);
+//			}
+//
+//			//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
+//			sorted.putAll(map);
+//			map=sorted;
+//		}
+//
+//
+//		writeCSV(map);
+//		System.out.println("Finito deliverable 1");
+//
+//
+//		//cancellazione directory clonata locale del progetto   
+//		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+//
+//		/*FINE DELIVERABLE 1*/
+//
+//		//-------------------------------------------------------------------------------------------------
+//		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
 		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
 		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
@@ -951,438 +951,438 @@ public class Main {
 				return o1.compareTo(o2);
 			}
 		});
-
-
-
-
-		//--------------------------------------------------------
-		///ORA CREO IL  DATASET
-
-
-		//cancellazione preventiva della directory clonata del progetto (se esiste)   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
-		try {
-			gitClone();	
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-			Thread.currentThread().interrupt();
-			System.exit(-1);
-		}
-
-
-		File folder = new File(projectName);
-		List<String> files = new ArrayList<>();
-		fileNameOfFirstHalf = new ArrayList<String>();
-
-		//search for java files in the cloned repository
-		searchFileJava(folder, files);
-
-
-		//popolo un'HasMap con associazione indice di release-data delle release
-		for ( i = 1; i <= releases.size(); i++) {
-			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
-		}
-
-		searchingForDateOfCreation = true;
-
-
-
-		//per ogni file
-		for (String s : files) {
-			getCreationDate(s);
-		}
-
-
-		files.clear();
-
-
-		searchingForDateOfCreation = false;
-		System.out.println("fileNameOfFirstHalf= "+fileNameOfFirstHalf.size());
-
-		//----------------------------------------------
-		//System.out.println(fileNameOfFirstHalf);
-
-
-		int num=0;
-		arrayOfEntryOfDataset= new ArrayList<LineOfDataset>();
-		calculatingLOC = true;
-		//per ogni indice di versione nella primà metà delle release
-		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
-			System.out.println("release "+i);
-			num=0;
-			//per ogni file
-			for (String s : fileNameOfFirstHalf) {
-				num++;
-				calculatingLOC = true;
-				//il metodo getChurnMetrics creerà l'arrayList di entry LineOfDataSet
-				getChurnMetrics(s,i);
-				calculatingLOC = false;
-				calculatingLocTouched = true;
-				//i metodi successivi modificano semplicemente le entry in quell'array
-				getLOCMetrics(s,i);
-				calculatingLocTouched = false;
-				calculatingNAuth= true;
-				getNumberOfAuthors(s,i);
-				calculatingNAuth= false;
-
-			}
-
-		} 
-
-
-
-		//inizio operazioni per calcolo bugginess
-		tickets=new ArrayList<TicketTakenFromJIRA>();
-		j=0;
-		i=0;
-		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
-		do {
-			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-			j = i + 1000;
-
-			//%20 = spazio                      %22=virgolette
-			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
-			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-					+ "&fields=key,created,versions&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
-			//System.out.println(url);
-
-			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
-			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
-
-			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-			String createdVers=null;
-			String affVers=null;
-			LocalDate date;
-			LocalDate affReleaseDate;
-			TicketTakenFromJIRA tick;
-			String affVersReleaseDate="";
-
-			// si itera sul numero di ticket
-			for (; i < total && i < j; i++) {
-
-				String key = issues.getJSONObject(i%1000).get("key").toString();
-				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
-
-				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
-
-				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").length();h++) {
-					if(issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).has("releaseDate")) {
-						//affVers è per es. 4.1.0
-						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).get("releaseDate").toString();
-						break;
-					}
-				}
-				//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
-				// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
-
-
-				date = LocalDate.parse(createdDate,format);
-				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
-				//se è la prima versione
-				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-					createdVers= String.valueOf(1);
-					affVers=String.valueOf(1);
-				}
-				else {
-					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-
-						//abbiamo raggiunto nel for l'ultima release
-						if(a==fromReleaseIndexToDate.size()) {
-							createdVers= String.valueOf(a);
-
-							for(int k=0;k<releases.size();k++) {
-								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-									affVers=String.valueOf(k+1);
-									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
-									break;
-								}
-							}
-							break;
-
-						}
-						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-							createdVers= String.valueOf(a+1);
-
-							for(int k=0;k<releases.size();k++) {
-								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-									affVers=String.valueOf(k+1);
-									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
-									break;
-								}
-							}
-							break;
-						}
-					}
-				}
-				//check su opening version e affected version
-				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
-					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
-					tickets.add(tick);
-					//System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
-				}
-			}  
-		} while (i < total);
-
-		gettingLastCommit=true;
-		ticketWithAV=true;
-
-		for (TicketTakenFromJIRA ticket : tickets) {
-			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
-			try {
-
-				getLastCommitOfBug(ticket.getKey());
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
-			}
-
-		}
-
-		gettingLastCommit=false;
-		ticketWithAV=false;
-
-		//rimuovo ticket senza file java o AV,IV e OV inconsistenti
-		ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
-
-		for (TicketTakenFromJIRA ticket : tickets) {
-			if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
-					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
-
-				ticketsToDelete.add(ticket);
-			}
-		}
-
-		//si eliminano i ticket selezionati prima
-		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
-			tickets.remove(ticket);
-		}
-		ticketsToDelete.clear();
-
-
-
-		//set della bugginess per i file dei ticket presi da JIRA
-		for (TicketTakenFromJIRA tick : tickets) {
-			//per ogni file ritenuto buggy da quel ticket
-			for (String file : tick.getFilenames()) {
-				//cerca la inea giusta da scrivere
-				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
-					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
-							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
-							&&arrayOfEntryOfDataset.get(i).getVersion()>= Integer.parseInt(tick.getAffectedVersion())) {
-
-						arrayOfEntryOfDataset.get(i).setBuggy("YES");
-
-					}
-
-				}
-			}
-
-		}
-
-		//ora prendiamo da jira tutti i ticket di bug chiusi SENZA affected version
-
-		//inizio operazioni per calcolo bugginess
-		ticketsWithoutAV=new ArrayList<TicketTakenFromJIRA>();
-		j=0;
-		i=0;
-		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affected version = null in the project
-		do {
-			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-			j = i + 1000;
-
-			//%20 = spazio                      %22=virgolette
-			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e SENZA affected version.
-			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-					+ "&fields=key,created&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
-
-
-			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
-			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
-
-			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-			String createdVers=null;
-			LocalDate date;
-			TicketTakenFromJIRA tick;
-
-			// si itera sul numero di ticket
-			for (; i < total && i < j; i++) {
-
-				String key = issues.getJSONObject(i%1000).get("key").toString();
-				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
-
-
-
-				date = LocalDate.parse(createdDate,format);
-
-				//se è la prima versione
-				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-					createdVers= String.valueOf(1);
-				}
-				else {
-					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-
-						//abbiamo raggiunto nel for l'ultima release
-						if(a==fromReleaseIndexToDate.size()) {
-							createdVers= String.valueOf(a);
-							break;
-						}
-
-						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-							createdVers= String.valueOf(a+1);
-
-							break;
-						}
-					}
-				}
-
-				tick= new TicketTakenFromJIRA(key, createdVers, null);
-				ticketsWithoutAV.add(tick);
-
-			}  
-		} while (i < total);
-
-		//ora si calcola la fixed version
-		gettingLastCommit=true;
-		ticketWithoutAV=true;
-		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
-			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
-			try {
-
-				getLastCommitOfBug(ticket.getKey());
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
-			}
-
-		}
-
-		gettingLastCommit=false;
-		ticketWithoutAV=false;
-
-		//rimuovo ticket senza file java o IV e OV inconsistenti
-		ArrayList<TicketTakenFromJIRA> ticketsWithoutAVToDelete = new ArrayList<TicketTakenFromJIRA>();	
-
-		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
-			if((ticket.getCreatedVersion()==null)
-					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
-
-				ticketsWithoutAVToDelete.add(ticket);
-			}
-		}
-
-		int p;
-		//si eliminano i ticket selezionati prima
-		for (TicketTakenFromJIRA ticket : ticketsWithoutAVToDelete) {
-			ticketsWithoutAV.remove(ticket);
-		}
-		ticketsWithoutAVToDelete.clear();
-
-		int predictedInjectedVersion;
-		//set della bugginess per i file dei ticket presi da JIRA
-		for (TicketTakenFromJIRA tick : ticketsWithoutAV) {
-
-			p=computeP(Integer.parseInt(tick.getFixedVersion()));
-			predictedInjectedVersion=(Integer.parseInt(tick.getFixedVersion())-(Integer.parseInt(tick.getFixedVersion())
-					-Integer.parseInt(tick.getCreatedVersion()))*p);
-
-			//per ogni file ritenuto buggy da quel ticket
-			for (String file : tick.getFilenames()) {
-				//cerca la inea giusta da scrivere
-				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
-					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
-							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
-							&&arrayOfEntryOfDataset.get(i).getVersion()>= predictedInjectedVersion) {
-
-						arrayOfEntryOfDataset.get(i).setBuggy("YES");
-
-					}
-
-				}
-			}
-
-		}
-
-		ticketsWithoutAV.clear();
-		tickets.clear();
-
-
-		FileWriter fileWriter=null;
-		try {
-
-			outname = projectName + " Deliverable 2 Milestone 1.csv";
-			//Name of CSV for output
-			fileWriter = new FileWriter(outname);
-			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
-			fileWriter.append("\n");
-			for ( LineOfDataset line : arrayOfEntryOfDataset) {
-
-				fileWriter.append(String.valueOf(line.getVersion()));
-				fileWriter.append(",");
-				fileWriter.append(line.getFileName());
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getSize()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getLOCTouched()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getNR()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getNauth()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getLocadded()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getAVGLOCAdded()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getChurn()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getMaxChurn()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getAVGChurn()));
-				fileWriter.append(",");
-				fileWriter.append(line.getBuggy());
-				fileWriter.append("\n");
-			}
-
-		} catch (Exception e) {
-			System.out.println("Error in csv writer");
-			e.printStackTrace();
-		} finally {
-			try {
-				fileWriter.flush();
-				fileWriter.close();
-			} catch (IOException e) {
-				System.out.println("Error while flushing/closing fileWriter !!!");
-				e.printStackTrace();
-			}
-		}
-
-
-		//cancellazione directory clonata locale del progetto   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
-
-
+//
+//
+//
+//
+//		//--------------------------------------------------------
+//		///ORA CREO IL  DATASET
+//
+//
+//		//cancellazione preventiva della directory clonata del progetto (se esiste)   
+//		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+//		try {
+//			gitClone();	
+//		}
+//		catch (InterruptedException e) {
+//			e.printStackTrace();
+//			Thread.currentThread().interrupt();
+//			System.exit(-1);
+//		}
+//
+//
+//		File folder = new File(projectName);
+//		List<String> files = new ArrayList<>();
+//		fileNameOfFirstHalf = new ArrayList<String>();
+//
+//		//search for java files in the cloned repository
+//		searchFileJava(folder, files);
+//
+//
+//		//popolo un'HasMap con associazione indice di release-data delle release
+//		for ( i = 1; i <= releases.size(); i++) {
+//			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
+//		}
+//
+//		searchingForDateOfCreation = true;
+//
+//
+//
+//		//per ogni file
+//		for (String s : files) {
+//			getCreationDate(s);
+//		}
+//
+//
+//		files.clear();
+//
+//
+//		searchingForDateOfCreation = false;
+//		System.out.println("fileNameOfFirstHalf= "+fileNameOfFirstHalf.size());
+//
+//		//----------------------------------------------
+//		//System.out.println(fileNameOfFirstHalf);
+//
+//
+//		int num=0;
+//		arrayOfEntryOfDataset= new ArrayList<LineOfDataset>();
+//		calculatingLOC = true;
+//		//per ogni indice di versione nella primà metà delle release
+//		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
+//			System.out.println("release "+i);
+//			num=0;
+//			//per ogni file
+//			for (String s : fileNameOfFirstHalf) {
+//				num++;
+//				calculatingLOC = true;
+//				//il metodo getChurnMetrics creerà l'arrayList di entry LineOfDataSet
+//				getChurnMetrics(s,i);
+//				calculatingLOC = false;
+//				calculatingLocTouched = true;
+//				//i metodi successivi modificano semplicemente le entry in quell'array
+//				getLOCMetrics(s,i);
+//				calculatingLocTouched = false;
+//				calculatingNAuth= true;
+//				getNumberOfAuthors(s,i);
+//				calculatingNAuth= false;
+//
+//			}
+//
+//		} 
+//
+//
+//
+//		//inizio operazioni per calcolo bugginess
+//		tickets=new ArrayList<TicketTakenFromJIRA>();
+//		j=0;
+//		i=0;
+//		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
+//		do {
+//			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+//			j = i + 1000;
+//
+//			//%20 = spazio                      %22=virgolette
+//			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
+//			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+//					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+//					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
+//					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+//					+ "&fields=key,created,versions&startAt="
+//					+ i.toString() + "&maxResults=" + j.toString();
+//			//System.out.println(url);
+//
+//			json = readJsonFromUrl(url);
+//			issues = json.getJSONArray("issues");
+//			//ci si prende il numero totale di ticket recuperati
+//			total = json.getInt("total");
+//
+//			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//
+//			String createdVers=null;
+//			String affVers=null;
+//			LocalDate date;
+//			LocalDate affReleaseDate;
+//			TicketTakenFromJIRA tick;
+//			String affVersReleaseDate="";
+//
+//			// si itera sul numero di ticket
+//			for (; i < total && i < j; i++) {
+//
+//				String key = issues.getJSONObject(i%1000).get("key").toString();
+//				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
+//
+//				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
+//
+//				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").length();h++) {
+//					if(issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).has("releaseDate")) {
+//						//affVers è per es. 4.1.0
+//						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).get("releaseDate").toString();
+//						break;
+//					}
+//				}
+//				//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
+//				// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
+//
+//
+//				date = LocalDate.parse(createdDate,format);
+//				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
+//				//se è la prima versione
+//				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+//					createdVers= String.valueOf(1);
+//					affVers=String.valueOf(1);
+//				}
+//				else {
+//					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+//
+//						//abbiamo raggiunto nel for l'ultima release
+//						if(a==fromReleaseIndexToDate.size()) {
+//							createdVers= String.valueOf(a);
+//
+//							for(int k=0;k<releases.size();k++) {
+//								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+//									affVers=String.valueOf(k+1);
+//									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
+//									break;
+//								}
+//							}
+//							break;
+//
+//						}
+//						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+//								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+//										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+//							createdVers= String.valueOf(a+1);
+//
+//							for(int k=0;k<releases.size();k++) {
+//								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+//									affVers=String.valueOf(k+1);
+//									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
+//									break;
+//								}
+//							}
+//							break;
+//						}
+//					}
+//				}
+//				//check su opening version e affected version
+//				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
+//					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
+//					tickets.add(tick);
+//					//System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
+//				}
+//			}  
+//		} while (i < total);
+//
+//		gettingLastCommit=true;
+//		ticketWithAV=true;
+//
+//		for (TicketTakenFromJIRA ticket : tickets) {
+//			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
+//			try {
+//
+//				getLastCommitOfBug(ticket.getKey());
+//
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//				Thread.currentThread().interrupt();
+//			}
+//
+//		}
+//
+//		gettingLastCommit=false;
+//		ticketWithAV=false;
+//
+//		//rimuovo ticket senza file java o AV,IV e OV inconsistenti
+//		ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
+//
+//		for (TicketTakenFromJIRA ticket : tickets) {
+//			if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
+//					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+//
+//				ticketsToDelete.add(ticket);
+//			}
+//		}
+//
+//		//si eliminano i ticket selezionati prima
+//		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
+//			tickets.remove(ticket);
+//		}
+//		ticketsToDelete.clear();
+//
+//
+//
+//		//set della bugginess per i file dei ticket presi da JIRA
+//		for (TicketTakenFromJIRA tick : tickets) {
+//			//per ogni file ritenuto buggy da quel ticket
+//			for (String file : tick.getFilenames()) {
+//				//cerca la inea giusta da scrivere
+//				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
+//					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
+//							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
+//							&&arrayOfEntryOfDataset.get(i).getVersion()>= Integer.parseInt(tick.getAffectedVersion())) {
+//
+//						arrayOfEntryOfDataset.get(i).setBuggy("YES");
+//
+//					}
+//
+//				}
+//			}
+//
+//		}
+//
+//		//ora prendiamo da jira tutti i ticket di bug chiusi SENZA affected version
+//
+//		//inizio operazioni per calcolo bugginess
+//		ticketsWithoutAV=new ArrayList<TicketTakenFromJIRA>();
+//		j=0;
+//		i=0;
+//		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affected version = null in the project
+//		do {
+//			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+//			j = i + 1000;
+//
+//			//%20 = spazio                      %22=virgolette
+//			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e SENZA affected version.
+//			url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+//					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+//					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
+//					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+//					+ "&fields=key,created&startAt="
+//					+ i.toString() + "&maxResults=" + j.toString();
+//
+//
+//			json = readJsonFromUrl(url);
+//			issues = json.getJSONArray("issues");
+//			//ci si prende il numero totale di ticket recuperati
+//			total = json.getInt("total");
+//
+//			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//
+//			String createdVers=null;
+//			LocalDate date;
+//			TicketTakenFromJIRA tick;
+//
+//			// si itera sul numero di ticket
+//			for (; i < total && i < j; i++) {
+//
+//				String key = issues.getJSONObject(i%1000).get("key").toString();
+//				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
+//
+//
+//
+//				date = LocalDate.parse(createdDate,format);
+//
+//				//se è la prima versione
+//				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+//					createdVers= String.valueOf(1);
+//				}
+//				else {
+//					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+//
+//						//abbiamo raggiunto nel for l'ultima release
+//						if(a==fromReleaseIndexToDate.size()) {
+//							createdVers= String.valueOf(a);
+//							break;
+//						}
+//
+//						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+//								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+//										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+//							createdVers= String.valueOf(a+1);
+//
+//							break;
+//						}
+//					}
+//				}
+//
+//				tick= new TicketTakenFromJIRA(key, createdVers, null);
+//				ticketsWithoutAV.add(tick);
+//
+//			}  
+//		} while (i < total);
+//
+//		//ora si calcola la fixed version
+//		gettingLastCommit=true;
+//		ticketWithoutAV=true;
+//		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
+//			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
+//			try {
+//
+//				getLastCommitOfBug(ticket.getKey());
+//
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//				Thread.currentThread().interrupt();
+//			}
+//
+//		}
+//
+//		gettingLastCommit=false;
+//		ticketWithoutAV=false;
+//
+//		//rimuovo ticket senza file java o IV e OV inconsistenti
+//		ArrayList<TicketTakenFromJIRA> ticketsWithoutAVToDelete = new ArrayList<TicketTakenFromJIRA>();	
+//
+//		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
+//			if((ticket.getCreatedVersion()==null)
+//					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+//
+//				ticketsWithoutAVToDelete.add(ticket);
+//			}
+//		}
+//
+//		int p;
+//		//si eliminano i ticket selezionati prima
+//		for (TicketTakenFromJIRA ticket : ticketsWithoutAVToDelete) {
+//			ticketsWithoutAV.remove(ticket);
+//		}
+//		ticketsWithoutAVToDelete.clear();
+//
+//		int predictedInjectedVersion;
+//		//set della bugginess per i file dei ticket presi da JIRA
+//		for (TicketTakenFromJIRA tick : ticketsWithoutAV) {
+//
+//			p=computeP(Integer.parseInt(tick.getFixedVersion()));
+//			predictedInjectedVersion=(Integer.parseInt(tick.getFixedVersion())-(Integer.parseInt(tick.getFixedVersion())
+//					-Integer.parseInt(tick.getCreatedVersion()))*p);
+//
+//			//per ogni file ritenuto buggy da quel ticket
+//			for (String file : tick.getFilenames()) {
+//				//cerca la inea giusta da scrivere
+//				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
+//					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
+//							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
+//							&&arrayOfEntryOfDataset.get(i).getVersion()>= predictedInjectedVersion) {
+//
+//						arrayOfEntryOfDataset.get(i).setBuggy("YES");
+//
+//					}
+//
+//				}
+//			}
+//
+//		}
+//
+//		ticketsWithoutAV.clear();
+//		tickets.clear();
+//
+//
+//		FileWriter fileWriter=null;
+//		try {
+//
+//			outname = projectName + " Deliverable 2 Milestone 1.csv";
+//			//Name of CSV for output
+//			fileWriter = new FileWriter(outname);
+//			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+//			fileWriter.append("\n");
+//			for ( LineOfDataset line : arrayOfEntryOfDataset) {
+//
+//				fileWriter.append(String.valueOf(line.getVersion()));
+//				fileWriter.append(",");
+//				fileWriter.append(line.getFileName());
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getSize()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getLOCTouched()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getNR()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getNauth()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getLocadded()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getAVGLOCAdded()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getChurn()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getMaxChurn()));
+//				fileWriter.append(",");
+//				fileWriter.append(String.valueOf(line.getAVGChurn()));
+//				fileWriter.append(",");
+//				fileWriter.append(line.getBuggy());
+//				fileWriter.append("\n");
+//			}
+//
+//		} catch (Exception e) {
+//			System.out.println("Error in csv writer");
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				fileWriter.flush();
+//				fileWriter.close();
+//			} catch (IOException e) {
+//				System.out.println("Error while flushing/closing fileWriter !!!");
+//				e.printStackTrace();
+//			}
+//		}
+//
+//
+//		//cancellazione directory clonata locale del progetto   
+//		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+//
+//
 
 		//----------------------------------------------------------------------------
 
