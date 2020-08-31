@@ -930,57 +930,10 @@ public class Main {
 					//per creare il dataset di training
 					if ((Integer.parseInt(entry[0]))<i) {
 
-						fileWriterTrain.append(entry[0]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[2]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[3]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[4]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[5]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[6]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[7]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[8]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[9]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[10]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[11]);
-						fileWriterTrain.append(",");
-						fileWriterTrain.append(entry[12]);
-						fileWriterTrain.append("\n");
-
+						 writePieceOfCsv(fileWriterTrain,entry);
 					} 
 					else if (Integer.parseInt(entry[0])==i) {
-						fileWriterTest.append(entry[0]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[2]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[3]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[4]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[5]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[6]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[7]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[8]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[9]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[10]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[11]);
-						fileWriterTest.append(",");
-						fileWriterTest.append(entry[12]);
-						fileWriterTest.append("\n");
+						 writePieceOfCsv(fileWriterTest,entry);
 					}
 
 					else {
@@ -1015,6 +968,35 @@ public class Main {
 
 
 
+
+	private static void writePieceOfCsv(FileWriter fileWriter,String[] entry) throws IOException {
+		fileWriter.append(entry[0]);
+		fileWriter.append(",");
+		fileWriter.append(entry[2]);
+		fileWriter.append(",");
+		fileWriter.append(entry[3]);
+		fileWriter.append(",");
+		fileWriter.append(entry[4]);
+		fileWriter.append(",");
+		fileWriter.append(entry[5]);
+		fileWriter.append(",");
+		fileWriter.append(entry[6]);
+		fileWriter.append(",");
+		fileWriter.append(entry[7]);
+		fileWriter.append(",");
+		fileWriter.append(entry[8]);
+		fileWriter.append(",");
+		fileWriter.append(entry[9]);
+		fileWriter.append(",");
+		fileWriter.append(entry[10]);
+		fileWriter.append(",");
+		fileWriter.append(entry[11]);
+		fileWriter.append(",");
+		fileWriter.append(entry[12]);
+		fileWriter.append("\n");
+
+		
+	}
 
 	private static void writeResult() {
 		String outname = projectName + " Deliverable 2 Milestone 1.csv";
