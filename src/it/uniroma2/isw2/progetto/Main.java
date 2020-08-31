@@ -880,66 +880,11 @@ public class Main {
 	
 		  startToCalculateBugginess();
 
-
-
+         startToGetFixedVersWithAV();
+         setBuggy();
 		
 
-		gettingLastCommit=true;
-		ticketWithAV=true;
-
-		for (TicketTakenFromJIRA ticket : tickets) {
-			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
-			try {
-
-				getLastCommitOfBug(ticket.getKey());
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
-			}
-
-		}
-
-		gettingLastCommit=false;
-		ticketWithAV=false;
-
-		//rimuovo ticket senza file java o AV,IV e OV inconsistenti
-		ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
-
-		for (TicketTakenFromJIRA ticket : tickets) {
-			if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
-					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
-
-				ticketsToDelete.add(ticket);
-			}
-		}
-
-		//si eliminano i ticket selezionati prima
-		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
-			tickets.remove(ticket);
-		}
-		ticketsToDelete.clear();
-
-
-
-		//set della bugginess per i file dei ticket presi da JIRA
-		for (TicketTakenFromJIRA tick : tickets) {
-			//per ogni file ritenuto buggy da quel ticket
-			for (String file : tick.getFilenames()) {
-				//cerca la inea giusta da scrivere
-				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
-					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
-							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
-							&&arrayOfEntryOfDataset.get(i).getVersion()>= Integer.parseInt(tick.getAffectedVersion())) {
-
-						arrayOfEntryOfDataset.get(i).setBuggy("YES");
-
-					}
-
-				}
-			}
-
-		}
+		
 
 		//ora prendiamo da jira tutti i ticket di bug chiusi SENZA affected version
 
@@ -1286,6 +1231,71 @@ public class Main {
 
 
 		return;
+	}
+
+	private static void setBuggy() {
+
+          int i;
+		gettingLastCommit=false;
+		ticketWithAV=false;
+
+		//rimuovo ticket senza file java o AV,IV e OV inconsistenti
+		ArrayList<TicketTakenFromJIRA> ticketsToDelete = new ArrayList<TicketTakenFromJIRA>();	
+
+		for (TicketTakenFromJIRA ticket : tickets) {
+			if((ticket.getAffectedVersion()==null)||(ticket.getCreatedVersion()==null)
+					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+
+				ticketsToDelete.add(ticket);
+			}
+		}
+
+		//si eliminano i ticket selezionati prima
+		for (TicketTakenFromJIRA ticket : ticketsToDelete) {
+			tickets.remove(ticket);
+		}
+		ticketsToDelete.clear();
+
+
+
+		//set della bugginess per i file dei ticket presi da JIRA
+		for (TicketTakenFromJIRA tick : tickets) {
+			//per ogni file ritenuto buggy da quel ticket
+			for (String file : tick.getFilenames()) {
+				//cerca la inea giusta da scrivere
+				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
+					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
+							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
+							&&arrayOfEntryOfDataset.get(i).getVersion()>= Integer.parseInt(tick.getAffectedVersion())) {
+
+						arrayOfEntryOfDataset.get(i).setBuggy("YES");
+
+					}
+
+				}
+			}
+
+		}
+		
+	}
+
+	private static void startToGetFixedVersWithAV() throws IOException {
+		gettingLastCommit=true;
+		ticketWithAV=true;
+
+		for (TicketTakenFromJIRA ticket : tickets) {
+			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
+			try {
+
+				getLastCommitOfBug(ticket.getKey());
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				Thread.currentThread().interrupt();
+			}
+
+		}
+		
 	}
 
 	private static void startToCalculateBugginess() throws JSONException, IOException {
