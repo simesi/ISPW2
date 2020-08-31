@@ -1429,7 +1429,7 @@ public class Main {
 
 	private static void calculateSomeMetrics() {
 		Integer i;
-		arrayOfEntryOfDataset= new ArrayList<LineOfDataset>();
+		arrayOfEntryOfDataset= new ArrayList<>();
 		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
@@ -1458,19 +1458,19 @@ public class Main {
 
 		Integer i = 0;
 		JSONObject json ;
-		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
-		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
+		projectName ="BOOKKEEPER";//"OPENJPA"
+		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git"
 		startToExecDeliverable2=true;
 
 		//Fills the arraylist with releases dates and orders them
 		//Ignores releases with missing dates
-		releases = new ArrayList<LocalDateTime>();
+		releases = new ArrayList<>();
 
 		String url = "https://issues.apache.org/jira/rest/api/2/project/" + projectName;
 		json = readJsonFromUrl(url);
 		JSONArray versions = json.getJSONArray(VERSIONS);
-		releaseNames = new HashMap<LocalDateTime, String>();
-		releaseID = new HashMap<LocalDateTime, String> ();
+		releaseNames = new HashMap<>();
+		releaseID = new HashMap<> ();
 		for (i = 0; i < versions.length(); i++ ) {
 			String name = "";
 			String id = "";
