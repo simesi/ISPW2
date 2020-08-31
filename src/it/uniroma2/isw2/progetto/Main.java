@@ -82,7 +82,7 @@ public class Main {
 
 	private static boolean searchingForDateOfCreation = false;
 	private static boolean calculatingLOC=false;
-	private static boolean calculatingLOC_Touched=false;
+	private static boolean calculatingLocTouched=false;
 	private static boolean calculatingNAuth=false;
 	private static boolean gettingLastCommit=false;
 	private static boolean ticketWithAV= false;
@@ -122,7 +122,7 @@ public class Main {
 		Path directory;
 		String originUrl = "https://github.com/"+projectNameGit;
 
-		if (startToExecDeliverable2==false) {
+		if (!startToExecDeliverable2) {
 			//percorso dove salvare la directory in locale
 			directory = Paths.get(CLONED_PROJECT_DELIVERABLE1);
 		}
@@ -269,7 +269,7 @@ public class Main {
 							fromFileNameToDateOfCreation.put(file,dateTime);
 							//le date ulteriori vengono ignorate
 							while((line = br.readLine())!=null) {
-
+                                   //si ignorano le date ulteriori
 							}
 						}
 					}
@@ -333,7 +333,7 @@ public class Main {
 						break;//fa uscire dal while principale
 					}
 
-					else if (storeData&&startToExecDeliverable2&&calculatingLOC_Touched) {
+					else if (storeData&&startToExecDeliverable2&&calculatingLocTouched) {
 						String version;
 						ArrayList<Integer> addedLinesForEveryRevision=new ArrayList<Integer>();
 						String nextLine;
@@ -1019,10 +1019,10 @@ public class Main {
 				//il metodo getChurnMetrics creerà l'arrayList di entry LineOfDataSet
 				getChurnMetrics(s,i);
 				calculatingLOC = false;
-				calculatingLOC_Touched = true;
+				calculatingLocTouched = true;
 				//i metodi successivi modificano semplicemente le entry in quell'array
 				getLOCMetrics(s,i);
-				calculatingLOC_Touched = false;
+				calculatingLocTouched = false;
 				calculatingNAuth= true;
 				getNumberOfAuthors(s,i);
 				calculatingNAuth= false;
