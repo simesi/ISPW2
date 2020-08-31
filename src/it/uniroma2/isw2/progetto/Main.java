@@ -90,6 +90,7 @@ public class Main {
 
 	private static final String ECHO = "echo "; 
 	private static final String FIELDS ="fields";
+	private static final String FORMATNUMSTAT= " --format= --numstat -- ";
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
 
 	//--------------------------
@@ -723,7 +724,7 @@ public class Main {
 
 		try {
 
-			command = ECHO+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))+" --format= --numstat -- "+filename;	
+			command = ECHO+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))+FORMATNUMSTAT+filename;	
 
 			runCommandOnShell(directory, command);
 
@@ -745,10 +746,10 @@ public class Main {
 
 		try {
 			if(i>1) {
-				command = ECHO+i+" && git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
+				command = ECHO+i+" && git log --since="+fromReleaseIndexToDate.get(String.valueOf(i-1))+" --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+FORMATNUMSTAT+filename;	
 			}
 			else {  //prima release
-				command = ECHO+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))	+" --format= --numstat -- "+filename;	
+				command = ECHO+i+" && git log --until="+fromReleaseIndexToDate.get(String.valueOf(i))+FORMATNUMSTAT+filename;	
 			}
 			runCommandOnShell(directory, command);
 
@@ -824,7 +825,7 @@ public class Main {
 				continue;
 			}
 			validBugsFixed++;
-			p+=((Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getAffectedVersion())))
+			p+=(Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getAffectedVersion()))
 					/(Integer.parseInt(ticket.getFixedVersion())-Integer.parseInt(ticket.getCreatedVersion()));
 		}
 
