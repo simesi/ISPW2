@@ -1492,12 +1492,8 @@ public class Main {
 			}
 		}
 		
-		Comparator<LocalDateTime> comp =new Comparator<LocalDateTime>() {
-			//@Override
-			public int compare(LocalDateTime o1, LocalDateTime o2) {
-				return o1.compareTo(o2);
-			}
-		};
+		
+		Comparator <LocalDateTime> comp = (o1,o2)->o1.compareTo(o2);
 		// order releases by date
 		Collections.sort(releases, comp);
 
