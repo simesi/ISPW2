@@ -31,6 +31,11 @@ public class Weka {
 	private static final String ARFF=".arff";
 	private int numDefectiveTrain=0;
 	private int numDefectiveTest=0;
+	private Instances filteredTraining = null;
+	private Instances testingFiltered = null;
+	private int numAttrFiltered=0;
+	private int numAttrNoFilter=0;
+	int percentInstOfMajorityClass=0;
 	
 	
 	
@@ -190,9 +195,6 @@ public class Weka {
 		String myClassificator=null;
 		Evaluation eval = null;
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
-		int numAttrFiltered=0;
-		int numAttrNoFilter=0;
-		int percentInstOfMajorityClass=0;
 		Resample resample= null;
 		String name = projectName+" Deliverable 2 Milestone 3.csv";
 
@@ -210,8 +212,7 @@ public class Weka {
 
 				Instances noFilterTraining = source.getDataSet();
 				Instances testing = source2.getDataSet();
-				Instances filteredTraining = null;
-				Instances testingFiltered = null;
+				
 
 				//stima senza filtri
 				numAttrNoFilter = noFilterTraining.numAttributes();
@@ -222,55 +223,7 @@ public class Weka {
 				//senza e con feature selection
 				for (int fs=0;fs<=1;fs++) {
 
-					//fs=1 allora con feature selection
-					if(fs==1) {
-
-						//create AttributeSelection object
-						AttributeSelection filter = new AttributeSelection();
-						//create evaluator and search algorithm objects
-						CfsSubsetEval subEval = new CfsSubsetEval();
-						GreedyStepwise search = new GreedyStepwise();
-						//set the algorithm to search backward
-						search.setSearchBackwards(true);
-						//set the filter to use the evaluator and search algorithm
-						filter.setEvaluator(subEval);
-						filter.setSearch(search);
-
-						//specify the dataset
-						filter.setInputFormat(noFilterTraining);
-
-						//qui si crea il training filtrato
-						filteredTraining = Filter.useFilter(noFilterTraining, filter);
-
-						//stima numero attributi con i filtri
-						numAttrFiltered = filteredTraining.numAttributes();
-
-						//evaluation with filtered
-						filteredTraining.setClassIndex(numAttrFiltered - 1);
-						testingFiltered = Filter.useFilter(testing, filter);
-						testingFiltered.setClassIndex(numAttrFiltered - 1);
-
-
-						//qui si contano le istanze positive...
-						 percentInstOfMajorityClass=calculateDefectiveInInstances(filteredTraining,testingFiltered,numAttrFiltered);
-
-
-
-
-					}//fine if
-
-
-					if(fs==0) {
-
-						//qui si contano le istanze positive...
-						 percentInstOfMajorityClass= calculateDefectiveInInstances(noFilterTraining,testing,numAttrNoFilter);
-
-
-						
-
-					}
-
-
+					 doOrNotFeatureSelection(fs,noFilterTraining,testing);
 
 
 					//senza balancing o con i tre tipi di balancing			
@@ -708,6 +661,57 @@ public class Weka {
 
 
 
+	}
+
+
+	private void doOrNotFeatureSelection(int fs, Instances train, Instances testing) throws Exception {
+		//fs=1 allora con feature selection
+		if(fs==1) {
+
+			//create AttributeSelection object
+			AttributeSelection filter = new AttributeSelection();
+			//create evaluator and search algorithm objects
+			CfsSubsetEval subEval = new CfsSubsetEval();
+			GreedyStepwise search = new GreedyStepwise();
+			//set the algorithm to search backward
+			search.setSearchBackwards(true);
+			//set the filter to use the evaluator and search algorithm
+			filter.setEvaluator(subEval);
+			filter.setSearch(search);
+
+			//specify the dataset
+			filter.setInputFormat(train);
+
+			//qui si crea il training filtrato
+			this.filteredTraining = Filter.useFilter(train, filter);
+
+			//stima numero attributi con i filtri
+			numAttrFiltered = filteredTraining.numAttributes();
+
+			//evaluation with filtered
+			filteredTraining.setClassIndex(numAttrFiltered - 1);
+			testingFiltered = Filter.useFilter(testing, filter);
+			testingFiltered.setClassIndex(numAttrFiltered - 1);
+
+
+			//qui si contano le istanze positive...
+			 this.percentInstOfMajorityClass=calculateDefectiveInInstances(filteredTraining,testingFiltered,numAttrFiltered);
+
+
+
+
+		}//fine if
+
+
+		if(fs==0) {
+
+			//qui si contano le istanze positive...
+			 this.percentInstOfMajorityClass= calculateDefectiveInInstances(train,testing,numAttrNoFilter);
+
+		}
+
+
+		
 	}
 
 
