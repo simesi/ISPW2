@@ -884,50 +884,7 @@ public class Main {
 		 checkFixedVersWithoutAV();
          setBuggyWithoutAV();		 
 
-         outname = projectName + " Deliverable 2 Milestone 1.csv";
-			//Name of CSV for output
-		
-		try (FileWriter fileWriter = new FileWriter(outname)){
-
-			
-			
-			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
-			fileWriter.append("\n");
-			for ( LineOfDataset line : arrayOfEntryOfDataset) {
-
-				fileWriter.append(String.valueOf(line.getVersion()));
-				fileWriter.append(",");
-				fileWriter.append(line.getFileName());
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getSize()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getLOCTouched()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getNR()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getNauth()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getLocadded()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getAVGLOCAdded()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getChurn()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getMaxChurn()));
-				fileWriter.append(",");
-				fileWriter.append(String.valueOf(line.getAVGChurn()));
-				fileWriter.append(",");
-				fileWriter.append(line.getBuggy());
-				fileWriter.append("\n");
-			}
-
-		} catch (Exception e) {
-			System.out.println("Error in csv writer");
-			e.printStackTrace();
-		}
-		
+         writeResult();
 
 
 		//cancellazione directory clonata locale del progetto   
@@ -1087,6 +1044,54 @@ public class Main {
 
 
 		return;
+	}
+
+	private static void writeResult() {
+		   String outname = projectName + " Deliverable 2 Milestone 1.csv";
+					//Name of CSV for output
+				
+				try (FileWriter fileWriter = new FileWriter(outname)){
+
+					
+					
+					fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+					fileWriter.append("\n");
+					for ( LineOfDataset line : arrayOfEntryOfDataset) {
+
+						fileWriter.append(String.valueOf(line.getVersion()));
+						fileWriter.append(",");
+						fileWriter.append(line.getFileName());
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getSize()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getLOCTouched()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getNR()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getNauth()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getLocadded()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getAVGLOCAdded()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getChurn()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getMaxChurn()));
+						fileWriter.append(",");
+						fileWriter.append(String.valueOf(line.getAVGChurn()));
+						fileWriter.append(",");
+						fileWriter.append(line.getBuggy());
+						fileWriter.append("\n");
+					}
+
+				} catch (Exception e) {
+					System.out.println("Error in csv writer");
+					e.printStackTrace();
+				}
+				
+		
 	}
 
 	private static void setBuggyWithoutAV() {
