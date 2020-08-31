@@ -237,7 +237,6 @@ public class Main {
 			try (BufferedReader br = new BufferedReader(new InputStreamReader(is));) {
 
 				String line;
-				String filename= "";
 
 
 
@@ -246,23 +245,7 @@ public class Main {
 						collectDataDeliverable1(line);
 					}
 					else if (searchingForDateOfCreation) {
-
-						//levo l'ultimo carattere introdotto (per errore) nel replace a monte
-						String file = line.substring(0, line.length()-1);
-
-						LocalDateTime dateTime; 
-						String secondLine =br.readLine();
-						secondLine=secondLine.trim();
-						if (secondLine != null) {
-							LocalDate date = LocalDate.parse(secondLine);
-							dateTime = date.atStartOfDay();
-
-							fromFileNameToDateOfCreation.put(file,dateTime);
-							//le date ulteriori vengono ignorate
-							while((line = br.readLine())!=null) {
-                                   //si ignorano le date ulteriori
-							}
-						}
+                               gettingDateOfCreation(line,br);
 					}
 
 					else if (calculatingLOC) {
@@ -296,6 +279,27 @@ public class Main {
 
 			}
 
+		}
+
+		private void gettingDateOfCreation(String line, BufferedReader br) throws IOException {
+
+			//levo l'ultimo carattere introdotto (per errore) nel replace a monte
+			String file = line.substring(0, line.length()-1);
+
+			LocalDateTime dateTime; 
+			String secondLine =br.readLine();
+			secondLine=secondLine.trim();
+			if (secondLine != null) {
+				LocalDate date = LocalDate.parse(secondLine);
+				dateTime = date.atStartOfDay();
+
+				fromFileNameToDateOfCreation.put(file,dateTime);
+				//le date ulteriori vengono ignorate
+				while((line = br.readLine())!=null) {
+                       //si ignorano le date ulteriori
+				}
+			}
+			
 		}
 
 		private void gettingLastCommit(String line, BufferedReader br) throws IOException {
