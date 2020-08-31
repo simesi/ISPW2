@@ -276,36 +276,7 @@ public class Main {
 
 					else if (calculatingNAuth) {
 
-						String nextLine;
-						int version;
-						line=line.trim();
-						int nAuth=0;
-						String[] tokens = line.split("\\s+");
-
-						version=Integer.parseInt(tokens[0]);
-						filename=tokens[1];
-
-						nextLine =br.readLine();
-
-						while(nextLine != null) {
-							nAuth++;
-							nextLine =br.readLine();
-						}
-						//file non è stato ancora creato in questa versione
-						if(nAuth==0) {
-							break;
-						} 
-
-
-						//cerchiamo l'oggetto giusto su cui scrivere
-						for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) { 
-							if((arrayOfEntryOfDataset.get(i).getVersion()==version) && (arrayOfEntryOfDataset.get(i).getFileName().equals(filename))) {
-								arrayOfEntryOfDataset.get(i).setNauth(nAuth);
-
-								break;
-							}
-
-						}
+						calculatingNauth(line,br);
 
 					}
 					else if (gettingLastCommit) {
@@ -406,6 +377,41 @@ public class Main {
 
 			}
 
+		}
+
+		private void calculatingNauth(String line, BufferedReader br) throws IOException {
+			String nextLine;
+			int version;
+			String filename = "";
+			line=line.trim();
+			int nAuth=0;
+			String[] tokens = line.split("\\s+");
+
+			version=Integer.parseInt(tokens[0]);
+			filename=tokens[1];
+
+			nextLine =br.readLine();
+
+			while(nextLine != null) {
+				nAuth++;
+				nextLine =br.readLine();
+			}
+			//file non è stato ancora creato in questa versione
+			if(nAuth==0) {
+				return;
+			} 
+
+
+			//cerchiamo l'oggetto giusto su cui scrivere
+			for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) { 
+				if((arrayOfEntryOfDataset.get(i).getVersion()==version) && (arrayOfEntryOfDataset.get(i).getFileName().equals(filename))) {
+					arrayOfEntryOfDataset.get(i).setNauth(nAuth);
+
+					break;
+				}
+
+			}
+			
 		}
 
 		private void calculatingLoc(String line, BufferedReader br) throws IOException {
