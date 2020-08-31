@@ -88,6 +88,7 @@ public class Main {
 	private static boolean ticketWithoutAV= false;
 	
 	private static final String ECHO = "echo "; 
+	private static final String FIELDS ="fields";
 
 	//--------------------------
 
@@ -1032,7 +1033,7 @@ public class Main {
 
 
 		//inizio operazioni per calcolo bugginess
-		tickets=new ArrayList<TicketTakenFromJIRA>();
+		tickets=new ArrayList<>();
 		j=0;
 		i=0;
 		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
@@ -1048,7 +1049,7 @@ public class Main {
 					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created,versions&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
-			//System.out.println(url);
+		
 
 			json = readJsonFromUrl(url);
 			issues = json.getJSONArray("issues");
@@ -1064,18 +1065,20 @@ public class Main {
 			TicketTakenFromJIRA tick;
 			String affVersReleaseDate="";
 
+			
+			
 			// si itera sul numero di ticket
 			for (; i < total && i < j; i++) {
 
 				String key = issues.getJSONObject(i%1000).get("key").toString();
-				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
+				String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
 
 				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
 
-				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").length();h++) {
-					if(issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).has("releaseDate")) {
+				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray("versions").length();h++) {
+					if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray("versions").getJSONObject(h).has("releaseDate")) {
 						//affVers è per es. 4.1.0
-						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).get("releaseDate").toString();
+						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray("versions").getJSONObject(h).get("releaseDate").toString();
 						break;
 					}
 				}
@@ -1225,7 +1228,7 @@ public class Main {
 			for (; i < total && i < j; i++) {
 
 				String key = issues.getJSONObject(i%1000).get("key").toString();
-				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
+				String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
 
 
 
