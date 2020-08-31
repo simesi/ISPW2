@@ -94,12 +94,12 @@ public class Weka {
 			//ora si classifica ------------------------- 
 
 			try (   	//True = Append to file, false = Overwrite
-						FileWriter fileWriter = new FileWriter(name,true);
-					 )
+					FileWriter fileWriter = new FileWriter(name,true);
+					)
 			{
 				fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
 				fileWriter.append("\n");
-				
+
 				//load datasets
 				DataSource source1 = new DataSource(arffNameFileTrain);
 				Instances training = source1.getDataSet();
@@ -148,7 +148,7 @@ public class Weka {
 
 					//ora si scrive file csv coi risultati
 
-					
+
 
 					fileWriter.append(projectName);
 					fileWriter.append(",");
@@ -195,7 +195,7 @@ public class Weka {
 
 		try 
 		{
-			
+
 
 
 			for(int version=2;version<=maxversion;version++) {
@@ -247,47 +247,26 @@ public class Weka {
 						testingFiltered = Filter.useFilter(testing, filter);
 						testingFiltered.setClassIndex(numAttrFiltered - 1);
 
+
+						//qui si contano le istanze positive...
+						 percentInstOfMajorityClass=calculateDefectiveInInstances(filteredTraining,testingFiltered,numAttrFiltered);
+
+
+
+
 					}//fine if
 
 
-					//qui si contano le istanze positive...
-					numDefectiveTrain=0;
-					numDefectiveTest=0;
-
 					if(fs==0) {
 
-						//ora si contano il numero di buggy nelle Instances
-						for(Instance instance: noFilterTraining){
+						//qui si contano le istanze positive...
+						 percentInstOfMajorityClass= calculateDefectiveInInstances(noFilterTraining,testing,numAttrNoFilter);
 
-							if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
-								numDefectiveTrain++;
-							}
-						}
-						for(Instance instance: testing){
-							if(instance.stringValue(numAttrNoFilter-1).equals("YES")) {
-								numDefectiveTest++;
-							}
-						}
-						percentInstOfMajorityClass=2*Math.max(numDefectiveTrain/noFilterTraining.size(),1-numDefectiveTrain/noFilterTraining.size())*100;
 
+						
 
 					}
-					else if(fs==1){
-						//ora si contano il numero di buggy nelle Instances
-						for(Instance instance: filteredTraining){
-							if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
-								numDefectiveTrain++;
-							}
-						}
-						for(Instance instance: testingFiltered){
-							if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
-								numDefectiveTest++;
-							}
-						}
 
-						percentInstOfMajorityClass=2*Math.max(numDefectiveTrain/filteredTraining.size(),1-numDefectiveTrain/filteredTraining.size())*100;
-
-					}
 
 
 
@@ -676,38 +655,38 @@ public class Weka {
 
 								fileWriter.append("\n");
 
-							fileWriter.append(projectName);
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf(version-1));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf((String.format("%.3f", (double) (noFilterTraining.size()/(double)(testing.size()+noFilterTraining.size()))))).replace(',', '.'));//modifica con sampling
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf((String.format("%.3f",(double)numDefectiveTrain/(double)noFilterTraining.size()))).replace(',', '.'));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf((String.format("%.3f",(double)numDefectiveTest/(double)testing.size()))).replace(',', '.'));
-							fileWriter.append(",");
-							fileWriter.append(myClassificator);
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf(String.valueOf(balancing)));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf(fs));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf((int)eval.numTruePositives(1)));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf((int)eval.numFalsePositives(1)));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf((int)eval.numTrueNegatives(1)));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf((int)eval.numFalseNegatives(1)));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf(numberFormat.format(eval.precision(1)).replace(',', '.')));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf(numberFormat.format(eval.recall(1)).replace(',', '.')));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf(numberFormat.format(eval.areaUnderROC(1)).replace(',', '.')));
-							fileWriter.append(",");
-							fileWriter.append(String.valueOf(numberFormat.format(eval.kappa()).replace(',', '.')));
-							fileWriter.append("\n");
+								fileWriter.append(projectName);
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf(version-1));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf((String.format("%.3f", (double) (noFilterTraining.size()/(double)(testing.size()+noFilterTraining.size()))))).replace(',', '.'));//modifica con sampling
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf((String.format("%.3f",(double)numDefectiveTrain/(double)noFilterTraining.size()))).replace(',', '.'));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf((String.format("%.3f",(double)numDefectiveTest/(double)testing.size()))).replace(',', '.'));
+								fileWriter.append(",");
+								fileWriter.append(myClassificator);
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf(String.valueOf(balancing)));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf(fs));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf((int)eval.numTruePositives(1)));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf((int)eval.numFalsePositives(1)));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf((int)eval.numTrueNegatives(1)));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf((int)eval.numFalseNegatives(1)));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf(numberFormat.format(eval.precision(1)).replace(',', '.')));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf(numberFormat.format(eval.recall(1)).replace(',', '.')));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf(numberFormat.format(eval.areaUnderROC(1)).replace(',', '.')));
+								fileWriter.append(",");
+								fileWriter.append(String.valueOf(numberFormat.format(eval.kappa()).replace(',', '.')));
+								fileWriter.append("\n");
 							}
 							catch (IOException e) {
 								e.printStackTrace();
@@ -726,6 +705,28 @@ public class Weka {
 
 
 
+	}
+
+
+	private int calculateDefectiveInInstances(Instances train, Instances test, int numAttrFiltered) {
+		int numDefectiveTrain=0;
+		int numDefectiveTest=0;
+
+		//ora si contano il numero di buggy nelle Instances
+		for(Instance instance: train){
+			if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
+				numDefectiveTrain++;
+			}
+		}
+		for(Instance instance: test){
+			if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
+				numDefectiveTest++;
+			}
+		}
+
+		return 2*Math.max(numDefectiveTrain/train.size(),1-numDefectiveTrain/train.size())*100;
+
+		
 	}
 
 }
