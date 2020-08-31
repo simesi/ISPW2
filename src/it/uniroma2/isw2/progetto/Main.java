@@ -93,9 +93,9 @@ public class Main {
 	private static final String FIELDS ="fields";
 	private static final String FORMATNUMSTAT= " --format= --numstat -- ";
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
-    private static final String PIECE_OF_URL_JIRA="%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR";
+	private static final String PIECE_OF_URL_JIRA="%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR";
 	private static final String SLASH="\\";
-    //--------------------------
+	//--------------------------
 
 
 
@@ -861,31 +861,31 @@ public class Main {
 	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
-		
+
 		Integer i = 0;
 		String outname;
 
 		doDeliverable1();
-	
+
 		//		//-------------------------------------------------------------------------------------------------
 		//	//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
-		   findReleaseAndFilesJava();
+		findReleaseAndFilesJava();
 
 		//----------------------------------------------
 
-           calculateSomeMetrics();
-	
-		  startToCalculateBugginess();
+		calculateSomeMetrics();
 
-         startToGetFixedVersWithAV();
-         setBuggy();
-		
-         startToGetCreatedVersWithoutAV();
-		 checkFixedVersWithoutAV();
-         setBuggyWithoutAV();		 
+		startToCalculateBugginess();
 
-         writeResult();
+		startToGetFixedVersWithAV();
+		setBuggy();
+
+		startToGetCreatedVersWithoutAV();
+		checkFixedVersWithoutAV();
+		setBuggyWithoutAV();		 
+
+		writeResult();
 
 
 		//cancellazione directory clonata locale del progetto   
@@ -916,16 +916,16 @@ public class Main {
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
 
 		for(i=2;i<=(Math.floorDiv(releases.size(),2));i++) {//modifica questa linea se Milestone 1 non è stata eseguita
-			
-			FileWriter fileWriterTrain=null;
-			FileWriter fileWriterTest=null;
-			try {
 
-				csvTrain = projectName+" Training for "+"Release "+i+".csv";
-				csvTest = projectName+" Testing for "+"Release "+i+".csv";
 
-				fileWriterTrain = new FileWriter(csvTrain);
-				fileWriterTest = new FileWriter(csvTest);
+			csvTrain = projectName+" Training for "+"Release "+i+".csv";
+			csvTest = projectName+" Testing for "+"Release "+i+".csv";
+
+
+			try (FileWriter fileWriterTrain= new FileWriter(csvTrain);
+					FileWriter fileWriterTest=new FileWriter(csvTest);
+					){
+
 
 				fileWriterTrain.append("Version,Size(LOC),LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
 				fileWriterTrain.append("\n");
@@ -1005,16 +1005,7 @@ public class Main {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-			} finally {
-				try {
-					fileWriterTrain.flush();
-					fileWriterTrain.close();
-					fileWriterTest.flush();
-					fileWriterTest.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			} 
 		}
 
 
@@ -1034,61 +1025,61 @@ public class Main {
 		w.doClassificationMilestone3(i, projectName);
 
 	}
-	
-	
-	
+
+
+
 
 	private static void writeResult() {
-		   String outname = projectName + " Deliverable 2 Milestone 1.csv";
-					//Name of CSV for output
-				
-				try (FileWriter fileWriter = new FileWriter(outname)){
+		String outname = projectName + " Deliverable 2 Milestone 1.csv";
+		//Name of CSV for output
 
-					
-					
-					fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
-					fileWriter.append("\n");
-					for ( LineOfDataset line : arrayOfEntryOfDataset) {
+		try (FileWriter fileWriter = new FileWriter(outname)){
 
-						fileWriter.append(String.valueOf(line.getVersion()));
-						fileWriter.append(",");
-						fileWriter.append(line.getFileName());
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getSize()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getLOCTouched()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getNR()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getNauth()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getLocadded()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getAVGLOCAdded()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getChurn()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getMaxChurn()));
-						fileWriter.append(",");
-						fileWriter.append(String.valueOf(line.getAVGChurn()));
-						fileWriter.append(",");
-						fileWriter.append(line.getBuggy());
-						fileWriter.append("\n");
-					}
 
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-		
+
+			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
+			fileWriter.append("\n");
+			for ( LineOfDataset line : arrayOfEntryOfDataset) {
+
+				fileWriter.append(String.valueOf(line.getVersion()));
+				fileWriter.append(",");
+				fileWriter.append(line.getFileName());
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getSize()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getLOCTouched()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getNR()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getNauth()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getLocadded()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getMAXLOCAdded()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getAVGLOCAdded()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getChurn()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getMaxChurn()));
+				fileWriter.append(",");
+				fileWriter.append(String.valueOf(line.getAVGChurn()));
+				fileWriter.append(",");
+				fileWriter.append(line.getBuggy());
+				fileWriter.append("\n");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
 	}
 
 	private static void setBuggyWithoutAV() {
-		 
-		 int i;
-        
+
+		int i;
+
 		int predictedInjectedVersion;
 		int p;
 		//set della bugginess per i file dei ticket presi da JIRA
@@ -1118,7 +1109,7 @@ public class Main {
 		ticketsWithoutAV.clear();
 		tickets.clear();
 
-		
+
 	}
 
 	private static void checkFixedVersWithoutAV() throws IOException {
@@ -1153,14 +1144,14 @@ public class Main {
 			}
 		}
 
-		
+
 		//si eliminano i ticket selezionati prima
 		for (TicketTakenFromJIRA ticket : ticketsWithoutAVToDelete) {
 			ticketsWithoutAV.remove(ticket);
 		}
 		ticketsWithoutAVToDelete.clear();
 
-		
+
 	}
 
 	private static void startToGetCreatedVersWithoutAV() throws JSONException, IOException {
@@ -1215,7 +1206,7 @@ public class Main {
 					createdVers= String.valueOf(1);
 				}
 				else {
-				   createdVers= finalizeGetCreatedVersionWithoutAv(date);
+					createdVers= finalizeGetCreatedVersionWithoutAv(date);
 				}
 
 				tick= new TicketTakenFromJIRA(key, createdVers, null);
@@ -1224,7 +1215,7 @@ public class Main {
 			}  
 		} while (i < total);
 
-		
+
 	}
 
 	private static String finalizeGetCreatedVersionWithoutAv(LocalDate date) {
@@ -1234,7 +1225,7 @@ public class Main {
 			//abbiamo raggiunto nel for l'ultima release
 			if(a==fromReleaseIndexToDate.size()) {
 				return createdVers= String.valueOf(a);
-				
+
 			}
 
 			else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
@@ -1242,7 +1233,7 @@ public class Main {
 							(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
 				return createdVers= String.valueOf(a+1);
 
-				
+
 			}
 		}
 		return createdVers= String.valueOf(fromReleaseIndexToDate.size());
@@ -1250,7 +1241,7 @@ public class Main {
 
 	private static void setBuggy() {
 
-          int i;
+		int i;
 		gettingLastCommit=false;
 		ticketWithAV=false;
 
@@ -1291,7 +1282,7 @@ public class Main {
 			}
 
 		}
-		
+
 	}
 
 	private static void startToGetFixedVersWithAV() throws IOException {
@@ -1310,112 +1301,112 @@ public class Main {
 			}
 
 		}
-		
+
 	}
 
 	private static void startToCalculateBugginess() throws JSONException, IOException {
-		
+
 		//inizio operazioni per calcolo bugginess
-				tickets=new ArrayList<>();
-				Integer j=0;
-				Integer total=1;
-				JSONObject json ;
-				JSONArray issues;
-				Integer i=0;
-				//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
-				do {
-					//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-					j = i + 1000;
+		tickets=new ArrayList<>();
+		Integer j=0;
+		Integer total=1;
+		JSONObject json ;
+		JSONArray issues;
+		Integer i=0;
+		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
+		do {
+			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+			j = i + 1000;
 
-					//%20 = spazio                      %22=virgolette
-					//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
-					String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
-							+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-							+ "&fields=key,created,versions&startAt="
-							+ i.toString() + "&maxResults=" + j.toString();
-
-
-					json = readJsonFromUrl(url);
-					issues = json.getJSONArray("issues");
-					//ci si prende il numero totale di ticket recuperati
-					total = json.getInt("total");
-
-					DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-					String createdVers=null;
-					String affVers=null;
-					LocalDate date;
-					LocalDate affReleaseDate;
-					TicketTakenFromJIRA tick;
-					String affVersReleaseDate="";
+			//%20 = spazio                      %22=virgolette
+			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
+			String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+					+ "&fields=key,created,versions&startAt="
+					+ i.toString() + "&maxResults=" + j.toString();
 
 
+			json = readJsonFromUrl(url);
+			issues = json.getJSONArray("issues");
+			//ci si prende il numero totale di ticket recuperati
+			total = json.getInt("total");
 
-					// si itera sul numero di ticket
-					for (; i < total && i < j; i++) {
+			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-						String key = issues.getJSONObject(i%1000).get("key").toString();
-						String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
-
-						//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
-
-						for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).length();h++) {
-							if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).has("releaseDate")) {
-								//affVers è per es. 4.1.0
-								affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).get("releaseDate").toString();
-								break;
-							}
-						}
-						//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
-						// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
+			String createdVers=null;
+			String affVers=null;
+			LocalDate date;
+			LocalDate affReleaseDate;
+			TicketTakenFromJIRA tick;
+			String affVersReleaseDate="";
 
 
-						date = LocalDate.parse(createdDate,format);
-						affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
-						//se è la prima versione
-						if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-							createdVers= String.valueOf(1);
-							affVers=String.valueOf(1);
-						}
-						else {
-							for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
 
-								//abbiamo raggiunto nel for l'ultima release
-								if(a==fromReleaseIndexToDate.size()) {
-									createdVers= String.valueOf(a);
+			// si itera sul numero di ticket
+			for (; i < total && i < j; i++) {
 
-									for(int k=0;k<releases.size();k++) {
-										if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-											affVers=String.valueOf(k+1);
-											break;
-										}
-									}
-									break;
+				String key = issues.getJSONObject(i%1000).get("key").toString();
+				String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
 
-								}
-								else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-										&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-												(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-									createdVers= String.valueOf(a+1);
+				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
 
-									for(int k=0;k<releases.size();k++) {
-										if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-											affVers=String.valueOf(k+1);
-											break;
-										}
-									}
+				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).length();h++) {
+					if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).has("releaseDate")) {
+						//affVers è per es. 4.1.0
+						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).get("releaseDate").toString();
+						break;
+					}
+				}
+				//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
+				// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
+
+
+				date = LocalDate.parse(createdDate,format);
+				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
+				//se è la prima versione
+				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+					createdVers= String.valueOf(1);
+					affVers=String.valueOf(1);
+				}
+				else {
+					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+
+						//abbiamo raggiunto nel for l'ultima release
+						if(a==fromReleaseIndexToDate.size()) {
+							createdVers= String.valueOf(a);
+
+							for(int k=0;k<releases.size();k++) {
+								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+									affVers=String.valueOf(k+1);
 									break;
 								}
 							}
+							break;
+
 						}
-						//check su opening version e affected version
-						if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
-							tick= new TicketTakenFromJIRA(key, createdVers, affVers);
-							tickets.add(tick);
+						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+							createdVers= String.valueOf(a+1);
+
+							for(int k=0;k<releases.size();k++) {
+								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+									affVers=String.valueOf(k+1);
+									break;
+								}
+							}
+							break;
 						}
-					}  
-				} while (i < total);
-		
+					}
+				}
+				//check su opening version e affected version
+				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
+					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
+					tickets.add(tick);
+				}
+			}  
+		} while (i < total);
+
 	}
 
 	private static void calculateSomeMetrics() {
@@ -1424,7 +1415,7 @@ public class Main {
 		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
-			
+
 			//per ogni file
 			for (String s : fileNameOfFirstHalf) {
 				calculatingLOC = true;
@@ -1442,11 +1433,11 @@ public class Main {
 			}
 
 		} 
-		
+
 	}
 
 	private static void findReleaseAndFilesJava() throws JSONException, IOException {
-		
+
 		Integer i = 0;
 		JSONObject json ;
 		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
@@ -1456,7 +1447,7 @@ public class Main {
 		//Fills the arraylist with releases dates and orders them
 		//Ignores releases with missing dates
 		releases = new ArrayList<LocalDateTime>();
-		
+
 		String url = "https://issues.apache.org/jira/rest/api/2/project/" + projectName;
 		json = readJsonFromUrl(url);
 		JSONArray versions = json.getJSONArray(VERSIONS);
@@ -1530,7 +1521,7 @@ public class Main {
 
 
 		searchingForDateOfCreation = false;
-		
+
 	}
 
 	private static void doDeliverable1() throws IOException, JSONException {
