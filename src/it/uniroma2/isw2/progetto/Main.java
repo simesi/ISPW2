@@ -95,6 +95,8 @@ public class Main {
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
 	private static final String PIECE_OF_URL_JIRA="%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR";
 	private static final String SLASH="\\";
+	private static final String MAX_RESULT="&maxResults=";
+	private static final String ISSUES= "issues";
 	//--------------------------
 
 
@@ -1165,8 +1167,7 @@ public class Main {
 
 		//inizio operazioni per calcolo bugginess
 		ticketsWithoutAV=new ArrayList<>();
-		j=0;
-		i=0;
+		
 		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affected version = null in the project
 		do {
 			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
@@ -1177,11 +1178,11 @@ public class Main {
 			String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
 					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
+					+ i.toString() + MAX_RESULT + j.toString();
 
 
 			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
+			issues = json.getJSONArray(ISSUES);
 			//ci si prende il numero totale di ticket recuperati
 			total = json.getInt("total");
 
@@ -1323,11 +1324,11 @@ public class Main {
 			String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
 					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created,versions&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
+					+ i.toString() + MAX_RESULT + j.toString();
 
 
 			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
+			issues = json.getJSONArray(ISSUES);
 			//ci si prende il numero totale di ticket recuperati
 			total = json.getInt("total");
 
@@ -1541,11 +1542,11 @@ public class Main {
 			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
 			String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,resolutiondate,created&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
+					+ i.toString() + MAX_RESULT + j.toString();
 
 
 			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
+			issues = json.getJSONArray(ISSUES);
 			//ci si prende il numero totale di ticket recuperati
 			total = json.getInt("total");
 
