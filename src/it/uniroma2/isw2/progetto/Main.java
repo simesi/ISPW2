@@ -413,7 +413,6 @@ public class Main {
 			String filename= "";
 			int addedLines=0;
 			int deletedLines=0;
-			int maxAddedlines=0;
 			String version;
 			int sumOfRealDeletedLOC=0;
 			int realDeletedLOC=0;
@@ -433,7 +432,7 @@ public class Main {
 
 			while (nextLine != null) { 
 				//per NR
-				numberOfCommit=numberOfCommit+1;
+				numberOfCommit++;
 				nextLine=nextLine.trim();
 				tokens=nextLine.split("\\s+");
 				//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
