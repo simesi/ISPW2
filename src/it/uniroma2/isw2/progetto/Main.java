@@ -78,7 +78,6 @@ public class Main {
 	private static List<LineOfDataset> arrayOfEntryOfDataset;
 	private static List<TicketTakenFromJIRA> tickets;
 	private static List<TicketTakenFromJIRA> ticketsWithoutAV;
-	private static List<String> ticketIDList;
 
 	private static boolean searchingForDateOfCreation = false;
 	private static boolean discard=true;
@@ -342,32 +341,38 @@ public class Main {
 				setFixedVersion(bug,date,filesAffected);
 			}
 			else if(ticketWithoutAV) {
-				for (int i = 0; i < tickets.size(); i++) {
-					if(ticketsWithoutAV.get(i).getKey().equals(bug)) {
-						//se è la prima versione
-						if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-							fixedVers= String.valueOf(2);
-						}
-						else {
-							for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-								if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-										&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-												(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-									fixedVers= String.valueOf(a+2);
-									break;
-								}
-							}
-
-						}
-						ticketsWithoutAV.get(i).setFixedVersion(fixedVers);
-						ticketsWithoutAV.get(i).setFilenames(filesAffected);
-						break;
-
-					}
-				}
+				  setFixVersionWithoutAv(bug,date,filesAffected);
 			}
 
 
+		}
+
+		private void setFixVersionWithoutAv(String bug, LocalDate date, ArrayList<String> filesAffected) {
+			String fixedVers=String.valueOf(fromReleaseIndexToDate.size());
+			for (int i = 0; i < tickets.size(); i++) {
+				if(ticketsWithoutAV.get(i).getKey().equals(bug)) {
+					//se è la prima versione
+					if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+						fixedVers= String.valueOf(2);
+					}
+					else {
+						for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+							if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+									&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+											(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+								fixedVers= String.valueOf(a+2);
+								break;
+							}
+						}
+
+					}
+					ticketsWithoutAV.get(i).setFixedVersion(fixedVers);
+					ticketsWithoutAV.get(i).setFilenames(filesAffected);
+					break;
+
+				}
+			}
+			
 		}
 
 		private void setFixedVersion(String bug,LocalDate date,ArrayList<String> filesAffected) {
@@ -1483,6 +1488,7 @@ public class Main {
 	}
 
 	private static void doDeliverable1() throws IOException, JSONException {
+		List<String> ticketIDList;
 		Integer j = 0;
 		Integer i = 0;
 		Integer total = 1;
