@@ -73,8 +73,8 @@ public class Main {
 	public static Map<LocalDateTime, String> releaseNames;
 	public static Map<LocalDateTime, String> releaseID;
 	public static List<LocalDateTime> releases;
-	public static Map<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<String,LocalDateTime>();
-	public static Map<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
+	private static Map<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<>();
+	private static Map<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
 	public static Integer numVersions;
 	public static List<String> fileNameOfFirstHalf;
 	public static List<LineOfDataset> arrayOfEntryOfDataset;
@@ -90,7 +90,7 @@ public class Main {
 	private static boolean ticketWithoutAV= false;
 
 	private static String outname;
-	private static final String ECHO = "echo"; 
+	private static final String ECHO = "echo "; 
 
 	//--------------------------
 
