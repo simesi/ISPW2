@@ -331,7 +331,6 @@ public class Main {
 				filename=nextLine;
 				//potrebbero venire introdotti delle righe vuote o con solo '*'
 				if(!filename.contains("*")&&!filename.contains(" ")) {
-					//System.out.println("filename ="+filename);
 					filesAffected.add(filename);
 				}							
 				nextLine =br.readLine();
@@ -357,6 +356,12 @@ public class Main {
 					}
 					else {
 						for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+							
+							if(a==fromReleaseIndexToDate.size()) {
+								fixedVers= String.valueOf(a);
+								break;
+							}
+							
 							if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
 									&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 											(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
@@ -385,14 +390,7 @@ public class Main {
 						//System.out.println("fixed version ="+fixedVers);
 					}
 					else {
-						for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-							if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-									&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-											(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-								fixedVers= String.valueOf(a+2);
-								break;
-							}
-						}
+						     fixedVers=iterateForFixVersion(date);
 					}
 
 					tickets.get(i).setFixedVersion(fixedVers);
@@ -401,6 +399,25 @@ public class Main {
 				}
 			}
 			
+		}
+
+		private String iterateForFixVersion(LocalDate date) {
+						
+			for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+				
+				if(a==fromReleaseIndexToDate.size()) {
+					return String.valueOf(a);
+					
+				}
+				
+				if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+						&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+								(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+					return String.valueOf(a+2);
+					
+				}
+			}
+			return String.valueOf(fromReleaseIndexToDate.size());
 		}
 
 		private void calculatingNauth(String line, BufferedReader br) throws IOException {
