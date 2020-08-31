@@ -86,7 +86,7 @@ public class Main {
 	private static boolean gettingLastCommit=false;
 	private static boolean ticketWithAV= false;
 	private static boolean ticketWithoutAV= false;
-	
+
 	private static final String ECHO = "echo "; 
 	private static final String FIELDS ="fields";
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
@@ -245,7 +245,7 @@ public class Main {
 						collectDataDeliverable1(line);
 					}
 					else if (searchingForDateOfCreation) {
-                               gettingDateOfCreation(line,br);
+						gettingDateOfCreation(line,br);
 					}
 
 					else if (calculatingLOC) {
@@ -263,13 +263,13 @@ public class Main {
 
 					}
 					else if (gettingLastCommit) {
-						
+
 						gettingLastCommit(line,br);
-						
+
 					}
 
 					else {
-						
+
 					}
 				}
 
@@ -296,10 +296,10 @@ public class Main {
 				fromFileNameToDateOfCreation.put(file,dateTime);
 				//le date ulteriori vengono ignorate
 				while((line = br.readLine())!=null) {
-                       //si ignorano le date ulteriori
+					//si ignorano le date ulteriori
 				}
 			}
-			
+
 		}
 
 		private void gettingLastCommit(String line, BufferedReader br) throws IOException {
@@ -389,8 +389,8 @@ public class Main {
 					}
 				}
 			}
-		
-			
+
+
 		}
 
 		private void calculatingNauth(String line, BufferedReader br) throws IOException {
@@ -425,7 +425,7 @@ public class Main {
 				}
 
 			}
-			
+
 		}
 
 		private void calculatingLoc(String line, BufferedReader br) throws IOException {
@@ -487,7 +487,7 @@ public class Main {
 			arrayOfEntryOfDataset.add(l);
 
 			return;//fa uscire dal while principale
-			
+
 		}
 
 		private void calculatingLocTouched(String line,BufferedReader br) throws IOException {
@@ -501,7 +501,7 @@ public class Main {
 			int maxAddedlines=0;
 			int average=0;
 			String filename="";
-			
+
 			line=line.trim();
 			String[] tokens = line.split("\\s+");
 
@@ -559,7 +559,7 @@ public class Main {
 					break;
 				}
 			}
-			
+
 		}
 
 		private void collectDataDeliverable1(String line) {
@@ -570,7 +570,7 @@ public class Main {
 				//get month and year
 				yearsList.add(line.substring(0, 7));
 			}
-			
+
 		}
 	}
 
@@ -646,7 +646,6 @@ public class Main {
 			releases.add(dateTime);
 		releaseNames.put(dateTime, name);
 		releaseID.put(dateTime, id);
-		return;
 	}
 
 	//passando una pathname se ne ricostruisce la data di creazione
@@ -689,21 +688,22 @@ public class Main {
 				searchFileJava(f, result);
 			}
 
-			if (f.isFile()) {
-				//si prendono solo i file java
-				if (f.getName().matches(".*\\.java")) {
+			//si prendono solo i file java
+			if (f.isFile()&&f.getName().matches(".*\\.java")) {
 
-					fileRenamed=f.getAbsolutePath();
-					//discard of the local prefix to the file name (that depends to this program)
 
-					fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+projectName)+"\\").toString(), "");
-					//System.out.println(s);
-					//ci si costruisce una HashMap con la data di creazione dei file java
 
-					//il comando git log prende percorsi con la '/'
-					fileRenamed= fileRenamed.replace("\\", "/");
-					result.add(fileRenamed);
-				}
+				fileRenamed=f.getAbsolutePath();
+				//discard of the local prefix to the file name (that depends to this program)
+
+				fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+projectName)+"\\").toString(), "");
+				//System.out.println(s);
+				//ci si costruisce una HashMap con la data di creazione dei file java
+
+				//il comando git log prende percorsi con la '/'
+				fileRenamed= fileRenamed.replace("\\", "/");
+				result.add(fileRenamed);
+
 			}
 		}
 	}
@@ -943,11 +943,11 @@ public class Main {
 
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
-//
-//	
-//
-//		//-------------------------------------------------------------------------------------------------
-//		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
+		//
+		//	
+		//
+		//		//-------------------------------------------------------------------------------------------------
+		//		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
 		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
 		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
@@ -1078,7 +1078,7 @@ public class Main {
 					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created,versions&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
-		
+
 
 			json = readJsonFromUrl(url);
 			issues = json.getJSONArray("issues");
@@ -1094,8 +1094,8 @@ public class Main {
 			TicketTakenFromJIRA tick;
 			String affVersReleaseDate="";
 
-			
-			
+
+
 			// si itera sul numero di ticket
 			for (; i < total && i < j; i++) {
 
