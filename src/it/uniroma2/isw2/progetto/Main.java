@@ -860,11 +860,8 @@ public class Main {
 	//--------------------------------------
 
 	public static void main(String[] args) throws IOException, JSONException {
-		Integer j = 0;
+		
 		Integer i = 0;
-		Integer total = 1;
-		JSONObject json ;
-		JSONArray issues;
 		String outname;
 
 		doDeliverable1();
@@ -884,72 +881,8 @@ public class Main {
          setBuggy();
 		
          startToGetFixedVersWithoutAV();
-		
-
-		//ora si calcola la fixed version
-		gettingLastCommit=true;
-		ticketWithoutAV=true;
-		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
-			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
-			try {
-
-				getLastCommitOfBug(ticket.getKey());
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
-			}
-
-		}
-
-		gettingLastCommit=false;
-		ticketWithoutAV=false;
-
-		//rimuovo ticket senza file java o IV e OV inconsistenti
-		ArrayList<TicketTakenFromJIRA> ticketsWithoutAVToDelete = new ArrayList<TicketTakenFromJIRA>();	
-
-		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
-			if((ticket.getCreatedVersion()==null)
-					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
-
-				ticketsWithoutAVToDelete.add(ticket);
-			}
-		}
-
-		int p;
-		//si eliminano i ticket selezionati prima
-		for (TicketTakenFromJIRA ticket : ticketsWithoutAVToDelete) {
-			ticketsWithoutAV.remove(ticket);
-		}
-		ticketsWithoutAVToDelete.clear();
-
-		int predictedInjectedVersion;
-		//set della bugginess per i file dei ticket presi da JIRA
-		for (TicketTakenFromJIRA tick : ticketsWithoutAV) {
-
-			p=computeP(Integer.parseInt(tick.getFixedVersion()));
-			predictedInjectedVersion=(Integer.parseInt(tick.getFixedVersion())-(Integer.parseInt(tick.getFixedVersion())
-					-Integer.parseInt(tick.getCreatedVersion()))*p);
-
-			//per ogni file ritenuto buggy da quel ticket
-			for (String file : tick.getFilenames()) {
-				//cerca la inea giusta da scrivere
-				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
-					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
-							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
-							&&arrayOfEntryOfDataset.get(i).getVersion()>= predictedInjectedVersion) {
-
-						arrayOfEntryOfDataset.get(i).setBuggy("YES");
-
-					}
-
-				}
-			}
-
-		}
-
-		ticketsWithoutAV.clear();
-		tickets.clear();
+		 checkFixedVersWithoutAV();
+         setBuggyWithoutAV();		 
 
 
 		FileWriter fileWriter=null;
@@ -1161,6 +1094,84 @@ public class Main {
 
 
 		return;
+	}
+
+	private static void setBuggyWithoutAV() {
+		 
+		 int i;
+        
+		int predictedInjectedVersion;
+		int p;
+		//set della bugginess per i file dei ticket presi da JIRA
+		for (TicketTakenFromJIRA tick : ticketsWithoutAV) {
+
+			p=computeP(Integer.parseInt(tick.getFixedVersion()));
+			predictedInjectedVersion=(Integer.parseInt(tick.getFixedVersion())-(Integer.parseInt(tick.getFixedVersion())
+					-Integer.parseInt(tick.getCreatedVersion()))*p);
+
+			//per ogni file ritenuto buggy da quel ticket
+			for (String file : tick.getFilenames()) {
+				//cerca la inea giusta da scrivere
+				for (i=0;i< arrayOfEntryOfDataset.size();i++) {
+					if (arrayOfEntryOfDataset.get(i).getFileName().equals(file)
+							&&(arrayOfEntryOfDataset.get(i).getVersion()<Integer.parseInt(tick.getFixedVersion()))
+							&&arrayOfEntryOfDataset.get(i).getVersion()>= predictedInjectedVersion) {
+
+						arrayOfEntryOfDataset.get(i).setBuggy("YES");
+
+					}
+
+				}
+			}
+
+		}
+
+		ticketsWithoutAV.clear();
+		tickets.clear();
+
+		
+	}
+
+	private static void checkFixedVersWithoutAV() throws IOException {
+
+		//ora si calcola la fixed version
+		gettingLastCommit=true;
+		ticketWithoutAV=true;
+		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
+			//ora si prendono i commit su GIT associati a quei bug per ottenere la fixed version
+			try {
+
+				getLastCommitOfBug(ticket.getKey());
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				Thread.currentThread().interrupt();
+			}
+
+		}
+
+		gettingLastCommit=false;
+		ticketWithoutAV=false;
+
+		//rimuovo ticket senza file java o IV e OV inconsistenti
+		ArrayList<TicketTakenFromJIRA> ticketsWithoutAVToDelete = new ArrayList<>();	
+
+		for (TicketTakenFromJIRA ticket : ticketsWithoutAV) {
+			if((ticket.getCreatedVersion()==null)
+					||(ticket.getFixedVersion()==null)||ticket.getFilenames().size()==0){
+
+				ticketsWithoutAVToDelete.add(ticket);
+			}
+		}
+
+		
+		//si eliminano i ticket selezionati prima
+		for (TicketTakenFromJIRA ticket : ticketsWithoutAVToDelete) {
+			ticketsWithoutAV.remove(ticket);
+		}
+		ticketsWithoutAVToDelete.clear();
+
+		
 	}
 
 	private static void startToGetFixedVersWithoutAV() throws JSONException, IOException {
