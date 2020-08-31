@@ -881,7 +881,7 @@ public class Main {
          startToGetFixedVersWithAV();
          setBuggy();
 		
-         startToGetFixedVersWithoutAV();
+         startToGetCreatedVersWithoutAV();
 		 checkFixedVersWithoutAV();
          setBuggyWithoutAV();		 
 
@@ -915,8 +915,8 @@ public class Main {
 
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
 
-		for(i=2;i<=(Math.floorDiv(releases.size(),2));i++) {
-			//for(i=2;i<=Math.floorDiv(14,2);i++) { //commenta questa linea e metti quella di sopra
+		for(i=2;i<=(Math.floorDiv(releases.size(),2));i++) {//modifica questa linea se Milestone 1 non è stata eseguita
+			
 			FileWriter fileWriterTrain=null;
 			FileWriter fileWriterTest=null;
 			try {
@@ -1028,21 +1028,15 @@ public class Main {
 		w.doClassificationMilestone2(i, projectName);
 
 
-
-
-
 		//--------------------------------------------------------------------------------
 		//inizio ultima milestone Deliverable 2 
 
-
-
 		w.doClassificationMilestone3(i, projectName);
 
-
-
-
-		return;
 	}
+	
+	
+	
 
 	private static void writeResult() {
 		   String outname = projectName + " Deliverable 2 Milestone 1.csv";
@@ -1169,7 +1163,7 @@ public class Main {
 		
 	}
 
-	private static void startToGetFixedVersWithoutAV() throws JSONException, IOException {
+	private static void startToGetCreatedVersWithoutAV() throws JSONException, IOException {
 		Integer j=0;
 		Integer total=1;
 		JSONObject json ;
@@ -1221,22 +1215,7 @@ public class Main {
 					createdVers= String.valueOf(1);
 				}
 				else {
-					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-
-						//abbiamo raggiunto nel for l'ultima release
-						if(a==fromReleaseIndexToDate.size()) {
-							createdVers= String.valueOf(a);
-							break;
-						}
-
-						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-							createdVers= String.valueOf(a+1);
-
-							break;
-						}
-					}
+				   createdVers= finalizeGetCreatedVersionWithoutAv(date);
 				}
 
 				tick= new TicketTakenFromJIRA(key, createdVers, null);
@@ -1246,6 +1225,27 @@ public class Main {
 		} while (i < total);
 
 		
+	}
+
+	private static String finalizeGetCreatedVersionWithoutAv(LocalDate date) {
+		String createdVers;
+		for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+
+			//abbiamo raggiunto nel for l'ultima release
+			if(a==fromReleaseIndexToDate.size()) {
+				return createdVers= String.valueOf(a);
+				
+			}
+
+			else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+					&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+							(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+				return createdVers= String.valueOf(a+1);
+
+				
+			}
+		}
+		return createdVers= String.valueOf(fromReleaseIndexToDate.size());
 	}
 
 	private static void setBuggy() {
