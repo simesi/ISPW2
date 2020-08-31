@@ -49,9 +49,6 @@ public class Weka {
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
 	public void doClassificationMilestone2(int maxVersion, String projectName) {
 
-		String myClassificator=null;
-		Evaluation eval = null;
-		DecimalFormat numberFormat = new DecimalFormat("0.00");
 
 		for(int version=2;version<=maxVersion;version++) {
 
@@ -122,7 +119,7 @@ public class Weka {
 				Instances training = source1.getDataSet();
 
 				DataSource source2 = new DataSource(arffNameFileTest);
-				Instances testing = source2.getDataSet();
+				testing = source2.getDataSet();
 
 				int numAttr = training.numAttributes();
 				training.setClassIndex(numAttr - 1); //leviamo 1 perchè l'ultima colonna la vogliamo stimare 
@@ -261,7 +258,7 @@ public class Weka {
 	private void classifyAndWrite(int n,int balancing,int fs,int version) {
 
 
-			startClassificator(fs,balancing,version,n);
+			startClassificator(fs,balancing,n);
 
 		//--------------------------------------------------------------
 		//ora si scrive file csv coi risultati
@@ -319,7 +316,7 @@ public class Weka {
 	}
 
 
-	private void startClassificator(int fs,int balancing,int version,int n) {
+	private void startClassificator(int fs,int balancing,int n) {
 
 
 
@@ -328,14 +325,14 @@ public class Weka {
 			//NaiveBayes---------------
 			NaiveBayes classifier = new NaiveBayes(); //scelgo come classificatore il naive bayes
 			myClassificator ="NaiveBayes";
-			classify(classifier, fs, balancing, version, n);
+			classify(classifier, fs, balancing);
 		}
 
 		else if (n==2) {
 			//RandomForest---------------
 			RandomForest classifier = new RandomForest(); //scelgo come classificatore RandomForest
 			myClassificator ="RandomForest";
-			classify(classifier, fs, balancing, version, n);
+			classify(classifier, fs, balancing);
 		}
 
 		else {
@@ -343,7 +340,7 @@ public class Weka {
 			myClassificator ="IBk";
 			IBk classifier = new IBk(); //scelgo come classificatore Ibk
 
-			classify(classifier, fs, balancing, version, n);
+			classify(classifier, fs, balancing );
 		}
 
 
@@ -354,7 +351,7 @@ public class Weka {
 	}
 
 
-	private void classify(Classifier classifier,int fs,int balancing,int version,int n) {
+	private void classify(Classifier classifier,int fs,int balancing) {
 
 		try {
 
