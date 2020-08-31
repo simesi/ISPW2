@@ -482,10 +482,9 @@ public class Main {
 			l.setNR(numberOfCommit);
 			l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
 			l.setMaxChurn(maxChurn);
-			if (numberOfCommit!=0) { 
+			
 				l.setAVGChurn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
-			}
-			else {l.setAVGChurn(0);}
+			
 			arrayOfEntryOfDataset.add(l);
 
 		}
