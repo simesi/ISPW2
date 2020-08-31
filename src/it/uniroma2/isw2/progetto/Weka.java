@@ -1,13 +1,10 @@
 package it.uniroma2.isw2.progetto;
-import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.text.DecimalFormat;
 
 import weka.attributeSelection.CfsSubsetEval;
@@ -24,16 +21,12 @@ import weka.filters.supervised.instance.SpreadSubsample;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
-import weka.classifiers.evaluation.*;
 import weka.classifiers.lazy.IBk;
 
 
 public class Weka {
 
 
-
-
-	public Weka() {}
 
 
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
