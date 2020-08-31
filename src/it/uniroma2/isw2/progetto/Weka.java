@@ -29,11 +29,6 @@ public class Weka {
 	private static final String TRAINING_FOR_RELEASE =" Training for Release "; 
 	private static final String TESTING_FOR_RELEASE =" Testing for Release ";
 	private static final String ARFF=".arff";
-	
-	
-	
-	
-	
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
 	public void doClassificationMilestone2(int maxVersion, String projectName) {
 
