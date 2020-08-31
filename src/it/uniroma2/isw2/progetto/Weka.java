@@ -43,6 +43,7 @@ public class Weka {
 	Resample resample = null;
 	DecimalFormat numberFormat = new DecimalFormat("0.00");
 	String myClassificator=null;
+	int writeHeader=1;
 
 
 
@@ -259,12 +260,17 @@ public class Weka {
 				FileWriter fileWriter = new FileWriter(name,true);
 				)
 		{
-			fileWriter.append("Dataset,#Training Release,%Training,%Defective in training,"
-					+ "%Defective in testing,classifier,balancing,Feature Selection,TP,FP,TN,FN,"
+			if(writeHeader==1) {
+				fileWriter.append("Dataset,#Training Release,%Training,%Defective in training,"
+								+ "%Defective in testing,classifier,balancing,Feature Selection,TP,FP,TN,FN,"
 					+ "Precision,Recall,ROC Area, Kappa");
 
 			fileWriter.append("\n");
+			writeHeader--;
 
+			}
+			
+			
 			fileWriter.append(projectName);
 			fileWriter.append(",");
 			fileWriter.append(String.valueOf(version-1));
