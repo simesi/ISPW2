@@ -1395,7 +1395,13 @@ public class Main {
 				if(a==fromReleaseIndexToDate.size()) {
 					createdVers= String.valueOf(a);
                     affVers=getAffVers(affReleaseDate);
-					break;
+                    
+                  //check su opening version e affected version
+            		if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
+            			tick= new TicketTakenFromJIRA(key, createdVers, affVers);
+            			tickets.add(tick);
+            		}
+					return;
 
 				}
 				else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
@@ -1404,7 +1410,7 @@ public class Main {
 					createdVers= String.valueOf(a+1);
 
 					affVers= getAffVers(affReleaseDate);
-					a=fromReleaseIndexToDate.size()+1;//per uscire dal for
+					break;//per uscire dal for
 				}
 			}
 		}
