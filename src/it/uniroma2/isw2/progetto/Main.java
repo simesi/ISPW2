@@ -346,7 +346,7 @@ public class Main {
 		}
 
 		private void setFixVersionWithoutAv(String bug, LocalDate date, ArrayList<String> filesAffected) {
-			String fixedVers=String.valueOf(fromReleaseIndexToDate.size());
+			String fixedVers;
 			for (int i = 0; i < tickets.size(); i++) {
 				if(ticketsWithoutAV.get(i).getKey().equals(bug)) {
 					//se è la prima versione
@@ -367,13 +367,12 @@ public class Main {
 		}
 
 		private void setFixedVersion(String bug,LocalDate date,ArrayList<String> filesAffected) {
-			String fixedVers=String.valueOf(fromReleaseIndexToDate.size());
+			String fixedVers;
 			for (int i = 0; i < tickets.size(); i++) {
 				if(tickets.get(i).getKey().equals(bug)) {
 					//se è la prima versione
 					if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
 						 fixedVers= String.valueOf(2);
-						//System.out.println("fixed version ="+fixedVers);
 					}
 					else {
 						     fixedVers=iterateForFixVersion(date);
@@ -499,8 +498,6 @@ public class Main {
 			else {l.setAVGChurn(0);}
 			arrayOfEntryOfDataset.add(l);
 
-			return;//fa uscire dal while principale
-
 		}
 
 		private void calculatingLocTouched(String line,BufferedReader br) throws IOException {
@@ -549,9 +546,17 @@ public class Main {
 				return;
 			}  
 
+		             settingAvgLoc(version,filename,addedLines,deletedLines,maxAddedlines,addedLinesForEveryRevision,
+		            		 total,average);
+
+		}
+
+		private void settingAvgLoc(String version,String filename,int addedLines,int deletedLines,int maxAddedlines,ArrayList<Integer> addedLinesForEveryRevision
+				,int total,int average) {
 			//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
 			for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) {  
-				if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& arrayOfEntryOfDataset.get(i).getFileName().equals(filename)) {
+				if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& 
+						arrayOfEntryOfDataset.get(i).getFileName().equals(filename)) {
 					arrayOfEntryOfDataset.get(i).setLOCTouched(addedLines+deletedLines);
 					arrayOfEntryOfDataset.get(i).setMAXLOCAdded(maxAddedlines);
 
@@ -572,7 +577,6 @@ public class Main {
 					break;
 				}
 			}
-
 		}
 
 		private void collectDataDeliverable1(String line) {
