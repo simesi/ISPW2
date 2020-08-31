@@ -64,7 +64,6 @@ public class Main {
 	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura del control chart un anno
 
 	private static ArrayList<String> yearsList;
-	private static boolean storeData=false;
 	private static boolean startToExecDeliverable2=false;
 
 	//--------------------------
@@ -244,10 +243,10 @@ public class Main {
 
 
 				while ((line = br.readLine()) != null) {
-					if(storeData&&(!startToExecDeliverable2)) {
+					if(!startToExecDeliverable2) {
 						collectDataDeliverable1(line);
 					}
-					else if (storeData&&startToExecDeliverable2&&searchingForDateOfCreation) {
+					else if (startToExecDeliverable2&&searchingForDateOfCreation) {
 
 						//levo l'ultimo carattere introdotto (per errore) nel replace a monte
 						String file = line.substring(0, line.length()-1);
@@ -267,7 +266,7 @@ public class Main {
 						}
 					}
 
-					else if (storeData&&startToExecDeliverable2&&calculatingLOC) {
+					else if (startToExecDeliverable2&&calculatingLOC) {
 
 						String nextLine;
 						String version;
@@ -326,7 +325,7 @@ public class Main {
 						break;//fa uscire dal while principale
 					}
 
-					else if (storeData&&startToExecDeliverable2&&calculatingLocTouched) {
+					else if (startToExecDeliverable2&&calculatingLocTouched) {
 						String version;
 						ArrayList<Integer> addedLinesForEveryRevision=new ArrayList<Integer>();
 						String nextLine;
@@ -396,7 +395,7 @@ public class Main {
 
 					}
 
-					else if (storeData&&startToExecDeliverable2&&calculatingNAuth) {
+					else if (startToExecDeliverable2&&calculatingNAuth) {
 
 						String nextLine;
 						int version;
@@ -430,7 +429,7 @@ public class Main {
 						}
 
 					}
-					else if (storeData&&startToExecDeliverable2&&gettingLastCommit) {
+					else if (startToExecDeliverable2&&gettingLastCommit) {
 						String nextLine;
 						ArrayList<String> filesAffected = new ArrayList<String>();
 						line=line.trim();
@@ -859,8 +858,6 @@ public class Main {
 		try {
 			gitClone();	
 
-			//abilito il salvataggio dei valori ottenuti dalla riga di output del processo che eseguirà il git log
-			storeData=true;
 			for ( i = 0; i < ticketIDList.size(); i++) {
 				myID=ticketIDList.get(i);
 				gitLogOfBug(myID);
@@ -925,7 +922,6 @@ public class Main {
 		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
 		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
 		startToExecDeliverable2=true;
-		storeData=false;
 
 		//Fills the arraylist with releases dates and orders them
 		//Ignores releases with missing dates
@@ -988,7 +984,6 @@ public class Main {
 			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
 		}
 
-		storeData=true;
 		searchingForDateOfCreation = true;
 
 
