@@ -75,11 +75,10 @@ public class Main {
 	public static List<LocalDateTime> releases;
 	private static Map<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<>();
 	private static Map<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
-	public static Integer numVersions;
-	public static List<String> fileNameOfFirstHalf;
-	public static List<LineOfDataset> arrayOfEntryOfDataset;
-	public static List<TicketTakenFromJIRA> tickets;
-	public static List<TicketTakenFromJIRA> ticketsWithoutAV;
+	private static List<String> fileNameOfFirstHalf;
+	private static List<LineOfDataset> arrayOfEntryOfDataset;
+	private static List<TicketTakenFromJIRA> tickets;
+	private static List<TicketTakenFromJIRA> ticketsWithoutAV;
 
 	public static boolean searchingForDateOfCreation = false;
 	private static boolean calculatingLOC=false;
