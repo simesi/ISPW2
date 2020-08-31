@@ -280,90 +280,9 @@ public class Main {
 
 					}
 					else if (gettingLastCommit) {
-						String nextLine;
-						ArrayList<String> filesAffected = new ArrayList<String>();
-						line=line.trim();
-						String fixedVers=null;
-						String[] tokens = line.split("\\s+");
-						String bug= tokens[0];
-						//System.out.println("bug ="+bug);
-						//ora prendo la data dell'ultimo commit
-						nextLine =br.readLine();
-
-						//non c'è un commit con questo id quindi non scrivo nulla
-						if(nextLine==null) {
-							break;
-						}
-						nextLine=nextLine.trim();
-
-						//prendo anno mese e giorno dell'ultimo commit
-						LocalDate date =LocalDate.parse(nextLine.substring(0, 10));
-						//System.out.println("data ="+date);
-						//ora prendo i file modificati aventi quel bug nel commento del commit 
-						nextLine =br.readLine();
-
-						while(nextLine != null) {
-							nextLine=nextLine.trim();
-							filename=nextLine;
-							//potrebbero venire introdotti delle righe vuote o con solo '*'
-							if(!filename.contains("*")&&!filename.contains(" ")) {
-								//System.out.println("filename ="+filename);
-								filesAffected.add(filename);
-							}							
-							nextLine =br.readLine();
-						}
-
-						if(ticketWithAV) {
-							for (int i = 0; i < tickets.size(); i++) {
-								if(tickets.get(i).getKey().equals(bug)) {
-									//se è la prima versione
-									if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-										fixedVers= String.valueOf(2);
-										//System.out.println("fixed version ="+fixedVers);
-									}
-									else {
-										for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-											if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-													&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-															(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-												fixedVers= String.valueOf(a+2);
-												//System.out.println("fixed version ="+fixedVers);
-												break;
-											}
-										}
-									}
-
-									tickets.get(i).setFixedVersion(fixedVers);
-									tickets.get(i).setFilenames(filesAffected);
-									break;
-								}
-							}
-						}
-						else if(ticketWithoutAV) {
-							for (int i = 0; i < tickets.size(); i++) {
-								if(ticketsWithoutAV.get(i).getKey().equals(bug)) {
-									//se è la prima versione
-									if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-										fixedVers= String.valueOf(2);
-									}
-									else {
-										for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-											if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-													&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-															(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-												fixedVers= String.valueOf(a+2);
-												break;
-											}
-										}
-
-									}
-									ticketsWithoutAV.get(i).setFixedVersion(fixedVers);
-									ticketsWithoutAV.get(i).setFilenames(filesAffected);
-									break;
-
-								}
-							}
-						}
+						
+						gettingLastCommit(line,br);
+						
 					}
 
 					else {
@@ -377,6 +296,97 @@ public class Main {
 
 			}
 
+		}
+
+		private void gettingLastCommit(String line, BufferedReader br) throws IOException {
+
+			String nextLine;
+			String filename="";
+			ArrayList<String> filesAffected = new ArrayList<String>();
+			line=line.trim();
+			String fixedVers=null;
+			String[] tokens = line.split("\\s+");
+			String bug= tokens[0];
+			//System.out.println("bug ="+bug);
+			//ora prendo la data dell'ultimo commit
+			nextLine =br.readLine();
+
+			//non c'è un commit con questo id quindi non scrivo nulla
+			if(nextLine==null) {
+				return;
+			}
+			nextLine=nextLine.trim();
+
+			//prendo anno mese e giorno dell'ultimo commit
+			LocalDate date =LocalDate.parse(nextLine.substring(0, 10));
+			//System.out.println("data ="+date);
+			//ora prendo i file modificati aventi quel bug nel commento del commit 
+			nextLine =br.readLine();
+
+			while(nextLine != null) {
+				nextLine=nextLine.trim();
+				filename=nextLine;
+				//potrebbero venire introdotti delle righe vuote o con solo '*'
+				if(!filename.contains("*")&&!filename.contains(" ")) {
+					//System.out.println("filename ="+filename);
+					filesAffected.add(filename);
+				}							
+				nextLine =br.readLine();
+			}
+
+			if(ticketWithAV) {
+				for (int i = 0; i < tickets.size(); i++) {
+					if(tickets.get(i).getKey().equals(bug)) {
+						//se è la prima versione
+						if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+							fixedVers= String.valueOf(2);
+							//System.out.println("fixed version ="+fixedVers);
+						}
+						else {
+							for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+								if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+										&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+												(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+									fixedVers= String.valueOf(a+2);
+									//System.out.println("fixed version ="+fixedVers);
+									break;
+								}
+							}
+						}
+
+						tickets.get(i).setFixedVersion(fixedVers);
+						tickets.get(i).setFilenames(filesAffected);
+						break;
+					}
+				}
+			}
+			else if(ticketWithoutAV) {
+				for (int i = 0; i < tickets.size(); i++) {
+					if(ticketsWithoutAV.get(i).getKey().equals(bug)) {
+						//se è la prima versione
+						if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+							fixedVers= String.valueOf(2);
+						}
+						else {
+							for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+								if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+										&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+												(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+									fixedVers= String.valueOf(a+2);
+									break;
+								}
+							}
+
+						}
+						ticketsWithoutAV.get(i).setFixedVersion(fixedVers);
+						ticketsWithoutAV.get(i).setFilenames(filesAffected);
+						break;
+
+					}
+				}
+			}
+		
+			
 		}
 
 		private void calculatingNauth(String line, BufferedReader br) throws IOException {
