@@ -709,7 +709,7 @@ public class Weka {
 							fileWriter.append(String.valueOf(numberFormat.format(eval.kappa()).replace(',', '.')));
 							fileWriter.append("\n");
 							}
-							catch (Exception e) {
+							catch (IOException e) {
 								e.printStackTrace();
 								System.exit(-1); 
 							}
