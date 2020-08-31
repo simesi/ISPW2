@@ -26,27 +26,27 @@ import weka.classifiers.lazy.IBk;
 
 public class Weka {
 
-
-
+private final String TRAINING_FOR_RELEASE =" Training for Release "; 
+private final String TESTING_FOR_RELEASE =" Testing for Release ";
 
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
-	public void doClassificationMilestone2(int Maxversion, String ProjectName) {
+	public void doClassificationMilestone2(int maxVersion, String projectName) {
 
 		String myClassificator=null;
 		FileWriter fileWriter=null;
 		Evaluation eval = null;
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
 
-		for(int version=2;version<=Maxversion;version++) {
+		for(int version=2;version<=maxVersion;version++) {
 
-			String ARFFNAmeFileTrain = "";
-			String ARFFNAmeFileTest = "";
+			String arffNameFileTrain = "";
+			String arffNameFileTest = "";
 
 			//prima ci si crea un file arff da quello csv
 			try {
 				// load CSV
 				CSVLoader loader = new CSVLoader();
-				loader.setSource(new File(ProjectName+" Training for "+"Release "+version+".csv"));
+				loader.setSource(new File(projectName+TRAINING_FOR_RELEASE+version+".csv"));
 				Instances data = loader.getDataSet();
 
 				// save ARFF
@@ -54,10 +54,10 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				ARFFNAmeFileTrain = ProjectName+" Training for "+"Release "+version+".arff";
+				arffNameFileTrain = projectName+TRAINING_FOR_RELEASE+version+".arff";
 
 
-				saver.setFile(new File(ARFFNAmeFileTrain));
+				saver.setFile(new File(arffNameFileTrain));
 				saver.writeBatch();
 
 
@@ -73,7 +73,7 @@ public class Weka {
 			try {
 				// load CSV
 				CSVLoader loader = new CSVLoader();
-				loader.setSource(new File(ProjectName+" Testing for "+"Release "+version+".csv"));
+				loader.setSource(new File(projectName+TESTING_FOR_RELEASE+version+".csv"));
 				Instances data = loader.getDataSet();
 
 				// save ARFF
@@ -81,10 +81,10 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				ARFFNAmeFileTest = ProjectName +" Testing for "+"Release "+version+".arff";
+				arffNameFileTest = projectName +TESTING_FOR_RELEASE+version+".arff";
 
 
-				saver.setFile(new File(ARFFNAmeFileTest));
+				saver.setFile(new File(arffNameFileTest));
 				saver.writeBatch();
 
 			} catch (IOException e) {
@@ -98,10 +98,10 @@ public class Weka {
 
 			try {
 				//load datasets
-				DataSource source1 = new DataSource(ARFFNAmeFileTrain);
+				DataSource source1 = new DataSource(arffNameFileTrain);
 				Instances training = source1.getDataSet();
 
-				DataSource source2 = new DataSource(ARFFNAmeFileTest);
+				DataSource source2 = new DataSource(arffNameFileTest);
 				Instances testing = source2.getDataSet();
 
 				int numAttr = training.numAttributes();
@@ -148,7 +148,7 @@ public class Weka {
 					//se è la prima iterazione
 					if( fileWriter==null) {
 
-						String name = ProjectName+" Deliverable 2 Milestone 2.csv";
+						String name = projectName+" Deliverable 2 Milestone 2.csv";
 
 						//True = Append to file, false = Overwrite
 						fileWriter = new FileWriter(name,true);
@@ -156,7 +156,7 @@ public class Weka {
 						fileWriter.append("\n");
 					}
 
-					fileWriter.append(ProjectName);
+					fileWriter.append(projectName);
 					fileWriter.append(",");
 					fileWriter.append(String.valueOf(version-1));
 					fileWriter.append(",");
@@ -222,9 +222,9 @@ public class Weka {
 			for(int version=2;version<=Maxversion;version++) {
 
 
-				DataSource source = new DataSource(ProjectName +" Training for "+"Release "+version+".arff");
+				DataSource source = new DataSource(ProjectName +TRAINING_FOR_RELEASE+version+".arff");
 
-				DataSource source2 = new DataSource(ProjectName +" Testing for "+"Release "+version+".arff");
+				DataSource source2 = new DataSource(ProjectName +TESTING_FOR_RELEASE+version+".arff");
 
 				Instances noFilterTraining = source.getDataSet();
 				Instances testing = source2.getDataSet();
