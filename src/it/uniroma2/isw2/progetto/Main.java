@@ -558,7 +558,6 @@ public class Main {
 					if (total!=0) {
 						average = Math.floorDiv(addedLinesForEveryRevision.size(),total);
 					}
-					else average=0;
 					//--------------------------------------------------
 					arrayOfEntryOfDataset.get(i).setAVGLOCAdded(average);
 					arrayOfEntryOfDataset.get(i).setLOCAdded(total);
@@ -898,7 +897,7 @@ public class Main {
 			System.exit(-1);
 		}
 
-		BufferedReader csvReader;
+		
 
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
 
@@ -911,6 +910,7 @@ public class Main {
 
 			try (FileWriter fileWriterTrain= new FileWriter(csvTrain);
 					FileWriter fileWriterTest=new FileWriter(csvTest);
+					BufferedReader csvReader = new BufferedReader(new FileReader(outname));
 					){
 
 
@@ -920,7 +920,7 @@ public class Main {
 				fileWriterTest.append("Version,Size(LOC),LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
 				fileWriterTest.append("\n");
 
-				csvReader = new BufferedReader(new FileReader(outname));
+				
 				//si leva l'header
 				row=csvReader.readLine();
 				while ((row = csvReader.readLine()) != null) {
