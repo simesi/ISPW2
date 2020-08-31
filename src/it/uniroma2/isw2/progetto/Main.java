@@ -89,7 +89,7 @@ public class Main {
 	private static boolean ticketWithoutAV= false;
 
 	private static final String ECHO = "echo "; 
-	private static final String VERSIONS = VERSIONS;
+	private static final String VERSIONS = "versions";
 	private static final String FIELDS ="fields";
 	private static final String FORMATNUMSTAT= " --format= --numstat -- ";
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
@@ -878,108 +878,11 @@ public class Main {
 
            calculateSomeMetrics();
 	
+		  startToCalculateBugginess();
+
+
+
 		
-
-
-
-		//inizio operazioni per calcolo bugginess
-		tickets=new ArrayList<>();
-		j=0;
-		i=0;
-		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
-		do {
-			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-			j = i + 1000;
-
-			//%20 = spazio                      %22=virgolette
-			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
-			String url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-					+ "&fields=key,created,versions&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
-
-
-			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
-			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
-
-			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-			String createdVers=null;
-			String affVers=null;
-			LocalDate date;
-			LocalDate affReleaseDate;
-			TicketTakenFromJIRA tick;
-			String affVersReleaseDate="";
-
-
-
-			// si itera sul numero di ticket
-			for (; i < total && i < j; i++) {
-
-				String key = issues.getJSONObject(i%1000).get("key").toString();
-				String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
-
-				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
-
-				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).length();h++) {
-					if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).has("releaseDate")) {
-						//affVers è per es. 4.1.0
-						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).get("releaseDate").toString();
-						break;
-					}
-				}
-				//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
-				// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
-
-
-				date = LocalDate.parse(createdDate,format);
-				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
-				//se è la prima versione
-				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-					createdVers= String.valueOf(1);
-					affVers=String.valueOf(1);
-				}
-				else {
-					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-
-						//abbiamo raggiunto nel for l'ultima release
-						if(a==fromReleaseIndexToDate.size()) {
-							createdVers= String.valueOf(a);
-
-							for(int k=0;k<releases.size();k++) {
-								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-									affVers=String.valueOf(k+1);
-									break;
-								}
-							}
-							break;
-
-						}
-						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-							createdVers= String.valueOf(a+1);
-
-							for(int k=0;k<releases.size();k++) {
-								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-									affVers=String.valueOf(k+1);
-									break;
-								}
-							}
-							break;
-						}
-					}
-				}
-				//check su opening version e affected version
-				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
-					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
-					tickets.add(tick);
-				}
-			}  
-		} while (i < total);
 
 		gettingLastCommit=true;
 		ticketWithAV=true;
@@ -1385,6 +1288,112 @@ public class Main {
 		return;
 	}
 
+	private static void startToCalculateBugginess() throws JSONException, IOException {
+		
+		//inizio operazioni per calcolo bugginess
+				tickets=new ArrayList<>();
+				Integer j=0;
+				Integer total=1;
+				JSONObject json ;
+				JSONArray issues;
+				Integer i=0;
+				//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affectedVersion != null in the project
+				do {
+					//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+					j = i + 1000;
+
+					//%20 = spazio                      %22=virgolette
+					//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
+					String url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
+							+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+							+ "&fields=key,created,versions&startAt="
+							+ i.toString() + "&maxResults=" + j.toString();
+
+
+					json = readJsonFromUrl(url);
+					issues = json.getJSONArray("issues");
+					//ci si prende il numero totale di ticket recuperati
+					total = json.getInt("total");
+
+					DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+					String createdVers=null;
+					String affVers=null;
+					LocalDate date;
+					LocalDate affReleaseDate;
+					TicketTakenFromJIRA tick;
+					String affVersReleaseDate="";
+
+
+
+					// si itera sul numero di ticket
+					for (; i < total && i < j; i++) {
+
+						String key = issues.getJSONObject(i%1000).get("key").toString();
+						String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
+
+						//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
+
+						for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).length();h++) {
+							if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).has("releaseDate")) {
+								//affVers è per es. 4.1.0
+								affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).get("releaseDate").toString();
+								break;
+							}
+						}
+						//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
+						// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
+
+
+						date = LocalDate.parse(createdDate,format);
+						affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
+						//se è la prima versione
+						if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+							createdVers= String.valueOf(1);
+							affVers=String.valueOf(1);
+						}
+						else {
+							for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+
+								//abbiamo raggiunto nel for l'ultima release
+								if(a==fromReleaseIndexToDate.size()) {
+									createdVers= String.valueOf(a);
+
+									for(int k=0;k<releases.size();k++) {
+										if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+											affVers=String.valueOf(k+1);
+											break;
+										}
+									}
+									break;
+
+								}
+								else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+										&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+												(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+									createdVers= String.valueOf(a+1);
+
+									for(int k=0;k<releases.size();k++) {
+										if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+											affVers=String.valueOf(k+1);
+											break;
+										}
+									}
+									break;
+								}
+							}
+						}
+						//check su opening version e affected version
+						if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
+							tick= new TicketTakenFromJIRA(key, createdVers, affVers);
+							tickets.add(tick);
+						}
+					}  
+				} while (i < total);
+		
+	}
+
 	private static void calculateSomeMetrics() {
 		Integer i;
 		arrayOfEntryOfDataset= new ArrayList<LineOfDataset>();
@@ -1508,7 +1517,6 @@ public class Main {
 		Integer total = 1;
 		JSONObject json ;
 		JSONArray issues;
-		String outname;
 
 
 		//Get JSON API for closed bugs w/ AV in the project
