@@ -884,13 +884,13 @@ public class Main {
 		 checkFixedVersWithoutAV();
          setBuggyWithoutAV();		 
 
-
-		FileWriter fileWriter=null;
-		try {
-
-			outname = projectName + " Deliverable 2 Milestone 1.csv";
+         outname = projectName + " Deliverable 2 Milestone 1.csv";
 			//Name of CSV for output
-			fileWriter = new FileWriter(outname);
+		
+		try (FileWriter fileWriter = new FileWriter(outname)){
+
+			
+			
 			fileWriter.append("Version,File Name,Size(LOC), LOC_Touched,NR,NAuth,LOC_Added,MAX_LOC_Added,AVG_LOC_Added,Churn,MAX_Churn,AVG_Churn,Buggy");
 			fileWriter.append("\n");
 			for ( LineOfDataset line : arrayOfEntryOfDataset) {
@@ -926,15 +926,8 @@ public class Main {
 		} catch (Exception e) {
 			System.out.println("Error in csv writer");
 			e.printStackTrace();
-		} finally {
-			try {
-				fileWriter.flush();
-				fileWriter.close();
-			} catch (IOException e) {
-				System.out.println("Error while flushing/closing fileWriter !!!");
-				e.printStackTrace();
-			}
 		}
+		
 
 
 		//cancellazione directory clonata locale del progetto   
