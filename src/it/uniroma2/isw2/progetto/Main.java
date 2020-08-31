@@ -962,7 +962,12 @@ public class Main {
 		//--------------------------------------------------------------------------------
 		//inizio ultima milestone Deliverable 2 
 
-		w.doClassificationMilestone3(i, projectName);
+		try {
+			w.doClassificationMilestone3(i, projectName);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 

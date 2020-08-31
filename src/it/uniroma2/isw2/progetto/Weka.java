@@ -179,7 +179,7 @@ public class Weka {
 	}
 
 
-	public void doClassificationMilestone3(int maxversion, String projectName) {
+	public void doClassificationMilestone3(int maxversion, String projectName) throws Exception {
 
 
 		String myClassificator=null;
@@ -193,17 +193,7 @@ public class Weka {
 		Resample resample= null;
 		String name = projectName+" Deliverable 2 Milestone 3.csv";
 
-		try (
-				//True = Append to file, false = Overwrite
-				FileWriter fileWriter = new FileWriter(name,true);
-				)
-		{
-			fileWriter.append("Dataset,#Training Release,%Training,%Defective in training,"
-					+ "%Defective in testing,classifier,balancing,Feature Selection,TP,FP,TN,FN,"
-					+ "Precision,Recall,ROC Area, Kappa");
-
-			fileWriter.append("\n");
-
+	
 
 			for(int version=2;version<=maxversion;version++) {
 
@@ -671,6 +661,16 @@ public class Weka {
 
 							//--------------------------------------------------------------
 							//ora si scrive file csv coi risultati
+							try (
+									//True = Append to file, false = Overwrite
+									FileWriter fileWriter = new FileWriter(name,true);
+									)
+							{
+								fileWriter.append("Dataset,#Training Release,%Training,%Defective in training,"
+										+ "%Defective in testing,classifier,balancing,Feature Selection,TP,FP,TN,FN,"
+										+ "Precision,Recall,ROC Area, Kappa");
+
+								fileWriter.append("\n");
 
 
 
@@ -707,16 +707,21 @@ public class Weka {
 							fileWriter.append(String.valueOf(numberFormat.format(eval.kappa()).replace(',', '.')));
 							fileWriter.append("\n");
 
+							
+							}
+							catch (Exception e) {
+								e.printStackTrace();
+								System.exit(-1); 
+							}
+							
+							
+							
 						}//per ogni classificatore
 
 					}//per ogni sampling
 				}//per ogni fs
 			}//per ogni versione
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			System.exit(-1); 
-		}
+		
 
 
 
