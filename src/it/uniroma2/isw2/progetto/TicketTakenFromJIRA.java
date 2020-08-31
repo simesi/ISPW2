@@ -1,13 +1,14 @@
 package it.uniroma2.isw2.progetto;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TicketTakenFromJIRA {
      private String key;
      private String createdVersionIndex;
      private String affectedVersionIndex;
-     private String FixedVersion;
-     private ArrayList<String> filenames;
+     private String fixedVersion;
+     private List<String> filenames;
      
      
      
@@ -79,7 +80,7 @@ public class TicketTakenFromJIRA {
 	 * @return the fixedVersion
 	 */
 	public String getFixedVersion() {
-		return FixedVersion;
+		return fixedVersion;
 	}
 
 
@@ -88,7 +89,7 @@ public class TicketTakenFromJIRA {
 	 * @param fixedVersion the fixedVersion to set
 	 */
 	public void setFixedVersion(String fixedVersion) {
-		FixedVersion = fixedVersion;
+		fixedVersion = fixedVersion;
 	}
 
 
@@ -97,7 +98,7 @@ public class TicketTakenFromJIRA {
 	/**
 	 * @return the filenames
 	 */
-	public ArrayList<String> getFilenames() {
+	public List<String> getFilenames() {
 		return filenames;
 	}
 
@@ -107,7 +108,7 @@ public class TicketTakenFromJIRA {
 	/**
 	 * @param filenames the filenames to set
 	 */
-	public void setFilenames(ArrayList<String> filenames) {
+	public void setFilenames(List<String> filenames) {
 		this.filenames = filenames;
 	}
 
