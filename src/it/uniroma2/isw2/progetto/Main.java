@@ -94,7 +94,8 @@ public class Main {
 	private static final String FORMATNUMSTAT= " --format= --numstat -- ";
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
     private static final String PIECE_OF_URL_JIRA="%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR";
-	//--------------------------
+	private static final String SLASH="\\";
+    //--------------------------
 
 
 
@@ -1637,7 +1638,7 @@ public class Main {
 
 
 		//cancellazione directory clonata locale del progetto   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+		recursiveDelete(new File(new File("").getAbsolutePath()+SLASH+projectName));
 
 	}
 
