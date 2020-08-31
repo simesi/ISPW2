@@ -97,6 +97,8 @@ public class Main {
 	private static final String SLASH="\\";
 	private static final String MAX_RESULT="&maxResults=";
 	private static final String ISSUES= "issues";
+	private static final String TOTAL= "total"; 
+	private static final String FORMAT_DATE= "yyyy-MM-dd";
 	//--------------------------
 
 
@@ -1184,9 +1186,9 @@ public class Main {
 			json = readJsonFromUrl(url);
 			issues = json.getJSONArray(ISSUES);
 			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
+			total = json.getInt(TOTAL);
 
-			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			DateTimeFormatter format = DateTimeFormatter.ofPattern(FORMAT_DATE);
 
 			String createdVers=null;
 			LocalDate date;
@@ -1220,19 +1222,19 @@ public class Main {
 	}
 
 	private static String finalizeGetCreatedVersionWithoutAv(LocalDate date) {
-		String createdVers;
+		
 		for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
 
 			//abbiamo raggiunto nel for l'ultima release
 			if(a==fromReleaseIndexToDate.size()) {
-				return createdVers= String.valueOf(a);
+				return  String.valueOf(a);
 
 			}
 
 			else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
 					&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 							(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-				return createdVers= String.valueOf(a+1);
+				return  String.valueOf(a+1);
 
 
 			}
@@ -1330,9 +1332,9 @@ public class Main {
 			json = readJsonFromUrl(url);
 			issues = json.getJSONArray(ISSUES);
 			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
+			total = json.getInt(TOTAL);
 
-			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			DateTimeFormatter format = DateTimeFormatter.ofPattern(FORMAT_DATE);
 
 			String createdVers=null;
 			String affVers=null;
@@ -1548,7 +1550,7 @@ public class Main {
 			json = readJsonFromUrl(url);
 			issues = json.getJSONArray(ISSUES);
 			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
+			total = json.getInt(TOTAL);
 
 			ticketIDList= new ArrayList<>();
 			yearsList= new ArrayList<>();
@@ -1600,7 +1602,7 @@ public class Main {
 			// Copy all data from hashMap into TreeMap 
 			sorted.putAll(map); 
 
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(FORMAT_DATE);
 			DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
 
 			//si prende il primo e l'ultimo anno-mese ....
