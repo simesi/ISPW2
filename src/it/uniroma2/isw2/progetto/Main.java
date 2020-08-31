@@ -975,31 +975,22 @@ public class Main {
 
 
 	private static void writePieceOfCsv(FileWriter fileWriter,String[] entry) throws IOException {
-		fileWriter.append(entry[0]);
+		
+		for(int n=0;n<=12;n++) {
+		
+		if(n==1) {
+			continue;
+		}
+		
+		fileWriter.append(entry[n]);
+		if(n==12) {
+			fileWriter.append("\n");
+			return;
+		}
+		
 		fileWriter.append(",");
-		fileWriter.append(entry[2]);
-		fileWriter.append(",");
-		fileWriter.append(entry[3]);
-		fileWriter.append(",");
-		fileWriter.append(entry[4]);
-		fileWriter.append(",");
-		fileWriter.append(entry[5]);
-		fileWriter.append(",");
-		fileWriter.append(entry[6]);
-		fileWriter.append(",");
-		fileWriter.append(entry[7]);
-		fileWriter.append(",");
-		fileWriter.append(entry[8]);
-		fileWriter.append(",");
-		fileWriter.append(entry[9]);
-		fileWriter.append(",");
-		fileWriter.append(entry[10]);
-		fileWriter.append(",");
-		fileWriter.append(entry[11]);
-		fileWriter.append(",");
-		fileWriter.append(entry[12]);
-		fileWriter.append("\n");
-
+		
+		}
 		
 	}
 
