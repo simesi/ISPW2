@@ -29,6 +29,11 @@ public class Weka {
 	private static final String TRAINING_FOR_RELEASE =" Training for Release "; 
 	private static final String TESTING_FOR_RELEASE =" Testing for Release ";
 	private static final String ARFF=".arff";
+	private int numDefectiveTrain=0;
+	private int numDefectiveTest=0;
+	
+	
+	
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
 	public void doClassificationMilestone2(int maxVersion, String projectName) {
 
@@ -187,8 +192,6 @@ public class Weka {
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
 		int numAttrFiltered=0;
 		int numAttrNoFilter=0;
-		int numDefectiveTrain=0;
-		int numDefectiveTest=0;
 		int percentInstOfMajorityClass=0;
 		Resample resample= null;
 		String name = projectName+" Deliverable 2 Milestone 3.csv";
@@ -709,22 +712,22 @@ public class Weka {
 
 
 	private int calculateDefectiveInInstances(Instances train, Instances test, int numAttrFiltered) {
-		int numDefectiveTrain=0;
-		int numDefectiveTest=0;
+		 this.numDefectiveTrain=0;
+		 this.numDefectiveTest=0;
 
 		//ora si contano il numero di buggy nelle Instances
 		for(Instance instance: train){
 			if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
-				numDefectiveTrain++;
+				this.numDefectiveTrain++;
 			}
 		}
 		for(Instance instance: test){
 			if(instance.stringValue(numAttrFiltered-1).equals("YES")) {
-				numDefectiveTest++;
+				this.numDefectiveTest++;
 			}
 		}
 
-		return 2*Math.max(numDefectiveTrain/train.size(),1-numDefectiveTrain/train.size())*100;
+		return 2*Math.max(this.numDefectiveTrain/train.size(),1-this.numDefectiveTrain/train.size())*100;
 
 		
 	}
