@@ -372,17 +372,10 @@ public class Weka {
 				//undersampling
 				else if(balancing==3) {
 
-					resample = new Resample();
-					resample.setInputFormat(noFilterTraining);
 					FilteredClassifier fc = new FilteredClassifier();
-					fc.setClassifier(classifier);
-					SpreadSubsample  spreadSubsample = new SpreadSubsample();
-					String[] opts = new String[]{ "-M", "1.0"};
-					spreadSubsample.setOptions(opts);
-					fc.setFilter(spreadSubsample);
-					fc.buildClassifier(noFilterTraining);
-					eval =new Evaluation(testing);	
-					eval.evaluateModel(fc, testing);						               
+					resample = new Resample();
+					
+					 setUndersampling(fc,resample,classifier,fs);					               
 				}
 
 				else if(balancing==4) {
@@ -429,16 +422,8 @@ public class Weka {
 				else if(balancing==3) {
 
 					resample = new Resample();
-					resample.setInputFormat(noFilterTraining);
 					FilteredClassifier fc = new FilteredClassifier();
-					fc.setClassifier(classifier);
-					SpreadSubsample  spreadSubsample = new SpreadSubsample();
-					String[] opts = new String[]{ "-M", "1.0"};
-					spreadSubsample.setOptions(opts);
-					fc.setFilter(spreadSubsample);
-					fc.buildClassifier(filteredTraining);
-					eval =new Evaluation(testing);	
-					eval.evaluateModel(fc, testingFiltered);						               
+					 setUndersampling(fc,resample,classifier,fs);			               
 				}
 
 				else if(balancing==4) {
@@ -458,6 +443,40 @@ public class Weka {
 
 
 			}//fine fs
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private void setUndersampling(FilteredClassifier fc, Resample resample,Classifier classifier,int fs) {
+		
+		try {
+			if(fs==0) {
+		resample.setInputFormat(noFilterTraining);
+		fc.setClassifier(classifier);
+		SpreadSubsample  spreadSubsample = new SpreadSubsample();
+		String[] opts = new String[]{ "-M", "1.0"};
+		spreadSubsample.setOptions(opts);
+		fc.setFilter(spreadSubsample);
+		fc.buildClassifier(noFilterTraining);
+		eval =new Evaluation(testing);	
+		eval.evaluateModel(fc, testing);
+		
+			}
+			else {
+				resample.setInputFormat(noFilterTraining);
+				
+				fc.setClassifier(classifier);
+				SpreadSubsample  spreadSubsample = new SpreadSubsample();
+				String[] opts = new String[]{ "-M", "1.0"};
+				spreadSubsample.setOptions(opts);
+				fc.setFilter(spreadSubsample);
+				fc.buildClassifier(filteredTraining);
+				eval =new Evaluation(testing);	
+				eval.evaluateModel(fc, testingFiltered);	
+			}
+		
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
