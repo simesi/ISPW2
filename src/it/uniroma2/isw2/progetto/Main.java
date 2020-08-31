@@ -138,7 +138,7 @@ public class Main {
 
 	//questo metodo fa il comando'git log' del bug sulla repository (mostra il log dei commit)   
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
-        discard=false;
+		discard=false;
 		Path directory = Paths.get(CLONED_PROJECT_DELIVERABLE1);
 		//ritorna la data dell'ultimo commit con quel bug nel commento
 		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
@@ -269,8 +269,8 @@ public class Main {
 						gettingLastCommit(line,br);
 
 					}
-				
-					
+
+
 				}
 
 			} catch (IOException ioe) {
@@ -310,7 +310,7 @@ public class Main {
 			line=line.trim();
 			String[] tokens = line.split("\\s+");
 			String bug= tokens[0];
-			
+
 			//ora prendo la data dell'ultimo commit
 			nextLine =br.readLine();
 
@@ -339,7 +339,7 @@ public class Main {
 				setFixedVersion(bug,date,filesAffected);
 			}
 			else if(ticketWithoutAV) {
-				  setFixVersionWithoutAv(bug,date,filesAffected);
+				setFixVersionWithoutAv(bug,date,filesAffected);
 			}
 
 
@@ -363,7 +363,7 @@ public class Main {
 
 				}
 			}
-			
+
 		}
 
 		private void setFixedVersion(String bug,LocalDate date,ArrayList<String> filesAffected) {
@@ -372,10 +372,10 @@ public class Main {
 				if(tickets.get(i).getKey().equals(bug)) {
 					//se è la prima versione
 					if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-						 fixedVers= String.valueOf(2);
+						fixedVers= String.valueOf(2);
 					}
 					else {
-						     fixedVers=iterateForFixVersion(date);
+						fixedVers=iterateForFixVersion(date);
 					}
 
 					tickets.get(i).setFixedVersion(fixedVers);
@@ -383,23 +383,23 @@ public class Main {
 					break;
 				}
 			}
-			
+
 		}
 
 		private String iterateForFixVersion(LocalDate date) {
-						
+
 			for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-				
+
 				if(a==fromReleaseIndexToDate.size()) {
 					return String.valueOf(a);
-					
+
 				}
-				
+
 				if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
 						&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 								(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
 					return String.valueOf(a+2);
-					
+
 				}
 			}
 			return String.valueOf(fromReleaseIndexToDate.size());
@@ -546,8 +546,8 @@ public class Main {
 				return;
 			}  
 
-		             settingAvgLoc(version,filename,addedLines,deletedLines,maxAddedlines,addedLinesForEveryRevision,
-		            		 total,average);
+			settingAvgLoc(version,filename,addedLines,deletedLines,maxAddedlines,addedLinesForEveryRevision,
+					total,average);
 
 		}
 
@@ -714,7 +714,7 @@ public class Main {
 				//discard of the local prefix to the file name (that depends to this program)
 
 				fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+projectName)+"\\").toString(), "");
-				//System.out.println(s);
+
 				//ci si costruisce una HashMap con la data di creazione dei file java
 
 				//il comando git log prende percorsi con la '/'
@@ -865,8 +865,8 @@ public class Main {
 		JSONObject json ;
 		JSONArray issues;
 		String outname;
-		
-		          doDeliverable1();
+
+		doDeliverable1();
 		//
 		//	
 		//
@@ -954,10 +954,8 @@ public class Main {
 
 
 		searchingForDateOfCreation = false;
-		System.out.println("fileNameOfFirstHalf= "+fileNameOfFirstHalf.size());
 
 		//----------------------------------------------
-		//System.out.println(fileNameOfFirstHalf);
 
 
 		int num=0;
@@ -1058,7 +1056,6 @@ public class Main {
 							for(int k=0;k<releases.size();k++) {
 								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
 									affVers=String.valueOf(k+1);
-									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
 									break;
 								}
 							}
@@ -1073,7 +1070,6 @@ public class Main {
 							for(int k=0;k<releases.size();k++) {
 								if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
 									affVers=String.valueOf(k+1);
-									//System.out.println("Data richiesta trovata="+affReleaseDate.atStartOfDay()+" vers:"+k+1);
 									break;
 								}
 							}
@@ -1085,7 +1081,6 @@ public class Main {
 				if (Integer.parseInt(createdVers)>=Integer.parseInt(affVers)) {
 					tick= new TicketTakenFromJIRA(key, createdVers, affVers);
 					tickets.add(tick);
-					//System.out.println(tick.getKey()+" "+tick.getCreatedVersion()+" "+tick.getAffectedVersion());
 				}
 			}  
 		} while (i < total);
@@ -1503,7 +1498,7 @@ public class Main {
 		JSONArray issues;
 		String outname;
 
-		
+
 		//Get JSON API for closed bugs w/ AV in the project
 		do {
 			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
@@ -1597,7 +1592,7 @@ public class Main {
 
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
-		
+
 	}
 
 }
