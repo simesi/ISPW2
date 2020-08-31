@@ -283,8 +283,9 @@ public class Main {
 				dateTime = date.atStartOfDay();
 
 				fromFileNameToDateOfCreation.put(file,dateTime);
+				String uselessLines = null;
 				//le date ulteriori vengono ignorate
-				while((br.readLine())!=null) {
+				while((uselessLines=br.readLine())!=null) {
 					//si ignorano le date ulteriori
 				}
 			}
