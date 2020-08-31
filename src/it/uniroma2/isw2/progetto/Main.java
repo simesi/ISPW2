@@ -908,7 +908,6 @@ public class Main {
 
 		File csvFile = new File(outname);
 		if (!csvFile.isFile()) {
-			System.out.println("Error while opening file csv !!!");
 			System.exit(-1);
 		}
 
@@ -1005,7 +1004,6 @@ public class Main {
 				csvReader.close();
 
 			} catch (Exception e) {
-				System.out.println("Error in csv writer");
 				e.printStackTrace();
 			} finally {
 				try {
@@ -1014,7 +1012,6 @@ public class Main {
 					fileWriterTest.flush();
 					fileWriterTest.close();
 				} catch (IOException e) {
-					System.out.println("Error while flushing/closing fileWriter !!!");
 					e.printStackTrace();
 				}
 			}
@@ -1088,7 +1085,6 @@ public class Main {
 					}
 
 				} catch (Exception e) {
-					System.out.println("Error in csv writer");
 					e.printStackTrace();
 				}
 				
@@ -1428,7 +1424,6 @@ public class Main {
 		calculatingLOC = true;
 		//per ogni indice di versione nella primà metà delle release
 		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
-			System.out.println("release "+i);
 			
 			//per ogni file
 			for (String s : fileNameOfFirstHalf) {
