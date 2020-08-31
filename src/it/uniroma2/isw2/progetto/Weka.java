@@ -48,7 +48,7 @@ public class Weka {
 
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
 	public void doClassificationMilestone2(int maxVersion, String projectName) {
-		
+
 		String name = projectName+" Deliverable 2 Milestone 2.csv";
 		//ora si classifica ------------------------- 
 
@@ -58,15 +58,14 @@ public class Weka {
 		{
 			fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
 			fileWriter.append("\n");
-
-
+			
 		for(int version=2;version<=maxVersion;version++) {
 
 			String arffNameFileTrain = "";
 			String arffNameFileTest = "";
 
 			//prima ci si crea un file arff da quello csv
-			try {
+			
 				// load CSV
 				CSVLoader loader = new CSVLoader();
 				loader.setSource(new File(projectName+TRAINING_FOR_RELEASE+version+".csv"));
@@ -84,22 +83,17 @@ public class Weka {
 				saver.writeBatch();
 
 
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(-1);
-			}
-
 
 
 			//adesso ci si crea l'arff per il testing
-			try {
+			
 				// load CSV
-				CSVLoader loader = new CSVLoader();
+				 loader = new CSVLoader();
 				loader.setSource(new File(projectName+TESTING_FOR_RELEASE+version+".csv"));
-				Instances data = loader.getDataSet();
+				data = loader.getDataSet();
 
 				// save ARFF
-				ArffSaver saver = new ArffSaver();
+				saver = new ArffSaver();
 				saver.setInstances(data);
 
 
@@ -109,12 +103,8 @@ public class Weka {
 				saver.setFile(new File(arffNameFileTest));
 				saver.writeBatch();
 
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(-1);
-			}
 
-			
+
 				//load datasets
 				DataSource source1 = new DataSource(arffNameFileTrain);
 				Instances training = source1.getDataSet();
@@ -184,7 +174,6 @@ public class Weka {
 
 			}
 		}
-
 			catch (Exception e) {
 				e.printStackTrace();
 				System.exit(-1);

@@ -58,7 +58,7 @@ public class Main {
 	private static String projectName ="MAHOUT"; //per il Deliverable 1
 	private static String projectNameGit ="apache/mahout.git"; //per il Deliverable 1
 	private static final String CLONED_PROJECT_DELIVERABLE1 = new File("").getAbsolutePath()+"\\"+projectName;	// This give me the localPath of the application where it is installed
-	private static final String CSV_PATH_DELIVERABLE1 = Paths.get(new File("").getAbsolutePath())+"\\Dati Deliverable 1.csv";
+	private static final String CSV_PATH_DELIVERABLE1 = Paths.get(new File("").getAbsolutePath())+"\\Deliverable 1.csv";
 
 	private static final int YEARS_INTERVAL=14; //range degli anni passati su cui cercare (per deliverable 1)
 	private static final boolean COLLECT_DATA_AS_YEARS = false;  //impostare come true per impostare come unità di misura del control chart un anno
