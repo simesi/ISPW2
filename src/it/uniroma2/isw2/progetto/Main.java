@@ -247,7 +247,7 @@ public class Main {
 					if(!startToExecDeliverable2) {
 						collectDataDeliverable1(line);
 					}
-					else if (startToExecDeliverable2&&searchingForDateOfCreation) {
+					else if (searchingForDateOfCreation) {
 
 						//levo l'ultimo carattere introdotto (per errore) nel replace a monte
 						String file = line.substring(0, line.length()-1);
@@ -267,7 +267,7 @@ public class Main {
 						}
 					}
 
-					else if (startToExecDeliverable2&&calculatingLOC) {
+					else if (calculatingLOC) {
 
 						String nextLine;
 						String version;
@@ -326,7 +326,7 @@ public class Main {
 						break;//fa uscire dal while principale
 					}
 
-					else if (startToExecDeliverable2&&calculatingLocTouched) {
+					else if (calculatingLocTouched) {
 						String version;
 						ArrayList<Integer> addedLinesForEveryRevision=new ArrayList<Integer>();
 						String nextLine;
@@ -396,7 +396,7 @@ public class Main {
 
 					}
 
-					else if (startToExecDeliverable2&&calculatingNAuth) {
+					else if (calculatingNAuth) {
 
 						String nextLine;
 						int version;
@@ -430,7 +430,7 @@ public class Main {
 						}
 
 					}
-					else if (startToExecDeliverable2&&gettingLastCommit) {
+					else if (gettingLastCommit) {
 						String nextLine;
 						ArrayList<String> filesAffected = new ArrayList<String>();
 						line=line.trim();
