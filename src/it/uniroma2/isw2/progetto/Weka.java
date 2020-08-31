@@ -39,18 +39,18 @@ public class Weka {
 	String projectName;
 	Instances noFilterTraining;
 	Instances testing;
-	Evaluation eval = null;
-	Resample resample = null;
+	Evaluation eval;
+	Resample resample;
 	DecimalFormat numberFormat = new DecimalFormat("0.00");
-	String myClassificator=null;
+	String myClassificator;
 	int writeHeader=1;
 
 
 
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
-	public void doClassificationMilestone2(int maxVersion, String projectName) {
+	public void doClassificationMilestone2(int maxVersion, String dataSet) {
 
-		String name = projectName+" Deliverable 2 Milestone 2.csv";
+		String name = dataSet+" Deliverable 2 Milestone 2.csv";
 		//ora si classifica ------------------------- 
 
 		try (   	//True = Append to file, false = Overwrite
@@ -69,7 +69,7 @@ public class Weka {
 			
 				// load CSV
 				CSVLoader loader = new CSVLoader();
-				loader.setSource(new File(projectName+TRAINING_FOR_RELEASE+version+".csv"));
+				loader.setSource(new File(dataSet+TRAINING_FOR_RELEASE+version+".csv"));
 				Instances data = loader.getDataSet();
 
 				// save ARFF
@@ -77,7 +77,7 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				arffNameFileTrain = projectName+TRAINING_FOR_RELEASE+version+ARFF;
+				arffNameFileTrain = dataSet+TRAINING_FOR_RELEASE+version+ARFF;
 
 
 				saver.setFile(new File(arffNameFileTrain));
@@ -86,11 +86,11 @@ public class Weka {
 
 
 
-			//adesso ci si crea l'arff per il testing
+			//adesso ci si crea l'arff per il my_test
 			
 				// load CSV
 				 loader = new CSVLoader();
-				loader.setSource(new File(projectName+TESTING_FOR_RELEASE+version+".csv"));
+				loader.setSource(new File(dataSet+TESTING_FOR_RELEASE+version+".csv"));
 				data = loader.getDataSet();
 
 				// save ARFF
@@ -98,7 +98,7 @@ public class Weka {
 				saver.setInstances(data);
 
 
-				arffNameFileTest = projectName +TESTING_FOR_RELEASE+version+ARFF;
+				arffNameFileTest = dataSet +TESTING_FOR_RELEASE+version+ARFF;
 
 
 				saver.setFile(new File(arffNameFileTest));
@@ -111,11 +111,11 @@ public class Weka {
 				Instances training = source1.getDataSet();
 
 				DataSource source2 = new DataSource(arffNameFileTest);
-				testing = source2.getDataSet();
+				Instances my_test = source2.getDataSet();
 
 				int numAttr = training.numAttributes();
 				training.setClassIndex(numAttr - 1); //leviamo 1 perchè l'ultima colonna la vogliamo stimare 
-				testing.setClassIndex(numAttr - 1);
+				my_test.setClassIndex(numAttr - 1);
 
 				//per ogni classificatore
 				for(int n=1;n<=3;n++) {
@@ -126,9 +126,9 @@ public class Weka {
 						myClassificator ="NaiveBayes";
 						classifier.buildClassifier(training); //qui si fa il training
 
-						eval = new Evaluation(testing);	
+						eval = new Evaluation(my_test);	
 
-						eval.evaluateModel(classifier, testing); 
+						eval.evaluateModel(classifier, my_test); 
 					}
 
 					else if (n==2) {
@@ -137,9 +137,9 @@ public class Weka {
 						myClassificator ="RandomForest";
 						classifier.buildClassifier(training); //qui si fa il training
 
-						eval = new Evaluation(testing);	
+						eval = new Evaluation(my_test);	
 
-						eval.evaluateModel(classifier, testing); 
+						eval.evaluateModel(classifier, my_test); 
 					}
 					else if (n==3) {
 						//Ibk---------------
@@ -147,16 +147,15 @@ public class Weka {
 						myClassificator ="IBk";
 						classifier.buildClassifier(training); //qui si fa il training
 
-						eval = new Evaluation(testing);	
+						eval = new Evaluation(my_test);	
 
-						eval.evaluateModel(classifier, testing); 
+						eval.evaluateModel(classifier, my_test); 
 					}
 
 					//ora si scrive file csv coi risultati
 
 
-
-					fileWriter.append(projectName);
+					fileWriter.append(dataSet);
 					fileWriter.append(",");
 					fileWriter.append(String.valueOf(version-1));
 					fileWriter.append(",");

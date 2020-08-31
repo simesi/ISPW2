@@ -854,7 +854,7 @@ public class Main {
 		doDeliverable1();
 
 		//		//-------------------------------------------------------------------------------------------------
-		//	//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
+		//	//INIZIO MILESTONE 1 DELIVERABLE 2 
 
 		findReleaseAndFilesJava();
 
@@ -885,7 +885,7 @@ public class Main {
 
 		//creo due file CSV (uno per il training con le vecchie release e uno per il testing) per ogni release
 
-		projectName= "BOOKKEEPER";
+		projectName= "OPENJPA";
 
 		outname = projectName + " Deliverable 2 Milestone 1.csv";
 		String csvTrain;
@@ -1425,8 +1425,8 @@ public class Main {
 
 		Integer i = 0;
 		JSONObject json ;
-		projectName ="BOOKKEEPER";//"OPENJPA"
-		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git"
+		projectName ="OPENJPA";
+		projectNameGit ="apache/openjpa.git";//"apache/bookkeeper.git"
 		startToExecDeliverable2=true;
 
 		//Fills the arraylist with releases dates and orders them
