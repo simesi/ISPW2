@@ -941,7 +941,6 @@ public class Main {
 						break;
 					}
 				}//fine while
-				csvReader.close();
 
 			} catch (Exception e) {
 				e.printStackTrace();

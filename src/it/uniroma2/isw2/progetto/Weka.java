@@ -48,6 +48,16 @@ public class Weka {
 
 	//questo metodo compara i risultati dei tre classificatori utilizzando la tecnica WalkForward
 	public void doClassificationMilestone2(int maxVersion, String projectName) {
+		
+		String name = projectName+" Deliverable 2 Milestone 2.csv";
+		//ora si classifica ------------------------- 
+
+		try (   	//True = Append to file, false = Overwrite
+				FileWriter fileWriter = new FileWriter(name,true);
+				)
+		{
+			fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
+			fileWriter.append("\n");
 
 
 		for(int version=2;version<=maxVersion;version++) {
@@ -104,16 +114,7 @@ public class Weka {
 				System.exit(-1);
 			}
 
-			String name = projectName+" Deliverable 2 Milestone 2.csv";
-			//ora si classifica ------------------------- 
-
-			try (   	//True = Append to file, false = Overwrite
-					FileWriter fileWriter = new FileWriter(name,true);
-					)
-			{
-				fileWriter.append("Dataset,#Training Release, Classifier, Precision, Recall, AUC, KAPPA");
-				fileWriter.append("\n");
-
+			
 				//load datasets
 				DataSource source1 = new DataSource(arffNameFileTrain);
 				Instances training = source1.getDataSet();
@@ -182,13 +183,14 @@ public class Weka {
 				}
 
 			}
+		}
 
 			catch (Exception e) {
 				e.printStackTrace();
 				System.exit(-1);
 			} 
 
-		}
+		
 
 	}
 
@@ -468,6 +470,7 @@ public class Weka {
 
 			}//fine fs
 		}catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
