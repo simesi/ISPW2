@@ -308,7 +308,6 @@ public class Main {
 			String filename="";
 			ArrayList<String> filesAffected = new ArrayList<>();
 			line=line.trim();
-			String fixedVers=null;
 			String[] tokens = line.split("\\s+");
 			String bug= tokens[0];
 			
@@ -355,20 +354,7 @@ public class Main {
 						fixedVers= String.valueOf(2);
 					}
 					else {
-						for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-							
-							if(a==fromReleaseIndexToDate.size()) {
-								fixedVers= String.valueOf(a);
-								break;
-							}
-							
-							if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-									&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-											(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-								fixedVers= String.valueOf(a+2);
-								break;
-							}
-						}
+						fixedVers=iterateForFixVersion(date);
 
 					}
 					ticketsWithoutAV.get(i).setFixedVersion(fixedVers);
