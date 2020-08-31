@@ -89,6 +89,7 @@ public class Main {
 	private static boolean ticketWithoutAV= false;
 
 	private static final String ECHO = "echo "; 
+	private static final String VERSIONS = VERSIONS;
 	private static final String FIELDS ="fields";
 	private static final String FORMATNUMSTAT= " --format= --numstat -- ";
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
@@ -923,10 +924,10 @@ public class Main {
 
 				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
 
-				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray("versions").length();h++) {
-					if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray("versions").getJSONObject(h).has("releaseDate")) {
+				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).length();h++) {
+					if(issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).has("releaseDate")) {
 						//affVers è per es. 4.1.0
-						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray("versions").getJSONObject(h).get("releaseDate").toString();
+						affVersReleaseDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).getJSONArray(VERSIONS).getJSONObject(h).get("releaseDate").toString();
 						break;
 					}
 				}
@@ -1426,7 +1427,7 @@ public class Main {
 		
 		String url = "https://issues.apache.org/jira/rest/api/2/project/" + projectName;
 		json = readJsonFromUrl(url);
-		JSONArray versions = json.getJSONArray("versions");
+		JSONArray versions = json.getJSONArray(VERSIONS);
 		releaseNames = new HashMap<LocalDateTime, String>();
 		releaseID = new HashMap<LocalDateTime, String> ();
 		for (i = 0; i < versions.length(); i++ ) {
