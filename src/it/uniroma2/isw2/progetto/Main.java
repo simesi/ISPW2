@@ -1485,13 +1485,15 @@ public class Main {
 						name,id);
 			}
 		}
-		// order releases by date
-		Collections.sort(releases, new Comparator<LocalDateTime>(){
+		
+		Comparator<LocalDateTime> comp =new Comparator<LocalDateTime>() {
 			//@Override
 			public int compare(LocalDateTime o1, LocalDateTime o2) {
 				return o1.compareTo(o2);
 			}
-		});
+		};
+		// order releases by date
+		Collections.sort(releases, comp);
 
 
 
@@ -1516,7 +1518,7 @@ public class Main {
 
 		File folder = new File(projectName);
 		List<String> files = new ArrayList<>();
-		fileNameOfFirstHalf = new ArrayList<String>();
+		fileNameOfFirstHalf = new ArrayList<>();
 
 		//search for java files in the cloned repository
 		searchFileJava(folder, files);
