@@ -1,6 +1,5 @@
 package it.uniroma2.isw2.progetto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TicketTakenFromJIRA {
@@ -89,7 +88,7 @@ public class TicketTakenFromJIRA {
 	 * @param fixedVersion the fixedVersion to set
 	 */
 	public void setFixedVersion(String fixedVersion) {
-		fixedVersion = fixedVersion;
+		this.fixedVersion = fixedVersion;
 	}
 
 

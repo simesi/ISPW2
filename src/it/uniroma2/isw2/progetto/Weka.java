@@ -179,7 +179,7 @@ public class Weka {
 	}
 
 
-	public void doClassificationMilestone3(int Maxversion, String ProjectName) {
+	public void doClassificationMilestone3(int maxversion, String projectName) {
 
 
 		String myClassificator=null;
@@ -191,7 +191,7 @@ public class Weka {
 		int numDefectiveTest=0;
 		int percentInstOfMajorityClass=0;
 		Resample resample= null;
-		String name = ProjectName+" Deliverable 2 Milestone 3.csv";
+		String name = projectName+" Deliverable 2 Milestone 3.csv";
 
 		try (
 				//True = Append to file, false = Overwrite
@@ -205,12 +205,12 @@ public class Weka {
 			fileWriter.append("\n");
 
 
-			for(int version=2;version<=Maxversion;version++) {
+			for(int version=2;version<=maxversion;version++) {
 
 
-				DataSource source = new DataSource(ProjectName +TRAINING_FOR_RELEASE+version+ARFF);
+				DataSource source = new DataSource(projectName +TRAINING_FOR_RELEASE+version+ARFF);
 
-				DataSource source2 = new DataSource(ProjectName +TESTING_FOR_RELEASE+version+ARFF);
+				DataSource source2 = new DataSource(projectName +TESTING_FOR_RELEASE+version+ARFF);
 
 				Instances noFilterTraining = source.getDataSet();
 				Instances testing = source2.getDataSet();
@@ -674,7 +674,7 @@ public class Weka {
 
 
 
-							fileWriter.append(ProjectName);
+							fileWriter.append(projectName);
 							fileWriter.append(",");
 							fileWriter.append(String.valueOf(version-1));
 							fileWriter.append(",");
