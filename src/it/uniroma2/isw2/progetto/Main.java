@@ -74,21 +74,20 @@ public class Main {
 	public static Map<LocalDateTime, String> releaseID;
 	public static List<LocalDateTime> releases;
 	private static Map<String,LocalDateTime> fromReleaseIndexToDate=new HashMap<>();
-	private static Map<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<String,LocalDateTime>();
+	private static Map<String,LocalDateTime> fromFileNameToDateOfCreation=new HashMap<>();
 	private static List<String> fileNameOfFirstHalf;
 	private static List<LineOfDataset> arrayOfEntryOfDataset;
 	private static List<TicketTakenFromJIRA> tickets;
 	private static List<TicketTakenFromJIRA> ticketsWithoutAV;
 
-	public static boolean searchingForDateOfCreation = false;
+	private static boolean searchingForDateOfCreation = false;
 	private static boolean calculatingLOC=false;
 	private static boolean calculatingLOC_Touched=false;
 	private static boolean calculatingNAuth=false;
 	private static boolean gettingLastCommit=false;
 	private static boolean ticketWithAV= false;
 	private static boolean ticketWithoutAV= false;
-
-	private static String outname;
+	
 	private static final String ECHO = "echo "; 
 
 	//--------------------------
@@ -813,6 +812,7 @@ public class Main {
 		Integer total = 1;
 		JSONObject json ;
 		JSONArray issues;
+		String outname;
 
 		ArrayList<String> ticketIDList;
 		//Get JSON API for closed bugs w/ AV in the project
