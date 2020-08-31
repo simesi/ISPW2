@@ -111,11 +111,11 @@ public class Weka {
 				Instances training = source1.getDataSet();
 
 				DataSource source2 = new DataSource(arffNameFileTest);
-				Instances my_test = source2.getDataSet();
+				Instances myTest = source2.getDataSet();
 
 				int numAttr = training.numAttributes();
 				training.setClassIndex(numAttr - 1); //leviamo 1 perchè l'ultima colonna la vogliamo stimare 
-				my_test.setClassIndex(numAttr - 1);
+				myTest.setClassIndex(numAttr - 1);
 
 				//per ogni classificatore
 				for(int n=1;n<=3;n++) {
@@ -126,9 +126,9 @@ public class Weka {
 						myClassificator ="NaiveBayes";
 						classifier.buildClassifier(training); //qui si fa il training
 
-						eval = new Evaluation(my_test);	
+						eval = new Evaluation(myTest);	
 
-						eval.evaluateModel(classifier, my_test); 
+						eval.evaluateModel(classifier, myTest); 
 					}
 
 					else if (n==2) {
@@ -137,9 +137,9 @@ public class Weka {
 						myClassificator ="RandomForest";
 						classifier.buildClassifier(training); //qui si fa il training
 
-						eval = new Evaluation(my_test);	
+						eval = new Evaluation(myTest);	
 
-						eval.evaluateModel(classifier, my_test); 
+						eval.evaluateModel(classifier, myTest); 
 					}
 					else if (n==3) {
 						//Ibk---------------
@@ -147,9 +147,9 @@ public class Weka {
 						myClassificator ="IBk";
 						classifier.buildClassifier(training); //qui si fa il training
 
-						eval = new Evaluation(my_test);	
+						eval = new Evaluation(myTest);	
 
-						eval.evaluateModel(classifier, my_test); 
+						eval.evaluateModel(classifier, myTest); 
 					}
 
 					//ora si scrive file csv coi risultati
