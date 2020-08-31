@@ -80,6 +80,7 @@ public class Main {
 	private static List<TicketTakenFromJIRA> ticketsWithoutAV;
 
 	private static boolean searchingForDateOfCreation = false;
+	private static boolean discard=true;
 	private static boolean calculatingLOC=false;
 	private static boolean calculatingLocTouched=false;
 	private static boolean calculatingNAuth=false;
@@ -136,12 +137,12 @@ public class Main {
 
 	//questo metodo fa il comando'git log' del bug sulla repository (mostra il log dei commit)   
 	private static void gitLogOfBug(String id) throws IOException, InterruptedException{
-
+        discard=false;
 		Path directory = Paths.get(CLONED_PROJECT_DELIVERABLE1);
 		//ritorna la data dell'ultimo commit con quel bug nel commento
 		runCommand(directory, "git", "log", "--grep="+id+":", "-1",
 				"--date=short", "--pretty=format:\"%cd\"");
-
+		discard=true;
 
 	}
 
@@ -241,7 +242,7 @@ public class Main {
 
 
 				while ((line = br.readLine()) != null) {
-					if(!startToExecDeliverable2) {
+					if(!startToExecDeliverable2&&!discard) {
 						collectDataDeliverable1(line);
 					}
 					else if (searchingForDateOfCreation) {
@@ -267,10 +268,8 @@ public class Main {
 						gettingLastCommit(line,br);
 
 					}
-
-					else {
-
-					}
+				
+					
 				}
 
 			} catch (IOException ioe) {
@@ -295,7 +294,7 @@ public class Main {
 
 				fromFileNameToDateOfCreation.put(file,dateTime);
 				//le date ulteriori vengono ignorate
-				while((line = br.readLine())!=null) {
+				while((br.readLine())!=null) {
 					//si ignorano le date ulteriori
 				}
 			}
@@ -306,12 +305,12 @@ public class Main {
 
 			String nextLine;
 			String filename="";
-			ArrayList<String> filesAffected = new ArrayList<String>();
+			ArrayList<String> filesAffected = new ArrayList<>();
 			line=line.trim();
 			String fixedVers=null;
 			String[] tokens = line.split("\\s+");
 			String bug= tokens[0];
-			//System.out.println("bug ="+bug);
+			
 			//ora prendo la data dell'ultimo commit
 			nextLine =br.readLine();
 
@@ -323,7 +322,6 @@ public class Main {
 
 			//prendo anno mese e giorno dell'ultimo commit
 			LocalDate date =LocalDate.parse(nextLine.substring(0, 10));
-			//System.out.println("data ="+date);
 			//ora prendo i file modificati aventi quel bug nel commento del commit 
 			nextLine =br.readLine();
 
@@ -339,30 +337,7 @@ public class Main {
 			}
 
 			if(ticketWithAV) {
-				for (int i = 0; i < tickets.size(); i++) {
-					if(tickets.get(i).getKey().equals(bug)) {
-						//se è la prima versione
-						if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-							fixedVers= String.valueOf(2);
-							//System.out.println("fixed version ="+fixedVers);
-						}
-						else {
-							for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-								if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-										&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-												(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-									fixedVers= String.valueOf(a+2);
-									//System.out.println("fixed version ="+fixedVers);
-									break;
-								}
-							}
-						}
-
-						tickets.get(i).setFixedVersion(fixedVers);
-						tickets.get(i).setFilenames(filesAffected);
-						break;
-					}
-				}
+				setFixedVersion(bug,date,filesAffected);
 			}
 			else if(ticketWithoutAV) {
 				for (int i = 0; i < tickets.size(); i++) {
@@ -391,6 +366,34 @@ public class Main {
 			}
 
 
+		}
+
+		private void setFixedVersion(String bug,LocalDate date,ArrayList<String> filesAffected) {
+			String fixedVers=String.valueOf(fromReleaseIndexToDate.size());
+			for (int i = 0; i < tickets.size(); i++) {
+				if(tickets.get(i).getKey().equals(bug)) {
+					//se è la prima versione
+					if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+						 fixedVers= String.valueOf(2);
+						//System.out.println("fixed version ="+fixedVers);
+					}
+					else {
+						for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+							if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+									&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+											(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+								fixedVers= String.valueOf(a+2);
+								break;
+							}
+						}
+					}
+
+					tickets.get(i).setFixedVersion(fixedVers);
+					tickets.get(i).setFilenames(filesAffected);
+					break;
+				}
+			}
+			
 		}
 
 		private void calculatingNauth(String line, BufferedReader br) throws IOException {
@@ -992,7 +995,9 @@ public class Main {
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
 		try {
+			discard=true;
 			gitClone();	
+			discard=false;
 		}
 		catch (InterruptedException e) {
 			e.printStackTrace();
