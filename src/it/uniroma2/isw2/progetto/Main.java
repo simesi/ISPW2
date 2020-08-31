@@ -132,7 +132,7 @@ public class Main {
 			directory = Paths.get(CLONED_PROJECT_DELIVERABLE1);
 		}
 		else {
-			directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
+			directory = Paths.get(new File("").getAbsolutePath()+SLASH+projectName);
 		}
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 
@@ -671,7 +671,7 @@ public class Main {
 	public static void getCreationDate(String filename) {
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
+		Path directory = Paths.get(new File("").getAbsolutePath()+SLASH+projectName);
 
 		//chiamata per ottenere la data di creazione del file e inserirla in una hashMap
 		try {
@@ -715,7 +715,7 @@ public class Main {
 				fileRenamed=f.getAbsolutePath();
 				//discard of the local prefix to the file name (that depends to this program)
 
-				fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+"\\"+projectName)+"\\").toString(), "");
+				fileRenamed=fileRenamed.replace((Paths.get(new File("").getAbsolutePath()+SLASH+projectName)+SLASH).toString(), "");
 
 				//ci si costruisce una HashMap con la data di creazione dei file java
 
@@ -734,7 +734,7 @@ public class Main {
 
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
+		Path directory = Paths.get(new File("").getAbsolutePath()+SLASH+projectName);
 		String command;
 
 		try {
@@ -756,7 +756,7 @@ public class Main {
 
 	private static void getLOCMetrics(String filename, Integer i) {
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
+		Path directory = Paths.get(new File("").getAbsolutePath()+SLASH+projectName);
 		String command;
 
 		try {
@@ -782,7 +782,7 @@ public class Main {
 	private static void getNumberOfAuthors(String filename, Integer i) {
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
+		Path directory = Paths.get(new File("").getAbsolutePath()+SLASH+projectName);
 		String command;
 
 		try {
@@ -803,7 +803,7 @@ public class Main {
 	private static void getLastCommitOfBug(String id) throws IOException, InterruptedException{
 
 		//directory da cui far partire il comando git    
-		Path directory = Paths.get(new File("").getAbsolutePath()+"\\"+projectName);
+		Path directory = Paths.get(new File("").getAbsolutePath()+SLASH+projectName);
 		String command;
 
 		try {    //ritorna id bug, data dell'ultimo commit con quel bug nel commento e una lista di tutti i file java modificati
@@ -889,7 +889,7 @@ public class Main {
 
 
 		//cancellazione directory clonata locale del progetto   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+		recursiveDelete(new File(new File("").getAbsolutePath()+SLASH+projectName));
 
 
 
@@ -1495,7 +1495,7 @@ public class Main {
 
 
 		//cancellazione preventiva della directory clonata del progetto (se esiste)   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+		recursiveDelete(new File(new File("").getAbsolutePath()+SLASH+projectName));
 		try {
 			discard=true;
 			gitClone();	
