@@ -504,7 +504,6 @@ public class Main {
 									//se è la prima versione
 									if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
 										fixedVers= String.valueOf(2);
-										//System.out.println("fixed version ="+fixedVers);
 									}
 									else {
 										for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
@@ -512,7 +511,6 @@ public class Main {
 													&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
 															(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
 												fixedVers= String.valueOf(a+2);
-												//System.out.println("fixed version ="+fixedVers);
 												break;
 											}
 										}
@@ -528,7 +526,7 @@ public class Main {
 					}
 
 					else {
-						System.out.println("Linea fuori if: "+line);
+						
 					}
 				}
 
@@ -632,7 +630,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			 Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		}
 
 		int num= Math.floorDiv(fromReleaseIndexToDate.size(),2);
@@ -696,7 +694,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			 Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		}
 
 	}
@@ -721,7 +719,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			 Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		}
 
 
@@ -744,7 +742,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			 Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -765,7 +763,7 @@ public class Main {
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			 Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -794,12 +792,12 @@ public class Main {
 		}
 
 
-      if(validBugsFixed!=0) {
-		p=p/validBugsFixed;
-      }
-      else {
-    	  p=1;
-      }
+		if(validBugsFixed!=0) {
+			p=p/validBugsFixed;
+		}
+		else {
+			p=1;
+		}
 
 		if(p==0) {
 			return 1;
@@ -817,103 +815,103 @@ public class Main {
 		JSONArray issues;
 
 		ArrayList<String> ticketIDList;
-				//Get JSON API for closed bugs w/ AV in the project
-				do {
-					//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-					j = i + 1000;
-		
-					/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
-					String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-							+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-							+ "&fields=key,resolutiondate,created&startAt="
-							+ i.toString() + "&maxResults=" + j.toString();
-		
-		
-					 json = readJsonFromUrl(url);
-					 issues = json.getJSONArray("issues");
-					//ci si prende il numero totale di ticket recuperati
-					total = json.getInt("total");
-		
-					ticketIDList= new ArrayList<>();
-					yearsList= new ArrayList<>();
-					// si itera sul numero di ticket
-					for (; i < total && i < j; i++) {
-		
-						String key = issues.getJSONObject(i%1000).get("key").toString();
-		
-		
-						ticketIDList.add(key);
-		
-					}  
-				} while (i < total);
-		
-		
-				String myID;
-		
-				// INIZIO DELIVERABLE 1
-				//cancellazione preventiva della directory clonata del progetto (se già esistente)   
-				recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
-				try {
-					gitClone();	
-		
-					//abilito il salvataggio dei valori ottenuti dalla riga di output del processo che eseguirà il git log
-					storeData=true;
-					for ( i = 0; i < ticketIDList.size(); i++) {
-						myID=ticketIDList.get(i);
-						gitLogOfBug(myID);
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					Thread.currentThread().interrupt();
-					System.exit(-1);
-				}
-				finally {
-					//cancellazione directory clonata locale del progetto   
-					recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
-				}
-				Map<String, Integer> map = new HashMap<>();
-		
-		
-				//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
-				for(i=0;i<yearsList.size();i++) {
-					map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
-				}
-		
-				//aggiunta dei mesi con valori nulli
-				if(!COLLECT_DATA_AS_YEARS) {
-					// TreeMap to store values of HashMap 
-					TreeMap<String, Integer> sorted = new TreeMap<>(); 
-					// Copy all data from hashMap into TreeMap 
-					sorted.putAll(map); 
-		
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-					DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
-		
-					//si prende il primo e l'ultimo anno-mese ....
-					LocalDate firstdate = LocalDate.parse(sorted.firstKey()+"-01",formatter);
-					LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
-					//iteratore
-					LocalDate date = firstdate;
-		
-					// .... e si aggiungono i mesi tra i due periodi 			
-					while(date.isBefore(lastdate)) {
-						date =date.with(TemporalAdjusters.firstDayOfNextMonth());
-						sorted.put(date.format(formatterWithNoDay), 0);
-					}
-		
-					//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
-					sorted.putAll(map);
-					map=sorted;
-				}
-		
-		
-				writeCSV(map);
-				System.out.println("Finito deliverable 1");
-				
-				
-				//cancellazione directory clonata locale del progetto   
-						recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+		//Get JSON API for closed bugs w/ AV in the project
+		do {
+			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+			j = i + 1000;
+
+			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
+			String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
+					+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+					+ "&fields=key,resolutiondate,created&startAt="
+					+ i.toString() + "&maxResults=" + j.toString();
+
+
+			json = readJsonFromUrl(url);
+			issues = json.getJSONArray("issues");
+			//ci si prende il numero totale di ticket recuperati
+			total = json.getInt("total");
+
+			ticketIDList= new ArrayList<>();
+			yearsList= new ArrayList<>();
+			// si itera sul numero di ticket
+			for (; i < total && i < j; i++) {
+
+				String key = issues.getJSONObject(i%1000).get("key").toString();
+
+
+				ticketIDList.add(key);
+
+			}  
+		} while (i < total);
+
+
+		String myID;
+
+		// INIZIO DELIVERABLE 1
+		//cancellazione preventiva della directory clonata del progetto (se già esistente)   
+		recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
+		try {
+			gitClone();	
+
+			//abilito il salvataggio dei valori ottenuti dalla riga di output del processo che eseguirà il git log
+			storeData=true;
+			for ( i = 0; i < ticketIDList.size(); i++) {
+				myID=ticketIDList.get(i);
+				gitLogOfBug(myID);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+			System.exit(-1);
+		}
+		finally {
+			//cancellazione directory clonata locale del progetto   
+			recursiveDelete(new File(CLONED_PROJECT_DELIVERABLE1));
+		}
+		Map<String, Integer> map = new HashMap<>();
+
+
+		//popolamento map avente come chiave l'anno (e il mese se impostato COLLECT_DATA_AS_YEARS= false) e come value il numero di bug risolti
+		for(i=0;i<yearsList.size();i++) {
+			map.put(yearsList.get(i), (map.getOrDefault(yearsList.get(i), 0)+1));
+		}
+
+		//aggiunta dei mesi con valori nulli
+		if(!COLLECT_DATA_AS_YEARS) {
+			// TreeMap to store values of HashMap 
+			TreeMap<String, Integer> sorted = new TreeMap<>(); 
+			// Copy all data from hashMap into TreeMap 
+			sorted.putAll(map); 
+
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			DateTimeFormatter formatterWithNoDay = DateTimeFormatter.ofPattern("yyyy-MM");
+
+			//si prende il primo e l'ultimo anno-mese ....
+			LocalDate firstdate = LocalDate.parse(sorted.firstKey()+"-01",formatter);
+			LocalDate lastdate = LocalDate.parse(sorted.lastKey()+"-01",formatter);
+			//iteratore
+			LocalDate date = firstdate;
+
+			// .... e si aggiungono i mesi tra i due periodi 			
+			while(date.isBefore(lastdate)) {
+				date =date.with(TemporalAdjusters.firstDayOfNextMonth());
+				sorted.put(date.format(formatterWithNoDay), 0);
+			}
+
+			//con l'istruzione seguente i valori dele chiavi duplicate in 'sorted' verranno riscritte con i valori di 'map'.
+			sorted.putAll(map);
+			map=sorted;
+		}
+
+
+		writeCSV(map);
+		System.out.println("Finito deliverable 1");
+
+
+		//cancellazione directory clonata locale del progetto   
+		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
 
 		/*FINE DELIVERABLE 1*/
 
@@ -1075,7 +1073,7 @@ public class Main {
 				String createdDate= issues.getJSONObject(i%1000).getJSONObject("fields").get("created").toString().substring(0,10);
 
 				//le righe seguenti sono necessarie perchè Jira potrebbe non fornire le releaseDate delle versioni affette
-				
+
 				for(int h=0;h<issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").length();h++) {
 					if(issues.getJSONObject(i%1000).getJSONObject("fields").getJSONArray("versions").getJSONObject(h).has("releaseDate")) {
 						//affVers è per es. 4.1.0
@@ -1085,7 +1083,7 @@ public class Main {
 				}
 				//se la data dell'affected release non è stata presa allora si utilizerrà quella del bug più vicino temporalmente e se 
 				// non è consistente con la created version allora si ignorerà il bug con le righe successive di check
-				  
+
 
 				date = LocalDate.parse(createdDate,format);
 				affReleaseDate =LocalDate.parse(affVersReleaseDate,format);
@@ -1385,7 +1383,7 @@ public class Main {
 		//cancellazione directory clonata locale del progetto   
 		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
 
-		
+
 
 		//----------------------------------------------------------------------------
 
@@ -1410,8 +1408,8 @@ public class Main {
 
 		//se Deliverable 2 Milestone 1 non è stato eseguito allora scrivi a mano la release.size
 
-		  for(i=2;i<=(Math.floorDiv(releases.size(),2));i++) {
-		//for(i=2;i<=Math.floorDiv(14,2);i++) { //commenta questa linea e metti quella di sopra
+		for(i=2;i<=(Math.floorDiv(releases.size(),2));i++) {
+			//for(i=2;i<=Math.floorDiv(14,2);i++) { //commenta questa linea e metti quella di sopra
 			FileWriter fileWriterTrain=null;
 			FileWriter fileWriterTest=null;
 			try {
@@ -1524,21 +1522,21 @@ public class Main {
 		//a doClassification() gli si passa il max numero di versioni da classificare
 		w.doClassificationMilestone2(i, projectName);
 
-		
-	
-
-
-	//--------------------------------------------------------------------------------
-	//inizio ultima milestone Deliverable 2 
-
-
-
-    w.doClassificationMilestone3(i, projectName);
 
 
 
 
-    	return;
-    	}
-	
+		//--------------------------------------------------------------------------------
+		//inizio ultima milestone Deliverable 2 
+
+
+
+		w.doClassificationMilestone3(i, projectName);
+
+
+
+
+		return;
+	}
+
 }
