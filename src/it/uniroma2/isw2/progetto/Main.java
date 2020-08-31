@@ -1394,14 +1394,8 @@ public class Main {
 				//abbiamo raggiunto nel for l'ultima release
 				if(a==fromReleaseIndexToDate.size()) {
 					createdVers= String.valueOf(a);
-
-					for(int k=0;k<releases.size();k++) {
-						if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-							affVers=String.valueOf(k+1);
-							break;
-						}
-					}
-					return;
+                    affVers=getAffVers(affReleaseDate);
+					break;
 
 				}
 				else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
@@ -1409,13 +1403,8 @@ public class Main {
 								(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
 					createdVers= String.valueOf(a+1);
 
-					for(int k=0;k<releases.size();k++) {
-						if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
-							affVers=String.valueOf(k+1);
-							break;
-						}
-					}
-					return;
+					affVers= getAffVers(affReleaseDate);
+					break;
 				}
 			}
 		}
@@ -1425,6 +1414,19 @@ public class Main {
 			tick= new TicketTakenFromJIRA(key, createdVers, affVers);
 			tickets.add(tick);
 		}
+	}
+
+	
+	
+	
+	private static String getAffVers(LocalDate affReleaseDate) {
+		for(int k=0;k<releases.size();k++) {
+			if(releases.get(k).isEqual(affReleaseDate.atStartOfDay())) {
+				return String.valueOf(k+1);
+				
+			}
+		}
+		return String.valueOf(releases.size());
 	}
 
 	private static void calculateSomeMetrics() {
