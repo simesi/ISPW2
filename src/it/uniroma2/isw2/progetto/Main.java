@@ -546,18 +546,18 @@ public class Main {
 				return;
 			}  
 
-			settingAvgLoc(version,filename,addedLines,deletedLines,maxAddedlines,addedLinesForEveryRevision,
+			settingAvgLoc(version,filename,addedLines+deletedLines,maxAddedlines,addedLinesForEveryRevision,
 					total,average);
 
 		}
 
-		private void settingAvgLoc(String version,String filename,int addedLines,int deletedLines,int maxAddedlines,ArrayList<Integer> addedLinesForEveryRevision
+		private void settingAvgLoc(String version,String filename,int lines,int maxAddedlines,ArrayList<Integer> addedLinesForEveryRevision
 				,int total,int average) {
 			//si itera nell'arraylist per cercare l'oggetto giusto da scrivere 
 			for (int i = 0; i < arrayOfEntryOfDataset.size(); i++) {  
 				if((arrayOfEntryOfDataset.get(i).getVersion()==Integer.parseInt(version))&& 
 						arrayOfEntryOfDataset.get(i).getFileName().equals(filename)) {
-					arrayOfEntryOfDataset.get(i).setLOCTouched(addedLines+deletedLines);
+					arrayOfEntryOfDataset.get(i).setLOCTouched(lines);
 					arrayOfEntryOfDataset.get(i).setMAXLOCAdded(maxAddedlines);
 
 					//per il AVG_LOC_Added (è fatto solo sulle linee inserite)-----------------------
@@ -867,122 +867,17 @@ public class Main {
 		String outname;
 
 		doDeliverable1();
-		//
-		//	
-		//
+	
 		//		//-------------------------------------------------------------------------------------------------
-		//		//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
+		//	//INIZIO MILESTONE 1 DELIVERABLE 2 PROJECT 'BOOKKEEPER'
 
-		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
-		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
-		startToExecDeliverable2=true;
-
-		//Fills the arraylist with releases dates and orders them
-		//Ignores releases with missing dates
-		releases = new ArrayList<LocalDateTime>();
-		i=0;
-		String url = "https://issues.apache.org/jira/rest/api/2/project/" + projectName;
-		json = readJsonFromUrl(url);
-		JSONArray versions = json.getJSONArray("versions");
-		releaseNames = new HashMap<LocalDateTime, String>();
-		releaseID = new HashMap<LocalDateTime, String> ();
-		for (i = 0; i < versions.length(); i++ ) {
-			String name = "";
-			String id = "";
-			if(versions.getJSONObject(i).has("releaseDate")) {
-				if (versions.getJSONObject(i).has("name"))
-					name = versions.getJSONObject(i).get("name").toString();
-				if (versions.getJSONObject(i).has("id"))
-					id = versions.getJSONObject(i).get("id").toString();
-				addRelease(versions.getJSONObject(i).get("releaseDate").toString(),
-						name,id);
-			}
-		}
-		// order releases by date
-		Collections.sort(releases, new Comparator<LocalDateTime>(){
-			//@Override
-			public int compare(LocalDateTime o1, LocalDateTime o2) {
-				return o1.compareTo(o2);
-			}
-		});
-
-
-
-
-		//--------------------------------------------------------
-		///ORA CREO IL  DATASET
-
-
-		//cancellazione preventiva della directory clonata del progetto (se esiste)   
-		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
-		try {
-			discard=true;
-			gitClone();	
-			discard=false;
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-			Thread.currentThread().interrupt();
-			System.exit(-1);
-		}
-
-
-		File folder = new File(projectName);
-		List<String> files = new ArrayList<>();
-		fileNameOfFirstHalf = new ArrayList<String>();
-
-		//search for java files in the cloned repository
-		searchFileJava(folder, files);
-
-
-		//popolo un'HasMap con associazione indice di release-data delle release
-		for ( i = 1; i <= releases.size(); i++) {
-			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
-		}
-
-		searchingForDateOfCreation = true;
-
-
-
-		//per ogni file
-		for (String s : files) {
-			getCreationDate(s);
-		}
-
-
-		files.clear();
-
-
-		searchingForDateOfCreation = false;
+		   findReleaseAndFilesJava();
 
 		//----------------------------------------------
 
-
-		int num=0;
-		arrayOfEntryOfDataset= new ArrayList<LineOfDataset>();
-		calculatingLOC = true;
-		//per ogni indice di versione nella primà metà delle release
-		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
-			System.out.println("release "+i);
-			num=0;
-			//per ogni file
-			for (String s : fileNameOfFirstHalf) {
-				num++;
-				calculatingLOC = true;
-				//il metodo getChurnMetrics creerà l'arrayList di entry LineOfDataSet
-				getChurnMetrics(s,i);
-				calculatingLOC = false;
-				calculatingLocTouched = true;
-				//i metodi successivi modificano semplicemente le entry in quell'array
-				getLOCMetrics(s,i);
-				calculatingLocTouched = false;
-				calculatingNAuth= true;
-				getNumberOfAuthors(s,i);
-				calculatingNAuth= false;
-
-			}
-
-		} 
+           calculateSomeMetrics();
+	
+		
 
 
 
@@ -997,7 +892,7 @@ public class Main {
 
 			//%20 = spazio                      %22=virgolette
 			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
-			url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+			String url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
 					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created,versions&startAt="
@@ -1155,7 +1050,7 @@ public class Main {
 
 			//%20 = spazio                      %22=virgolette
 			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e SENZA affected version.
-			url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+			String url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
 					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
 					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,created&startAt="
@@ -1487,6 +1382,122 @@ public class Main {
 
 
 		return;
+	}
+
+	private static void calculateSomeMetrics() {
+		Integer i;
+		arrayOfEntryOfDataset= new ArrayList<LineOfDataset>();
+		calculatingLOC = true;
+		//per ogni indice di versione nella primà metà delle release
+		for(i=1;i<=Math.floorDiv(fromReleaseIndexToDate.size(),2);i++) {
+			System.out.println("release "+i);
+			
+			//per ogni file
+			for (String s : fileNameOfFirstHalf) {
+				calculatingLOC = true;
+				//il metodo getChurnMetrics creerà l'arrayList di entry LineOfDataSet
+				getChurnMetrics(s,i);
+				calculatingLOC = false;
+				calculatingLocTouched = true;
+				//i metodi successivi modificano semplicemente le entry in quell'array
+				getLOCMetrics(s,i);
+				calculatingLocTouched = false;
+				calculatingNAuth= true;
+				getNumberOfAuthors(s,i);
+				calculatingNAuth= false;
+
+			}
+
+		} 
+		
+	}
+
+	private static void findReleaseAndFilesJava() throws JSONException, IOException {
+		
+		Integer i = 0;
+		JSONObject json ;
+		projectName ="BOOKKEEPER";//"OPENJPA";//"BOOKKEEPER";
+		projectNameGit ="apache/bookkeeper.git";//"apache/openjpa.git";  // "apache/bookkeeper.git";
+		startToExecDeliverable2=true;
+
+		//Fills the arraylist with releases dates and orders them
+		//Ignores releases with missing dates
+		releases = new ArrayList<LocalDateTime>();
+		
+		String url = "https://issues.apache.org/jira/rest/api/2/project/" + projectName;
+		json = readJsonFromUrl(url);
+		JSONArray versions = json.getJSONArray("versions");
+		releaseNames = new HashMap<LocalDateTime, String>();
+		releaseID = new HashMap<LocalDateTime, String> ();
+		for (i = 0; i < versions.length(); i++ ) {
+			String name = "";
+			String id = "";
+			if(versions.getJSONObject(i).has("releaseDate")) {
+				if (versions.getJSONObject(i).has("name"))
+					name = versions.getJSONObject(i).get("name").toString();
+				if (versions.getJSONObject(i).has("id"))
+					id = versions.getJSONObject(i).get("id").toString();
+				addRelease(versions.getJSONObject(i).get("releaseDate").toString(),
+						name,id);
+			}
+		}
+		// order releases by date
+		Collections.sort(releases, new Comparator<LocalDateTime>(){
+			//@Override
+			public int compare(LocalDateTime o1, LocalDateTime o2) {
+				return o1.compareTo(o2);
+			}
+		});
+
+
+
+
+		//--------------------------------------------------------
+		///ORA CREO IL  DATASET
+
+
+		//cancellazione preventiva della directory clonata del progetto (se esiste)   
+		recursiveDelete(new File(new File("").getAbsolutePath()+"\\"+projectName));
+		try {
+			discard=true;
+			gitClone();	
+			discard=false;
+		}
+		catch (InterruptedException | IOException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+			System.exit(-1);
+		}
+
+
+		File folder = new File(projectName);
+		List<String> files = new ArrayList<>();
+		fileNameOfFirstHalf = new ArrayList<String>();
+
+		//search for java files in the cloned repository
+		searchFileJava(folder, files);
+
+
+		//popolo un'HasMap con associazione indice di release-data delle release
+		for ( i = 1; i <= releases.size(); i++) {
+			fromReleaseIndexToDate.put(i.toString(),releases.get(i-1));
+		}
+
+		searchingForDateOfCreation = true;
+
+
+
+		//per ogni file
+		for (String s : files) {
+			getCreationDate(s);
+		}
+
+
+		files.clear();
+
+
+		searchingForDateOfCreation = false;
+		
 	}
 
 	private static void doDeliverable1() throws IOException, JSONException {
