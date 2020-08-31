@@ -269,61 +269,7 @@ public class Main {
 
 					else if (calculatingLOC) {
 
-						String nextLine;
-						String version;
-						int sumOfRealDeletedLOC=0;
-						int realDeletedLOC=0;
-						int maxChurn=0;
-						int numberOfCommit=0;
-						line=line.trim();
-						//"one or more whitespaces = \\s+"
-						String[] tokens = line.split("\\s+");
-
-						//operazioni per il primo output che è il numero di versione------------------------------
-						version=tokens[0];
-						//--------------------------------------------------------- 
-
-						//lettura prox riga					      					      
-						nextLine =br.readLine();
-
-
-						while (nextLine != null) { 
-							//per NR
-							numberOfCommit=numberOfCommit+1;
-							nextLine=nextLine.trim();
-							tokens=nextLine.split("\\s+");
-							//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
-							addedLines=addedLines+Integer.parseInt(tokens[0]);
-							//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
-							deletedLines=deletedLines+Integer.parseInt(tokens[1]);
-							//per CHURN (togliamo i commit che hanno solo modificato il codice e quindi risultano +1 sia in linee aggiunte che in quelle eliminate)
-							if((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1]))<0){
-								realDeletedLOC=Integer.parseInt(tokens[1])-Integer.parseInt(tokens[0]);
-								sumOfRealDeletedLOC= sumOfRealDeletedLOC + realDeletedLOC;
-							}
-							//per MAX_CHURN
-							maxChurn=Math.max((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1])-realDeletedLOC), maxChurn);
-							filename=tokens[2];
-
-							nextLine =br.readLine();
-						}
-						//file non è stato ancora creato in questa versione
-						if (numberOfCommit==0) {
-							break;
-						}
-						//abbiamo raggiunto la fine (l'ultima riga ha il numero di versione)
-						LineOfDataset l=new LineOfDataset(Integer.parseInt(version),filename); //id versione, filename
-						l.setSize(addedLines-deletedLines);//set del valore di LOC
-						l.setNR(numberOfCommit);
-						l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
-						l.setMaxChurn(maxChurn);
-						if (numberOfCommit!=0) { 
-							l.setAVGChurn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
-						}
-						else {l.setAVGChurn(0);}
-						arrayOfEntryOfDataset.add(l);
-
-						break;//fa uscire dal while principale
+						calculatingLoc(line,br);
 					}
 
 					else if (calculatingLocTouched) {
@@ -462,6 +408,69 @@ public class Main {
 
 			}
 
+		}
+
+		private void calculatingLoc(String line, BufferedReader br) throws IOException {
+			String nextLine;
+			String filename= "";
+			int addedLines=0;
+			int deletedLines=0;
+			int maxAddedlines=0;
+			String version;
+			int sumOfRealDeletedLOC=0;
+			int realDeletedLOC=0;
+			int maxChurn=0;
+			int numberOfCommit=0;
+			line=line.trim();
+			//"one or more whitespaces = \\s+"
+			String[] tokens = line.split("\\s+");
+
+			//operazioni per il primo output che è il numero di versione------------------------------
+			version=tokens[0];
+			//--------------------------------------------------------- 
+
+			//lettura prox riga					      					      
+			nextLine =br.readLine();
+
+
+			while (nextLine != null) { 
+				//per NR
+				numberOfCommit=numberOfCommit+1;
+				nextLine=nextLine.trim();
+				tokens=nextLine.split("\\s+");
+				//si prende il primo valore (che sarà il numero di linee di codice aggiunte in un commit)
+				addedLines=addedLines+Integer.parseInt(tokens[0]);
+				//si prende il secondo valore (che sarà il numero di linee di codice rimosse in un commit)
+				deletedLines=deletedLines+Integer.parseInt(tokens[1]);
+				//per CHURN (togliamo i commit che hanno solo modificato il codice e quindi risultano +1 sia in linee aggiunte che in quelle eliminate)
+				if((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1]))<0){
+					realDeletedLOC=Integer.parseInt(tokens[1])-Integer.parseInt(tokens[0]);
+					sumOfRealDeletedLOC= sumOfRealDeletedLOC + realDeletedLOC;
+				}
+				//per MAX_CHURN
+				maxChurn=Math.max((Integer.parseInt(tokens[0])-Integer.parseInt(tokens[1])-realDeletedLOC), maxChurn);
+				filename=tokens[2];
+
+				nextLine =br.readLine();
+			}
+			//file non è stato ancora creato in questa versione
+			if (numberOfCommit==0) {
+				return;
+			}
+			//abbiamo raggiunto la fine (l'ultima riga ha il numero di versione)
+			LineOfDataset l=new LineOfDataset(Integer.parseInt(version),filename); //id versione, filename
+			l.setSize(addedLines-deletedLines);//set del valore di LOC
+			l.setNR(numberOfCommit);
+			l.setChurn(addedLines-deletedLines -sumOfRealDeletedLOC);
+			l.setMaxChurn(maxChurn);
+			if (numberOfCommit!=0) { 
+				l.setAVGChurn(Math.floorDiv(addedLines-deletedLines -sumOfRealDeletedLOC,numberOfCommit));
+			}
+			else {l.setAVGChurn(0);}
+			arrayOfEntryOfDataset.add(l);
+
+			return;//fa uscire dal while principale
+			
 		}
 
 		private void calculatingLocTouched(String line,BufferedReader br) throws IOException {
