@@ -1401,7 +1401,7 @@ public class Main {
 							break;
 						}
 					}
-					break;
+					return;
 
 				}
 				else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
@@ -1415,7 +1415,7 @@ public class Main {
 							break;
 						}
 					}
-					break;
+					return;
 				}
 			}
 		}
