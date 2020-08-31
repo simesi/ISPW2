@@ -93,7 +93,7 @@ public class Main {
 	private static final String FIELDS ="fields";
 	private static final String FORMATNUMSTAT= " --format= --numstat -- ";
 	private static final String URLJIRA="https://issues.apache.org/jira/rest/api/2/search?jql=project=%22";
-
+    private static final String PIECE_OF_URL_JIRA="%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR";
 	//--------------------------
 
 
@@ -883,78 +883,8 @@ public class Main {
          startToGetFixedVersWithAV();
          setBuggy();
 		
-
+         startToGetFixedVersWithoutAV();
 		
-
-		//ora prendiamo da jira tutti i ticket di bug chiusi SENZA affected version
-
-		//inizio operazioni per calcolo bugginess
-		ticketsWithoutAV=new ArrayList<TicketTakenFromJIRA>();
-		j=0;
-		i=0;
-		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affected version = null in the project
-		do {
-			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
-			j = i + 1000;
-
-			//%20 = spazio                      %22=virgolette
-			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e SENZA affected version.
-			String url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
-					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
-					+ "&fields=key,created&startAt="
-					+ i.toString() + "&maxResults=" + j.toString();
-
-
-			json = readJsonFromUrl(url);
-			issues = json.getJSONArray("issues");
-			//ci si prende il numero totale di ticket recuperati
-			total = json.getInt("total");
-
-			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-			String createdVers=null;
-			LocalDate date;
-			TicketTakenFromJIRA tick;
-
-			// si itera sul numero di ticket
-			for (; i < total && i < j; i++) {
-
-				String key = issues.getJSONObject(i%1000).get("key").toString();
-				String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
-
-
-
-				date = LocalDate.parse(createdDate,format);
-
-				//se è la prima versione
-				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
-					createdVers= String.valueOf(1);
-				}
-				else {
-					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
-
-						//abbiamo raggiunto nel for l'ultima release
-						if(a==fromReleaseIndexToDate.size()) {
-							createdVers= String.valueOf(a);
-							break;
-						}
-
-						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
-								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
-										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
-							createdVers= String.valueOf(a+1);
-
-							break;
-						}
-					}
-				}
-
-				tick= new TicketTakenFromJIRA(key, createdVers, null);
-				ticketsWithoutAV.add(tick);
-
-			}  
-		} while (i < total);
 
 		//ora si calcola la fixed version
 		gettingLastCommit=true;
@@ -1233,6 +1163,85 @@ public class Main {
 		return;
 	}
 
+	private static void startToGetFixedVersWithoutAV() throws JSONException, IOException {
+		Integer j=0;
+		Integer total=1;
+		JSONObject json ;
+		JSONArray issues;
+		Integer i=0;
+
+		//ora prendiamo da jira tutti i ticket di bug chiusi SENZA affected version
+
+		//inizio operazioni per calcolo bugginess
+		ticketsWithoutAV=new ArrayList<>();
+		j=0;
+		i=0;
+		//Get JSON API for ticket with Type == “Bug” AND (status == “Closed” OR status == “Resolved”) AND Resolution == “Fixed” AND affected version = null in the project
+		do {
+			//Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+			j = i + 1000;
+
+			//%20 = spazio                      %22=virgolette
+			//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e SENZA affected version.
+			String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20EMPTY"
+					+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+					+ "&fields=key,created&startAt="
+					+ i.toString() + "&maxResults=" + j.toString();
+
+
+			json = readJsonFromUrl(url);
+			issues = json.getJSONArray("issues");
+			//ci si prende il numero totale di ticket recuperati
+			total = json.getInt("total");
+
+			DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+			String createdVers=null;
+			LocalDate date;
+			TicketTakenFromJIRA tick;
+
+			// si itera sul numero di ticket
+			for (; i < total && i < j; i++) {
+
+				String key = issues.getJSONObject(i%1000).get("key").toString();
+				String createdDate= issues.getJSONObject(i%1000).getJSONObject(FIELDS).get("created").toString().substring(0,10);
+
+
+
+				date = LocalDate.parse(createdDate,format);
+
+				//se è la prima versione
+				if (date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(1)))){
+					createdVers= String.valueOf(1);
+				}
+				else {
+					for(int a=1;a<=fromReleaseIndexToDate.size();a++) {
+
+						//abbiamo raggiunto nel for l'ultima release
+						if(a==fromReleaseIndexToDate.size()) {
+							createdVers= String.valueOf(a);
+							break;
+						}
+
+						else if ((date.atStartOfDay().isAfter(fromReleaseIndexToDate.get(String.valueOf(a)))
+								&&(date.atStartOfDay().isBefore(fromReleaseIndexToDate.get(String.valueOf(a+1)))||
+										(date.atStartOfDay().isEqual(fromReleaseIndexToDate.get(String.valueOf(a+1))))))) {
+							createdVers= String.valueOf(a+1);
+
+							break;
+						}
+					}
+				}
+
+				tick= new TicketTakenFromJIRA(key, createdVers, null);
+				ticketsWithoutAV.add(tick);
+
+			}  
+		} while (i < total);
+
+		
+	}
+
 	private static void setBuggy() {
 
           int i;
@@ -1314,8 +1323,7 @@ public class Main {
 
 					//%20 = spazio                      %22=virgolette
 					//Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso, con risoluzione "fixed" e con affected version.
-					String url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-							+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
+					String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%22affectedVersion%22is%20not%20EMPTY"
 							+ "%20AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 							+ "&fields=key,created,versions&startAt="
 							+ i.toString() + "&maxResults=" + j.toString();
@@ -1535,8 +1543,7 @@ public class Main {
 			j = i + 1000;
 
 			/*Si ricavano tutti i ticket di tipo bug nello stato di risolto o chiuso e con risoluzione "fixed".*/
-			String url = URLJIRA+ projectName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
-					+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
+			String url = URLJIRA+ projectName + PIECE_OF_URL_JIRA+ "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22AND%20updated%20%20%3E%20endOfYear(-"+YEARS_INTERVAL+")"
 					+ "&fields=key,resolutiondate,created&startAt="
 					+ i.toString() + "&maxResults=" + j.toString();
 
