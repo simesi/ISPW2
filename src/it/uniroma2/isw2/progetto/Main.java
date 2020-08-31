@@ -1404,7 +1404,7 @@ public class Main {
 					createdVers= String.valueOf(a+1);
 
 					affVers= getAffVers(affReleaseDate);
-					break;
+					a=fromReleaseIndexToDate.size()+1;//per uscire dal for
 				}
 			}
 		}
